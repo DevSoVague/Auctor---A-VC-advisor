@@ -1,0 +1,43 @@
+[project]
+name = "frontier"
+version = "0.1.0"
+description = "Agent workflow that turns one disease area into cited, dated pursuits a biotech VC can act on"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "crewai>=1.15.37",
+    "fastapi>=0.162.2",
+    "httpx>=0.28.1",
+    "litellm>=1.108.2",
+    "openpyxl>=3.1.5",
+    "pgvector>=0.5.1",
+    "psycopg[binary]>=3.3.8",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.16.2",
+    "python-docx>=1.2.0",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.3",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.6,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
