@@ -1,23 +1,22 @@
 # core/profiles.yaml: exact model IDs from the Nebius Token Factory model list
-# (GET $NEBIUS_BASE_URL/models). Comments give the PRD's original pick where the
-# PRD model isn't available on our account and the closest one is used instead.
+# (GET $NEBIUS_BASE_URL/models). Picks follow Person 3's model comparison
+# (2026-11-07, agents A1, A2, A3, A6 on five models): gpt-oss-120b for day-to-day
+# work (fastest, complete output); Qwen3.5-397B and DeepSeek-V4-Flash for final
+# runs. Not used: Nemotron-3.5-Lightning ("not ready": 1 card instead of 5) and
+# GLM-5.1 (complete but slow: 195 s on A2; agent 7 on it stalled for 20+ min).
+# Agents 4, 5, 7 and 8 were not in that comparison; their picks are noted below.
 dev:
-  default: nvidia/Nemotron-3_5-Lightning
-  a2_mechanism: deepseek-ai/DeepSeek-V4-Flash-0731
-  a3_profile: deepseek-ai/DeepSeek-V4-Flash-0731
-  a6_redteam: zai-org/GLM-5.1                      # PRD: glm-5.3-flash
-  a7_citations: zai-org/GLM-5.1                    # PRD: glm-5.3-flash
-  a8_orchestrator: deepseek-ai/DeepSeek-V4-Flash-0731
+  default: openai/gpt-oss-120b                     # every agent in dev
 final:
   extract: deepseek-ai/DeepSeek-V4-Flash-0731
   embed: Qwen/Qwen3-Embedding-8B
-  a1_disease: deepseek-ai/DeepSeek-V4-Flash-0731   # PRD: deepseek-v4.1-flash-1017
-  a4_inactive: deepseek-ai/DeepSeek-V4-Flash-0731  # PRD: deepseek-v4.1-flash-1017
-  a5_active: deepseek-ai/DeepSeek-V4-Flash-0731    # PRD: deepseek-v4.1-flash-1017
-  a2_mechanism: moonshotai/Kimi-K2.6               # PRD: kimi-k3.1-pro
-  a3_profile: moonshotai/Kimi-K2.6                 # PRD: kimi-k3.1-pro
-  a8_orchestrator: moonshotai/Kimi-K2.6            # PRD: kimi-k3.1-pro
-  a6_redteam: zai-org/GLM-5.1                      # PRD: glm-5.3
-  a7_citations: zai-org/GLM-5.1                    # PRD: glm-5.3-flash
-  a7_escalate: moonshotai/Kimi-K2.6                # PRD: kimi-k3.1-pro
+  a1_disease: deepseek-ai/DeepSeek-V4-Flash-0731   # richest A1 (6 shifts) in the comparison
+  a2_mechanism: Qwen/Qwen3.5-397B-A17B             # consistent five-card A2
+  a3_profile: Qwen/Qwen3.5-397B-A17B               # complete A3; DeepSeek's had no cited claims
+  a4_inactive: deepseek-ai/DeepSeek-V4-Flash-0731  # not compared; fast, supports structured output
+  a5_active: deepseek-ai/DeepSeek-V4-Flash-0731    # not compared; fast, supports structured output
+  a6_redteam: deepseek-ai/DeepSeek-V4-Flash-0731   # sharpest A6, cites the retraction, 16 s vs Qwen's 48 s
+  a7_citations: deepseek-ai/DeepSeek-V4-Flash-0731 # not compared; fast, supports structured output
+  a7_escalate: Qwen/Qwen3.5-397B-A17B              # second opinion from a stronger model
+  a8_orchestrator: moonshotai/Kimi-K2.6            # not compared; unchanged
 fallbacks: [openai-mini, gemini-flash-lite]
