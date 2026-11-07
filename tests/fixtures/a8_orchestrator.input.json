@@ -1,0 +1,563 @@
+{
+  "why_now": {
+    "shifts": [
+      {
+        "on": "2019-05-14",
+        "type": "endpoint",
+        "effect_on": [
+          "time",
+          "cost"
+        ],
+        "summary": "Fixture: moderate-to-severe exacerbation rate accepted as a primary endpoint.",
+        "claims": [
+          {
+            "id": "a1-c1",
+            "agent": "a1_disease",
+            "text": "Fixture claim about exacerbation endpoints.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "pmid:FIXTURE-0001"
+            ]
+          }
+        ]
+      },
+      {
+        "on": "2023-03-02",
+        "type": "segment",
+        "effect_on": [
+          "selection"
+        ],
+        "summary": "Fixture: eosinophil count defines a type 2 segment.",
+        "claims": [
+          {
+            "id": "a1-c2",
+            "agent": "a1_disease",
+            "text": "Fixture claim about eosinophilic COPD.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "pmid:FIXTURE-0003"
+            ]
+          }
+        ]
+      },
+      {
+        "on": "2024-07-01",
+        "type": "negative",
+        "effect_on": [
+          "cost",
+          "selection"
+        ],
+        "summary": "Fixture: a new approved biologic raises the bar for the type 2 segment.",
+        "claims": [
+          {
+            "id": "a1-c3",
+            "agent": "a1_disease",
+            "text": "Fixture claim about a new standard of care.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "fda:FIXTURE-0002"
+            ]
+          }
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "name": "Eosinophilic COPD",
+        "inclusion_criteria": [
+          "Fixture: blood eosinophils >= 300 cells/uL",
+          "Fixture: >= 2 exacerbations in 12 months"
+        ],
+        "claims": [
+          {
+            "id": "a1-c4",
+            "agent": "a1_disease",
+            "text": "Fixture claim defining the segment.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "pmid:FIXTURE-0003"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Frequent exacerbators on triple therapy",
+        "inclusion_criteria": [
+          "Fixture: on inhaled triple therapy",
+          "Fixture: >= 2 exacerbations in 12 months"
+        ],
+        "claims": [
+          {
+            "id": "a1-c5",
+            "agent": "a1_disease",
+            "text": "Fixture reasoning about the segment.",
+            "kind": "reasoning",
+            "confidence": 0.5,
+            "source_ids": []
+          }
+        ]
+      }
+    ]
+  },
+  "survivors": [
+    {
+      "card": {
+        "id": "h1",
+        "mechanism": "PDE3/PDE4 inhibition",
+        "target_ids": [
+          "hgnc:FIXTURE-PDE4B"
+        ],
+        "direction": "inhibit",
+        "evidence_tier": 2,
+        "validation_level": "silver",
+        "modality": "inhaled small molecule",
+        "tractability": "Fixture: tractable with existing chemistry.",
+        "safety_clues": [
+          "Fixture: class-level GI tolerability signal."
+        ],
+        "biggest_uncertainty": "Fixture: effect size in the target segment.",
+        "rationale_other_conditions": "Fixture: same mechanism studied in asthma.",
+        "claims": [
+          {
+            "id": "a2-h1-c1",
+            "agent": "a2_mechanism",
+            "text": "Fixture claim supporting PDE3/PDE4 inhibition.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "ot:FIXTURE-0001",
+              "pmid:FIXTURE-0001"
+            ]
+          }
+        ]
+      },
+      "profile": {
+        "hypothesis_id": "h1",
+        "soc_gap_at_launch": "Fixture: frequent exacerbators still exacerbate on inhaled triple therapy.",
+        "minimum_specs": [
+          "Fixture: >= 15% reduction in moderate-to-severe exacerbations vs placebo",
+          "Fixture: twice-daily nebulized or inhaled dosing"
+        ],
+        "holy_grail_specs": [
+          "Fixture: >= 30% exacerbation reduction",
+          "Fixture: once-daily handheld inhaler"
+        ],
+        "must_haves": [
+          "Fixture: exacerbation reduction on top of triple therapy",
+          "Fixture: no systemic PDE4 GI side effects"
+        ],
+        "expansion_opportunity": "Fixture: non-cystic fibrosis bronchiectasis after first approval.",
+        "claims": [
+          {
+            "id": "a3-c1",
+            "agent": "a3_profile",
+            "text": "Fixture claim about the standard-of-care gap.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "fda:FIXTURE-0001"
+            ]
+          }
+        ]
+      },
+      "inactive": {
+        "hypothesis_id": "h1",
+        "repurposing": [
+          {
+            "name": "FIX-301",
+            "entity_id": "chembl:FIXTURE-0301",
+            "owner": "Fixture Pharma",
+            "stage": "Approved (other indication)",
+            "last_activity": "2020-09-01",
+            "limitations": "Fixture: oral only; systemic exposure.",
+            "profile_fit": 0.4,
+            "claims": [
+              {
+                "id": "a4-c1",
+                "agent": "a4_inactive",
+                "text": "Fixture claim about FIX-301.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "chembl:FIXTURE-0001"
+                ]
+              }
+            ]
+          }
+        ],
+        "shelved": [
+          {
+            "name": "FIX-401",
+            "entity_id": "chembl:FIXTURE-0401",
+            "owner": "Fixture Big Pharma",
+            "stage": "Phase 2, terminated",
+            "last_activity": "2019-08-01",
+            "limitations": "Fixture: terminated for business reasons.",
+            "profile_fit": 0.6,
+            "claims": [
+              {
+                "id": "a4-c2",
+                "agent": "a4_inactive",
+                "text": "Fixture claim about FIX-401.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "pat:FIXTURE-0001"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "landscape": {
+        "hypothesis_id": "h1",
+        "programs": [
+          {
+            "asset": "FIX-101",
+            "owner": "Fixture Bio Inc",
+            "owner_type": "startup",
+            "mechanism": "PDE3/PDE4 inhibitor",
+            "modality": "inhaled small molecule",
+            "stage": "Phase 3",
+            "lead_trial": "nct:FIXTURE-0001",
+            "novel_edge": "Fixture: inhaled delivery avoids systemic side effects.",
+            "profile_fit": "yes",
+            "deprioritized": false,
+            "flag_reason": null,
+            "funding_signal": "Fixture: Form D private placement.",
+            "claims": [
+              {
+                "id": "a5-c1",
+                "agent": "a5_active",
+                "text": "Fixture claim about FIX-101.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "nct:FIXTURE-0001",
+                  "sec:FIXTURE-0002"
+                ]
+              }
+            ]
+          }
+        ],
+        "orthogonal": [
+          {
+            "asset": "FIX-202",
+            "owner": "Fixture Big Pharma",
+            "owner_type": "big_pharma",
+            "mechanism": "IL-33 antagonist",
+            "modality": "monoclonal antibody",
+            "stage": "Phase 3",
+            "lead_trial": "nct:FIXTURE-0002",
+            "novel_edge": "Fixture: targets non-type-2 patients.",
+            "profile_fit": "partly",
+            "deprioritized": false,
+            "flag_reason": null,
+            "funding_signal": null,
+            "claims": [
+              {
+                "id": "a5-c2",
+                "agent": "a5_active",
+                "text": "Fixture claim about FIX-202.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "nct:FIXTURE-0002"
+                ]
+              }
+            ]
+          }
+        ],
+        "crowding_score": 0.3,
+        "catalysts": [
+          {
+            "on": "2027-03-01",
+            "what": "Fixture: FIX-202 Phase 3 primary completion.",
+            "source_ids": [
+              "nct:FIXTURE-0002"
+            ]
+          }
+        ]
+      },
+      "verdict": {
+        "hypothesis_id": "h1",
+        "verdict": "survives",
+        "revise_target": null,
+        "risks": [
+          {
+            "text": "Fixture: exacerbation benefit may not hold on top of triple therapy.",
+            "kill_criterion": "Fixture: Phase 3 add-on arm misses the exacerbation endpoint.",
+            "cheapest_test": "Fixture: re-analyse the add-on subgroup of the existing Phase 3.",
+            "claims": [
+              {
+                "id": "a6-c1",
+                "agent": "a6_redteam",
+                "text": "Fixture reasoning about add-on benefit.",
+                "kind": "reasoning",
+                "confidence": 0.5,
+                "source_ids": []
+              }
+            ]
+          }
+        ],
+        "premortem": "Fixture: it failed because the add-on effect was too small to change practice."
+      }
+    }
+  ],
+  "killed": [
+    {
+      "card": {
+        "id": "h3",
+        "mechanism": "IL-33/ST2 blockade",
+        "target_ids": [
+          "hgnc:FIXTURE-IL33"
+        ],
+        "direction": "inhibit",
+        "evidence_tier": 3,
+        "validation_level": "bronze",
+        "modality": "monoclonal antibody",
+        "tractability": "Fixture: tractable with existing chemistry.",
+        "safety_clues": [
+          "Fixture: class-level GI tolerability signal."
+        ],
+        "biggest_uncertainty": "Fixture: effect size in the target segment.",
+        "rationale_other_conditions": "Fixture: same mechanism studied in asthma.",
+        "claims": [
+          {
+            "id": "a2-h3-c1",
+            "agent": "a2_mechanism",
+            "text": "Fixture claim supporting IL-33/ST2 blockade.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "pmid:FIXTURE-0004"
+            ]
+          }
+        ]
+      },
+      "profile": {
+        "hypothesis_id": "h3",
+        "soc_gap_at_launch": "Fixture: frequent exacerbators still exacerbate on inhaled triple therapy.",
+        "minimum_specs": [
+          "Fixture: >= 15% reduction in moderate-to-severe exacerbations vs placebo",
+          "Fixture: twice-daily nebulized or inhaled dosing"
+        ],
+        "holy_grail_specs": [
+          "Fixture: >= 30% exacerbation reduction",
+          "Fixture: once-daily handheld inhaler"
+        ],
+        "must_haves": [
+          "Fixture: exacerbation reduction on top of triple therapy",
+          "Fixture: no systemic PDE4 GI side effects"
+        ],
+        "expansion_opportunity": "Fixture: non-cystic fibrosis bronchiectasis after first approval.",
+        "claims": [
+          {
+            "id": "a3-c1",
+            "agent": "a3_profile",
+            "text": "Fixture claim about the standard-of-care gap.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "fda:FIXTURE-0001"
+            ]
+          }
+        ]
+      },
+      "inactive": {
+        "hypothesis_id": "h3",
+        "repurposing": [
+          {
+            "name": "FIX-301",
+            "entity_id": "chembl:FIXTURE-0301",
+            "owner": "Fixture Pharma",
+            "stage": "Approved (other indication)",
+            "last_activity": "2020-09-01",
+            "limitations": "Fixture: oral only; systemic exposure.",
+            "profile_fit": 0.4,
+            "claims": [
+              {
+                "id": "a4-c1",
+                "agent": "a4_inactive",
+                "text": "Fixture claim about FIX-301.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "chembl:FIXTURE-0001"
+                ]
+              }
+            ]
+          }
+        ],
+        "shelved": [
+          {
+            "name": "FIX-401",
+            "entity_id": "chembl:FIXTURE-0401",
+            "owner": "Fixture Big Pharma",
+            "stage": "Phase 2, terminated",
+            "last_activity": "2019-08-01",
+            "limitations": "Fixture: terminated for business reasons.",
+            "profile_fit": 0.6,
+            "claims": [
+              {
+                "id": "a4-c2",
+                "agent": "a4_inactive",
+                "text": "Fixture claim about FIX-401.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "pat:FIXTURE-0001"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "landscape": {
+        "hypothesis_id": "h3",
+        "programs": [
+          {
+            "asset": "FIX-101",
+            "owner": "Fixture Bio Inc",
+            "owner_type": "startup",
+            "mechanism": "PDE3/PDE4 inhibitor",
+            "modality": "inhaled small molecule",
+            "stage": "Phase 3",
+            "lead_trial": "nct:FIXTURE-0001",
+            "novel_edge": "Fixture: inhaled delivery avoids systemic side effects.",
+            "profile_fit": "yes",
+            "deprioritized": false,
+            "flag_reason": null,
+            "funding_signal": "Fixture: Form D private placement.",
+            "claims": [
+              {
+                "id": "a5-c1",
+                "agent": "a5_active",
+                "text": "Fixture claim about FIX-101.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "nct:FIXTURE-0001",
+                  "sec:FIXTURE-0002"
+                ]
+              }
+            ]
+          }
+        ],
+        "orthogonal": [
+          {
+            "asset": "FIX-202",
+            "owner": "Fixture Big Pharma",
+            "owner_type": "big_pharma",
+            "mechanism": "IL-33 antagonist",
+            "modality": "monoclonal antibody",
+            "stage": "Phase 3",
+            "lead_trial": "nct:FIXTURE-0002",
+            "novel_edge": "Fixture: targets non-type-2 patients.",
+            "profile_fit": "partly",
+            "deprioritized": false,
+            "flag_reason": null,
+            "funding_signal": null,
+            "claims": [
+              {
+                "id": "a5-c2",
+                "agent": "a5_active",
+                "text": "Fixture claim about FIX-202.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "nct:FIXTURE-0002"
+                ]
+              }
+            ]
+          }
+        ],
+        "crowding_score": 0.3,
+        "catalysts": [
+          {
+            "on": "2027-03-01",
+            "what": "Fixture: FIX-202 Phase 3 primary completion.",
+            "source_ids": [
+              "nct:FIXTURE-0002"
+            ]
+          }
+        ]
+      },
+      "verdict": {
+        "hypothesis_id": "h3",
+        "verdict": "kill",
+        "revise_target": null,
+        "risks": [
+          {
+            "text": "Fixture: replication risk in the anti-alarmin class.",
+            "kill_criterion": "Fixture: two Phase 3 trials disagree.",
+            "cheapest_test": "Fixture: compare the two trials' populations.",
+            "claims": [
+              {
+                "id": "a6-h3-c1",
+                "agent": "a6_redteam",
+                "text": "Fixture claim about h3.",
+                "kind": "evidence",
+                "confidence": 0.7,
+                "source_ids": [
+                  "pmid:FIXTURE-0004"
+                ]
+              }
+            ]
+          }
+        ],
+        "premortem": "Fixture: inconsistent Phase 3 results."
+      }
+    }
+  ],
+  "ledger": [
+    {
+      "claim_id": "a1-c1",
+      "source_id": "pmid:FIXTURE-0001",
+      "source_date": "2019-05-14",
+      "supports": "yes",
+      "action": "keep"
+    },
+    {
+      "claim_id": "a3-c1",
+      "source_id": "fda:FIXTURE-0001",
+      "source_date": "2017-06-01",
+      "supports": "yes",
+      "action": "keep"
+    },
+    {
+      "claim_id": "a5-c1",
+      "source_id": "nct:FIXTURE-0001",
+      "source_date": "2018-07-01",
+      "supports": "yes",
+      "action": "keep"
+    },
+    {
+      "claim_id": "a5-c1",
+      "source_id": "sec:FIXTURE-0002",
+      "source_date": "2022-02-01",
+      "supports": "partly",
+      "action": "downgrade"
+    }
+  ],
+  "decisions": [
+    {
+      "actor": "reviewer",
+      "action": "approve",
+      "target": "a1_disease",
+      "reason": "Fixture: shifts look right.",
+      "at": null
+    },
+    {
+      "actor": "red_teamer",
+      "action": "kill",
+      "target": "h3",
+      "reason": "Fixture: kill criterion fired.",
+      "at": null
+    }
+  ]
+}

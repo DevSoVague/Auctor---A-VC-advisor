@@ -1,0 +1,23 @@
+{
+  "hypothesis_id": "h1",
+  "verdict": "survives",
+  "revise_target": null,
+  "risks": [
+    {
+      "text": "Fixture: exacerbation benefit may not hold on top of triple therapy.",
+      "kill_criterion": "Fixture: Phase 3 add-on arm misses the exacerbation endpoint.",
+      "cheapest_test": "Fixture: re-analyse the add-on subgroup of the existing Phase 3.",
+      "claims": [
+        {
+          "id": "a6-c1",
+          "agent": "a6_redteam",
+          "text": "Fixture reasoning about add-on benefit.",
+          "kind": "reasoning",
+          "confidence": 0.5,
+          "source_ids": []
+        }
+      ]
+    }
+  ],
+  "premortem": "Fixture: it failed because the add-on effect was too small to change practice."
+}

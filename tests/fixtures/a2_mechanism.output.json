@@ -1,0 +1,92 @@
+{
+  "cards": [
+    {
+      "id": "h1",
+      "mechanism": "PDE3/PDE4 inhibition",
+      "target_ids": [
+        "hgnc:FIXTURE-PDE4B"
+      ],
+      "direction": "inhibit",
+      "evidence_tier": 2,
+      "validation_level": "silver",
+      "modality": "inhaled small molecule",
+      "tractability": "Fixture: tractable with existing chemistry.",
+      "safety_clues": [
+        "Fixture: class-level GI tolerability signal."
+      ],
+      "biggest_uncertainty": "Fixture: effect size in the target segment.",
+      "rationale_other_conditions": "Fixture: same mechanism studied in asthma.",
+      "claims": [
+        {
+          "id": "a2-h1-c1",
+          "agent": "a2_mechanism",
+          "text": "Fixture claim supporting PDE3/PDE4 inhibition.",
+          "kind": "evidence",
+          "confidence": 0.7,
+          "source_ids": [
+            "ot:FIXTURE-0001",
+            "pmid:FIXTURE-0001"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h2",
+      "mechanism": "IL-4R alpha blockade (type 2 inflammation)",
+      "target_ids": [
+        "hgnc:FIXTURE-IL4R"
+      ],
+      "direction": "inhibit",
+      "evidence_tier": 1,
+      "validation_level": "gold",
+      "modality": "monoclonal antibody",
+      "tractability": "Fixture: tractable with existing chemistry.",
+      "safety_clues": [
+        "Fixture: class-level GI tolerability signal."
+      ],
+      "biggest_uncertainty": "Fixture: effect size in the target segment.",
+      "rationale_other_conditions": "Fixture: same mechanism studied in asthma.",
+      "claims": [
+        {
+          "id": "a2-h2-c1",
+          "agent": "a2_mechanism",
+          "text": "Fixture claim supporting IL-4R alpha blockade (type 2 inflammation).",
+          "kind": "evidence",
+          "confidence": 0.7,
+          "source_ids": [
+            "pmid:FIXTURE-0003"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h3",
+      "mechanism": "IL-33/ST2 blockade",
+      "target_ids": [
+        "hgnc:FIXTURE-IL33"
+      ],
+      "direction": "inhibit",
+      "evidence_tier": 3,
+      "validation_level": "bronze",
+      "modality": "monoclonal antibody",
+      "tractability": "Fixture: tractable with existing chemistry.",
+      "safety_clues": [
+        "Fixture: class-level GI tolerability signal."
+      ],
+      "biggest_uncertainty": "Fixture: effect size in the target segment.",
+      "rationale_other_conditions": "Fixture: same mechanism studied in asthma.",
+      "claims": [
+        {
+          "id": "a2-h3-c1",
+          "agent": "a2_mechanism",
+          "text": "Fixture claim supporting IL-33/ST2 blockade.",
+          "kind": "evidence",
+          "confidence": 0.7,
+          "source_ids": [
+            "pmid:FIXTURE-0004"
+          ]
+        }
+      ]
+    }
+  ]
+}
