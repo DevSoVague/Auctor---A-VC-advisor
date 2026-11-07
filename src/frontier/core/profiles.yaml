@@ -1,21 +1,23 @@
-# core/profiles.yaml (copy exact model ID strings from the Nebius console)
+# core/profiles.yaml: exact model IDs from the Nebius Token Factory model list
+# (GET $NEBIUS_BASE_URL/models). Comments give the PRD's original pick where the
+# PRD model isn't available on our account and the closest one is used instead.
 dev:
-  default: nemotron-3.5-lightning
-  a2_mechanism: deepseek-v4-flash-0731
-  a3_profile: deepseek-v4-flash-0731
-  a6_redteam: glm-5.3-flash
-  a7_citations: glm-5.3-flash
-  a8_orchestrator: deepseek-v4-flash-0731
+  default: nvidia/Nemotron-3_5-Lightning
+  a2_mechanism: deepseek-ai/DeepSeek-V4-Flash-0731
+  a3_profile: deepseek-ai/DeepSeek-V4-Flash-0731
+  a6_redteam: zai-org/GLM-5.1                      # PRD: glm-5.3-flash
+  a7_citations: zai-org/GLM-5.1                    # PRD: glm-5.3-flash
+  a8_orchestrator: deepseek-ai/DeepSeek-V4-Flash-0731
 final:
-  extract: deepseek-v4-flash-0731
-  embed: qwen3-embedding-8b
-  a1_disease: deepseek-v4.1-flash-1017
-  a4_inactive: deepseek-v4.1-flash-1017
-  a5_active: deepseek-v4.1-flash-1017
-  a2_mechanism: kimi-k3.1-pro
-  a3_profile: kimi-k3.1-pro
-  a8_orchestrator: kimi-k3.1-pro
-  a6_redteam: glm-5.3
-  a7_citations: glm-5.3-flash
-  a7_escalate: kimi-k3.1-pro
+  extract: deepseek-ai/DeepSeek-V4-Flash-0731
+  embed: Qwen/Qwen3-Embedding-8B
+  a1_disease: deepseek-ai/DeepSeek-V4-Flash-0731   # PRD: deepseek-v4.1-flash-1017
+  a4_inactive: deepseek-ai/DeepSeek-V4-Flash-0731  # PRD: deepseek-v4.1-flash-1017
+  a5_active: deepseek-ai/DeepSeek-V4-Flash-0731    # PRD: deepseek-v4.1-flash-1017
+  a2_mechanism: moonshotai/Kimi-K2.6               # PRD: kimi-k3.1-pro
+  a3_profile: moonshotai/Kimi-K2.6                 # PRD: kimi-k3.1-pro
+  a8_orchestrator: moonshotai/Kimi-K2.6            # PRD: kimi-k3.1-pro
+  a6_redteam: zai-org/GLM-5.1                      # PRD: glm-5.3
+  a7_citations: zai-org/GLM-5.1                    # PRD: glm-5.3-flash
+  a7_escalate: moonshotai/Kimi-K2.6                # PRD: kimi-k3.1-pro
 fallbacks: [openai-mini, gemini-flash-lite]
