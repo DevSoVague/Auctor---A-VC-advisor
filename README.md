@@ -4,7 +4,7 @@ An agent workflow that takes one disease area and returns 2 to 3 pursuits a biot
 
 Built for the UPMC Enterprises investment team. Early diligence is slow and manual, so good leads fall through. This tool generates and screens hypotheses before a human team commits weeks to one.
 
-> **Status:** planning. The spec is in [docs/PRD.md](docs/PRD.md) (original: [docs/PRD.pdf](docs/PRD.pdf)). No code yet; the layout and commands below are the plan.
+> **Status:** scaffold in place (environment, database, tests, CI); agents not built yet. The spec is in [docs/PRD.md](docs/PRD.md) (original: [docs/PRD.pdf](docs/PRD.pdf)).
 
 ## What it produces
 
@@ -52,35 +52,44 @@ Public sources only, each record stored with its date: PubMed, ClinicalTrials.go
 
 Python 3.11+ (uv), FastAPI and Pydantic v2, Postgres 16 with pgvector, CrewAI Flows, LiteLLM routing to Nebius Token Factory models (OpenAI and Gemini as fallbacks), python-docx and openpyxl for exports, and a Base44 app for review.
 
-## Getting started (planned)
+## Getting started
+
+You need [uv](https://docs.astral.sh/uv/) and Docker. uv installs the pinned Python (3.11) itself.
 
 ```bash
+make setup             # install the exact locked environment
 cp .env.example .env   # add API keys
-make up                # Postgres with pgvector
-make schema            # create tables
-make ingest            # load COPD data
+make up                # Postgres 16 with pgvector
+make schema            # create tables (fresh database)
 make test              # lint + tests, no model calls
-make run               # live COPD run, guided mode
-make backtest          # run as of 2021-01-01
-make api               # FastAPI on :8000
+make api               # FastAPI on :8000, try /health
 ```
 
-## Repo layout (planned)
+Not built yet: `make ingest` (load COPD data), `make run` (live COPD run) and `make backtest` (run as of 2021-01-01).
+
+`make rebuild` deletes `.venv`, rebuilds it from `uv.lock` and reruns the tests: the check that the environment reproduces on any machine.
+
+## Repo layout
 
 ```
-core/        config, model router, cache, cost log
-store/       database schema
-data/        ingestion, extraction, embeddings, baseline
-api/         retrieval API (as-of filtered) and run API
-agents/      schemas, prompts, and agents 1 to 7
-flow/        orchestration, checkpoints
-memo/        agent 8, Word and Excel export
-eval/        backtest and scoring
-tests/       fixtures and tests
-pitch/       pitch deck
-app/         Base44 app
-docs/        PRD
+src/frontier/          the importable package
+  core/                config, model router, cache, cost log, profiles.yaml, prices.yaml
+  store/               schema.sql, database helpers
+  ingest/              ingestion, extraction, embeddings, baseline
+  api/                 retrieval API (as-of filtered) and run API
+  agents/              schemas, prompts, and agents 1 to 7
+  flow/                orchestration, checkpoints
+  memo/                agent 8, Word and Excel export
+  eval/                backtest and scoring
+data/                  raw downloads only, git-ignored
+tests/                 tests and fixtures
+notebooks/             exploration
+pitch/                 pitch deck
+app/                   Base44 app
+docs/                  PRD
 ```
+
+The PRD lists these folders at the top level; [CLAUDE.md](CLAUDE.md) has the mapping.
 
 ## Team
 
@@ -95,6 +104,8 @@ Five owners, one area each:
 | 5: Flow and memo | Flow, agent 8, exports, live and backtest runs |
 
 ## Contributing
+
+New to the repo? Start with [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): setup, where your code goes, and how changes reach `main`. Every change gets an entry in the [run log](runlog/).
 
 - Work on your own branch, named `person-feature`, and merge through a pull request one teammate reviews.
 - CI runs lint and stub tests on every pull request.
