@@ -1,8 +1,24 @@
-# List price per model, USD per 1M tokens. Fill in from the Nebius, OpenAI and
-# Gemini pricing pages; keys must match the model IDs in profiles.yaml.
-# The router reads this to fill llm_calls.list_price_usd.
-#
-# example-model-id:
-#   input: 0.00
-#   cached_input: 0.00
-#   output: 0.00
+# List price per model, USD per 1M tokens. Keys must match the model IDs in profiles.yaml.
+# Generated from the Nebius Token Factory model list (GET $NEBIUS_BASE_URL/models?verbose=true,
+# 'pricing' field, USD per token x 1,000,000) on 2026-11-07. Recheck before the final run.
+# The router reads this to fill llm_calls.list_price_usd and refuses models missing here.
+
+Qwen/Qwen3-Embedding-8B:
+  input: 0.01
+  output: 0
+deepseek-ai/DeepSeek-V4-Flash-0731:
+  input: 0.14
+  cached_input: 0.01
+  output: 0.28
+moonshotai/Kimi-K2.6:
+  input: 0.95
+  cached_input: 0.16
+  output: 4
+nvidia/Nemotron-3_5-Lightning:
+  input: 0.06
+  cached_input: 0.03
+  output: 0.24
+zai-org/GLM-5.1:
+  input: 1.4
+  cached_input: 0.26
+  output: 4.4

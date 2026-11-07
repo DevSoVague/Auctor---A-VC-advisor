@@ -18,6 +18,8 @@ make test              # should end with "passed"
 
 If `make test` passes, you're set up. `make api` then serves the API at http://localhost:8000/health.
 
+The database is on port **5433**, not Postgres's usual 5432, so it can't clash with a Postgres already installed on your machine (e.g. Postgres.app). If you copied `.env` before this change, set `DATABASE_URL=postgresql://frontier:frontier@localhost:5433/frontier` in it and run `make up` again.
+
 ## Where your code goes
 
 Everything lives in one Python package, `frontier`, under `src/frontier/`. The PRD lists folders at the top level (`core/`, `agents/`...); in this repo they sit inside the package, so you import them as `frontier.core`, `frontier.agents`, and so on.
@@ -52,7 +54,8 @@ Everything you need to build and test an agent works today with no database, no 
 - **Testing it:** `make_context(config)` builds a `ctx`. With `LLM_MODE=stub` (which `make test` sets), `ctx.llm` returns `tests/fixtures/a3_profile.output.json` instead of calling a model, and `ctx.retrieval` serves the made-up records in `tests/fixtures/retrieval/records.json`. Sample inputs: `load_fixture("a3_profile.input")`.
 - **Fixtures are fake on purpose.** Every source ID contains `FIXTURE` (e.g. `pmid:FIXTURE-0001`) so test data can never pass for a real citation; a test enforces this.
 - **Rules the contract enforces:** an `evidence` claim with no `source_ids` is rejected; if the model's output fails validation, `ctx.llm` retries once with the error, then raises `SchemaError`.
-- **Not ready yet:** real model calls (`LLM_MODE=live` raises until the router lands) and the real retrieval API (the stub stands in). Both keep the same interface, so your agent code won't change.
+- **Real model calls (`LLM_MODE=live`)** go through the model router: it picks the model for your agent from `src/frontier/core/profiles.yaml`, caches responses so a repeated call is free, retries once on a 429 or 5xx and then tries the fallbacks, logs tokens and cost to `llm_calls`, and stops the run with `BudgetExceeded` at `MAX_CALLS_PER_RUN` or `MAX_USD_PER_RUN`. Before a live call works you need `NEBIUS_API_KEY` and `NEBIUS_BASE_URL` in `.env`, a price for each model in `src/frontier/core/prices.yaml` (the router refuses unpriced models so the USD cap holds), and the `llm_cache` table.
+- **Not ready yet:** the real retrieval API (the stub stands in). It keeps the same interface, so your agent code won't change.
 
 The top-level `data/` folder is for raw downloads only and is ignored by git. Never commit data files, `.env`, or generated memos and spreadsheets.
 
