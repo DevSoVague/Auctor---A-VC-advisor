@@ -1,0 +1,16 @@
+# How the router reaches each model.
+#
+# Model IDs in profiles.yaml are Nebius Token Factory models, called through its
+# OpenAI-compatible endpoint (NEBIUS_BASE_URL, NEBIUS_API_KEY).
+#
+# The fallback aliases in profiles.yaml (openai-mini, gemini-flash-lite) map to
+# real LiteLLM model strings here. Replace each REPLACE-ME with the current model
+# ID from the provider's console; until then the router skips that fallback and
+# says so in its error.
+aliases:
+  openai-mini:
+    model: openai/REPLACE-ME
+    api_key_env: OPENAI_API_KEY
+  gemini-flash-lite:
+    model: gemini/REPLACE-ME
+    api_key_env: GEMINI_API_KEY

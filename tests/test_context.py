@@ -8,6 +8,7 @@ import pytest
 from frontier.agents.schemas import AGENTS, ProductProfile, RunConfig
 from frontier.core.context import RunContext, SchemaError, StubLLM, load_fixture, make_context
 from frontier.core.retrieval import StubRetrievalClient
+from frontier.core.router import Router
 
 BACKTEST = date(2021, 1, 1)
 
@@ -25,11 +26,9 @@ def test_stub_llm_returns_each_agents_fixture(agent, monkeypatch):
     assert out == output_model.model_validate(load_fixture(f"{agent}.output"))
 
 
-def test_live_mode_says_the_router_is_not_built_yet(monkeypatch):
+def test_live_mode_uses_the_router(monkeypatch):
     monkeypatch.setenv("LLM_MODE", "live")
-    ctx = make_context(config())
-    with pytest.raises(NotImplementedError, match="LLM_MODE=stub"):
-        asyncio.run(ctx.llm(agent="a3_profile", messages=[], schema=ProductProfile))
+    assert isinstance(make_context(config()).backend, Router)
 
 
 class FlakyBackend:
