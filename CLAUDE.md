@@ -32,7 +32,8 @@ make setup       # uv sync --locked
 make rebuild     # delete .venv, rebuild from uv.lock, run tests
 make up          # docker compose up: Postgres 16 with pgvector
 make down        # stop Postgres (data kept in the pgdata volume)
-make schema      # apply src/frontier/store/schema.sql (fresh database only)
+make schema      # apply src/frontier/store/schema.sql (safe to rerun)
+make reset-db    # drop and recreate the evidence tables; keeps extractions, llm_cache, llm_calls
 make ingest      # run the ingest scripts for COPD (not built yet)
 make test        # ruff + pytest with LLM_MODE=stub
 make lint        # ruff fix + format
