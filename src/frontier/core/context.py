@@ -5,12 +5,11 @@
         return await ctx.llm(agent="a3_profile", messages=[...], schema=ProductProfile)
 
 With LLM_MODE=stub (what `make test` sets), ctx.llm returns the agent's fixture
-output from tests/fixtures/<agent>.output.json and makes no model call. The live
-backend is the model router (PRD build order step 3).
+output from tests/fixtures/<agent>.output.json and makes no model call. With
+LLM_MODE=live, calls go through the model router (core/router.py).
 """
 
 import json
-import os
 import uuid
 from dataclasses import dataclass, field
 from typing import Protocol, TypeVar
@@ -18,7 +17,9 @@ from typing import Protocol, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from frontier.agents.schemas import RunConfig
+from frontier.core.config import Settings
 from frontier.core.retrieval import RetrievalClient, StubRetrievalClient, fixtures_dir
+from frontier.core.router import Router
 
 T = TypeVar("T", bound=BaseModel)
 Message = dict[str, str]
@@ -46,14 +47,6 @@ class StubLLM:
         if not path.exists():
             raise FileNotFoundError(f"LLM_MODE=stub but there is no fixture at {path}")
         return path.read_text()
-
-
-class LiveLLMNotReady:
-    async def complete(self, **_: object) -> str:
-        raise NotImplementedError(
-            "Live model calls arrive with the model router (PRD build order step 3). "
-            "Set LLM_MODE=stub to run against fixtures."
-        )
 
 
 @dataclass
@@ -94,13 +87,13 @@ class RunContext:
 
 
 def make_context(config: RunConfig, run_id: str | None = None) -> RunContext:
-    """Build a RunContext for config, choosing stub or live from LLM_MODE."""
-    stub = os.environ.get("LLM_MODE", "live") == "stub"
+    """Build a RunContext for config, choosing stub or live from LLM_MODE (env, then .env)."""
+    settings = Settings()
     return RunContext(
         config=config,
         # Fixture records until the retrieval API lands (PRD build order step 5).
         retrieval=StubRetrievalClient(config.as_of),
-        backend=StubLLM() if stub else LiveLLMNotReady(),
+        backend=StubLLM() if settings.llm_mode == "stub" else Router.from_settings(settings),
         run_id=run_id or str(uuid.uuid4()),
     )
 
