@@ -32,6 +32,28 @@ Everything lives in one Python package, `frontier`, under `src/frontier/`. The P
 
 Prompts go in `src/frontier/agents/prompts/`, one `.md` per agent. Tests go in `tests/`, fixtures in `tests/fixtures/`.
 
+## Building an agent against the contracts
+
+Everything you need to build and test an agent works today with no database, no API keys and no model calls.
+
+- **What goes in and out:** `src/frontier/agents/schemas.py`. `AGENTS` maps each agent name to its (input, output) models, e.g. `a3_profile` takes `A3Input` and returns `ProductProfile`.
+- **The shape of an agent:**
+
+  ```python
+  from frontier.agents.schemas import A3Input, ProductProfile
+  from frontier.core.context import RunContext
+
+  async def run(inp: A3Input, ctx: RunContext) -> ProductProfile:
+      hits = await ctx.retrieval.search("PDE4 COPD exacerbations")  # already limited to ctx.config.as_of
+      messages = [...]  # system prompt from src/frontier/agents/prompts/a3_profile.md, then inp and hits
+      return await ctx.llm(agent="a3_profile", messages=messages, schema=ProductProfile)
+  ```
+
+- **Testing it:** `make_context(config)` builds a `ctx`. With `LLM_MODE=stub` (which `make test` sets), `ctx.llm` returns `tests/fixtures/a3_profile.output.json` instead of calling a model, and `ctx.retrieval` serves the made-up records in `tests/fixtures/retrieval/records.json`. Sample inputs: `load_fixture("a3_profile.input")`.
+- **Fixtures are fake on purpose.** Every source ID contains `FIXTURE` (e.g. `pmid:FIXTURE-0001`) so test data can never pass for a real citation; a test enforces this.
+- **Rules the contract enforces:** an `evidence` claim with no `source_ids` is rejected; if the model's output fails validation, `ctx.llm` retries once with the error, then raises `SchemaError`.
+- **Not ready yet:** real model calls (`LLM_MODE=live` raises until the router lands) and the real retrieval API (the stub stands in). Both keep the same interface, so your agent code won't change.
+
 The top-level `data/` folder is for raw downloads only and is ignored by git. Never commit data files, `.env`, or generated memos and spreadsheets.
 
 ## Daily workflow

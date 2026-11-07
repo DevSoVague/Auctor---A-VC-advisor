@@ -1,0 +1,34 @@
+{
+  "executive_summary": "Fixture: one hypothesis survives, with two ways in.",
+  "pursuits": [
+    {
+      "form": "invest",
+      "name": "Fixture Bio Inc (FIX-101)",
+      "hypothesis_id": "h1",
+      "gap_to_profile": "Fixture: no add-on data on triple therapy yet.",
+      "main_risk": "Fixture: add-on effect too small.",
+      "what_would_change_the_call": "Fixture: a positive add-on subgroup."
+    },
+    {
+      "form": "access",
+      "name": "FIX-401 (Fixture Big Pharma, shelved)",
+      "hypothesis_id": "h1",
+      "gap_to_profile": "Fixture: Phase 2 only.",
+      "main_risk": "Fixture: terminated for reasons not disclosed.",
+      "what_would_change_the_call": "Fixture: owner unwilling to out-license."
+    }
+  ],
+  "proceed_with_caution": true,
+  "caution_reasons": [
+    "Fixture: only one hypothesis survived the red team."
+  ],
+  "catalysts": [
+    {
+      "on": "2027-03-01",
+      "what": "Fixture: FIX-202 Phase 3 primary completion.",
+      "source_ids": [
+        "nct:FIXTURE-0002"
+      ]
+    }
+  ]
+}
