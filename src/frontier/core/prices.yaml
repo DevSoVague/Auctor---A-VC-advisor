@@ -1,0 +1,8 @@
+# List price per model, USD per 1M tokens. Fill in from the Nebius, OpenAI and
+# Gemini pricing pages; keys must match the model IDs in profiles.yaml.
+# The router reads this to fill llm_calls.list_price_usd.
+#
+# example-model-id:
+#   input: 0.00
+#   cached_input: 0.00
+#   output: 0.00

@@ -1,0 +1,30 @@
+# Environment (rebuilt from uv.lock with `uv sync`)
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Secrets: real values live only in .env
+.env
+
+# Raw data: downloaded by the ingest scripts, never committed
+data/*
+!data/.gitkeep
+
+# Run outputs
+outputs/
+*.docx
+*.xlsx
+!tests/fixtures/**
+mlruns/
+mlflow.db
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/
