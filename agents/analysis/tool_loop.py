@@ -74,6 +74,11 @@ def final_messages(messages: list[dict], gathered: dict, pack: Any) -> list[dict
     return list(messages) + [{"role": "user", "content": "\n\n".join(parts)}]
 
 
+
+def _client(llm, agent: str):
+    """The agent's own Nebius account if one is configured (NEBIUS_API_KEY_<AGENT>), else the default."""
+    return llm.client_for(agent) if hasattr(llm, "client_for") else llm.client
+
 async def gather(llm: Any, *, agent: str, messages: list[dict], executor: Any, tools: list[dict],
                  brief: str = "", max_rounds: int = MAX_ROUNDS, max_calls: int = MAX_CALLS,
                  max_seconds: float = MAX_SECONDS, temperature: float = 0.2,
@@ -108,13 +113,13 @@ async def gather(llm: Any, *, agent: str, messages: list[dict], executor: Any, t
             try:
                 choice = first_choice if rnd == 0 else "auto"
                 try:
-                    resp = await llm.client.chat.completions.create(
+                    resp = await _client(llm, agent).chat.completions.create(
                         model=model, messages=convo, tools=tools, tool_choice=choice,
                         temperature=temperature, max_tokens=cap)
                 except Exception as e:  # noqa: BLE001 - provider rejects 'required': fall back to auto
                     if choice == "auto" or "tool_choice" not in str(e):
                         raise
-                    resp = await llm.client.chat.completions.create(
+                    resp = await _client(llm, agent).chat.completions.create(
                         model=model, messages=convo, tools=tools, tool_choice="auto",
                         temperature=temperature, max_tokens=cap)
             except Exception as e:

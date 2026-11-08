@@ -319,3 +319,10 @@ See [HANDOFF.md](../../HANDOFF.md) for the full detail.
 - **Tools:** DB read for A1–A6, DB write for A1 only, web search for A1/A4/A5, and nothing for A6b. Every result is dated, within `2023-01-01 <= date < as_of`.
 - **New state keys:** `tools`, `judge`, `max_cards`, `judgments`.
 - **New workbook sheets:** ToolCalls, NewEvidence, Judge.
+
+
+### Agent tabs in Node Monitor
+
+Use **All agents**, **A3 · Profile**, **A4 · Inactive assets**, **A5 · Active landscape**, or **A6 · Red team** above the idea cards. Each agent tab keeps all idea cards visible while showing that agent's own progress, step history, model name, and separate reasoning/output previews. Streams continue collecting while another tab is selected. Open a card and use the agent selector to switch views without leaving focus mode. Full captured streams remain in the individual step details; previews show the latest model call. Reasoning is displayed only when exposed by the model.
+
+These controls filter monitor events; they do not change scheduling, graph dependencies, API credentials, or concurrency. Producers should use stable per-attempt event IDs, the correct `hid`, and step names such as `a4_llm` / `a5_llm`, with `delta` events labeled `reasoning` or `output`.

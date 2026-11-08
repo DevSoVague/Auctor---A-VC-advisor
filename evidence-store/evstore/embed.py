@@ -3,22 +3,30 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 
 import numpy as np
 import psycopg
 from openai import AsyncOpenAI
 
 from evstore.chunk import all_rows
-from evstore.config import EMBED_DIM, EMBED_MODEL, NEBIUS_API_KEY, NEBIUS_BASE_URL, QUERY_INSTRUCTION
+from evstore.config import EMBED_API_KEY, EMBED_BASE_URL, EMBED_DIM, EMBED_MODEL, QUERY_INSTRUCTION
 
 BATCH = 16
 CONCURRENCY = 4
 
 
+# Callers can route embeddings to another Nebius account for the current async context (A4/A5 do).
+KEY_OVERRIDE: contextvars.ContextVar[str | None] = contextvars.ContextVar("evstore_embed_key", default=None)
+
+
 def client() -> AsyncOpenAI:
-    if not NEBIUS_API_KEY:
-        raise RuntimeError("NEBIUS_API_KEY is not set (looked in env, evidence-store/.env, frontier-engine/.env)")
-    return AsyncOpenAI(base_url=NEBIUS_BASE_URL, api_key=NEBIUS_API_KEY, timeout=120, max_retries=4)
+    override = (KEY_OVERRIDE.get() or "").strip()
+    if override:
+        return AsyncOpenAI(base_url=EMBED_BASE_URL, api_key=override, timeout=120, max_retries=4)
+    if not EMBED_API_KEY:
+        raise RuntimeError("EMBED_API_KEY / NEBIUS_API_KEY is not set (looked in env, evidence-store/.env, repo .env)")
+    return AsyncOpenAI(base_url=EMBED_BASE_URL, api_key=EMBED_API_KEY, timeout=120, max_retries=4)
 
 
 async def embed_texts(texts: list[str], api: AsyncOpenAI | None = None) -> tuple[list[np.ndarray], int]:
