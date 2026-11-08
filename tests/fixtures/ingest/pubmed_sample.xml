@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up records in PubMed efetch format, for tests only. -->
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE">
+      <PMID Version="1">FIXTURE-0101</PMID>
+      <Article>
+        <Journal>
+          <JournalIssue><PubDate><Year>2021</Year><Month>Feb</Month></PubDate></JournalIssue>
+          <Title>Fixture Journal of Respiratory Medicine</Title>
+        </Journal>
+        <ArticleTitle>[fixture] PDE3/4 inhibition in <i>moderate</i> COPD</ArticleTitle>
+        <Abstract>
+          <AbstractText Label="BACKGROUND">Made-up background.</AbstractText>
+          <AbstractText Label="RESULTS">Made-up result with FEV<sub>1</sub> change.</AbstractText>
+        </Abstract>
+        <PublicationTypeList><PublicationType>Randomized Controlled Trial</PublicationType></PublicationTypeList>
+        <ArticleDate DateType="Electronic"><Year>2020</Year><Month>12</Month><Day>18</Day></ArticleDate>
+      </Article>
+      <MeshHeadingList>
+        <MeshHeading><DescriptorName>Pulmonary Disease, Chronic Obstructive</DescriptorName></MeshHeading>
+      </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+      <History>
+        <PubMedPubDate PubStatus="entrez"><Year>2020</Year><Month>12</Month><Day>20</Day></PubMedPubDate>
+      </History>
+      <ArticleIdList><ArticleId IdType="doi">10.0000/fixture.0101</ArticleId></ArticleIdList>
+    </PubmedData>
+  </PubmedArticle>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE">
+      <PMID Version="1">FIXTURE-0102</PMID>
+      <Article>
+        <Journal>
+          <JournalIssue><PubDate><MedlineDate>2020 Dec-2021 Jan</MedlineDate></PubDate></JournalIssue>
+          <Title>Fixture Thorax</Title>
+        </Journal>
+        <ArticleTitle>[fixture] Record with only a date range</ArticleTitle>
+        <Abstract><AbstractText>Made-up unlabelled abstract.</AbstractText></Abstract>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE">
+      <PMID Version="1">FIXTURE-0103</PMID>
+      <Article>
+        <Journal><JournalIssue><PubDate><MedlineDate>no date here</MedlineDate></PubDate></JournalIssue></Journal>
+        <ArticleTitle>[fixture] Record with no usable date is skipped</ArticleTitle>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+</PubmedArticleSet>
