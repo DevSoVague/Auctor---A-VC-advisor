@@ -42,12 +42,12 @@ from p3graph import competitor as C  # noqa: E402
 
 COMPETITOR = {"a4": "a4_inactive", "a5": "a5_active"}  # Adam's agents, one node per step, A4 then A5
 ORDER = {
-    "a1": ["retrieve", "prompt", "llm", "parse", "postcheck", "validate", "commit"],
-    "a2": ["retrieve", "prompt", "llm", "parse", "grade", "postcheck", "commit"],
-    "a3": ["retrieve", "prompt", "llm", "parse", "validate", "postcheck", "commit"],
+    "a1": ["retrieve", "prompt", "toolloop", "llm", "parse", "postcheck", "validate", "cite", "commit"],
+    "a2": ["retrieve", "prompt", "toolloop", "llm", "parse", "grade", "postcheck", "cite", "commit"],
+    "a3": ["retrieve", "prompt", "toolloop", "llm", "parse", "validate", "postcheck", "cite", "commit"],
     "a4": C.AGENTS["a4"]["steps"],
     "a5": C.AGENTS["a5"]["steps"],
-    "a6": ["retrieve", "prompt", "llm", "parse", "validate", "postcheck", "commit", "route"],
+    "a6": ["retrieve", "prompt", "toolloop", "llm", "parse", "validate", "postcheck", "cite", "commit", "judge", "route"],
 }
 PER_CARD = {"a3", "a4", "a5", "a6"}
 MAX_PARALLEL = int(os.getenv("P3_MAX_PARALLEL", "1"))  # cards run at once inside a node; 1 = one at a time (V1 is sequential)
@@ -87,6 +87,12 @@ def node_fn(agent: str, step: str):
         return S.parse_step(spec)
     if step == "fix":
         return S.fix_step(spec)
+    if step == "toolloop":
+        return S.tools_step(spec)
+    if step == "cite":
+        return S.cite_step(spec)
+    if (agent, step) == ("a6", "judge"):
+        return S.a6b_judge
     return getattr(S, f"{agent}_{step}")  # includes a6_route
 
 
@@ -103,6 +109,8 @@ def _next(state: dict, agent: str, step: str) -> str | None:
         return "fix"
     if step == "validate" and w.get("problems"):
         return "fix"
+    if step == "cite" and w.get("cite_retry"):  # A7: hallucination -> restart this agent at llm
+        return "llm"
     i = order.index(step)
     return order[i + 1] if i + 1 < len(order) else None
 
@@ -118,11 +126,13 @@ async def _call(state: dict, agent: str, step: str):
 
 async def run_step(state: dict, agent: str, step: str, hid: str | None) -> None:
     """Run one step for one hypothesis, plus any retry loop that step starts."""
+    if (state.get("intake") or {}).get("accepted") is False:
+        return  # A0 rejected the pitch: no agent runs
     if agent in PER_CARD:
         state["current"] = hid
     base = ORDER[agent].index(step)
     cur = step
-    for _ in range(12):  # safety cap on loops
+    for _ in range(40):  # safety cap on loops (schema/semantic retries + up to 2 citation restarts)
         goto = await _call(state, agent, cur)
         if (agent, cur) == ("a6", "route"):
             await _revise(state, goto, hid)
@@ -131,7 +141,7 @@ async def run_step(state: dict, agent: str, step: str, hid: str | None) -> None:
         if nxt is None or (nxt != "fix" and ORDER[agent].index(nxt) > base):
             return
         cur = nxt
-    raise RuntimeError(f"{agent}_{step}: retry loop did not settle (12 iterations)")
+    raise RuntimeError(f"{agent}_{step}: retry loop did not settle (40 iterations)")
 
 
 async def _revise(state: dict, goto: Any, hid: str) -> None:
@@ -164,7 +174,7 @@ def _hids(state: dict, agent: str) -> list[str | None]:
         return [None]
     if not state.get("cards"):
         raise ValueError(f"{agent.upper()} needs A2's cards: connect the A2 steps first")
-    return [c["id"] for c in state["cards"]]
+    return [c["id"] for c in state["cards"]][: state.get("max_cards") or None]  # Setup: Max cards (0 = all)
 
 
 def _status(state: dict, start: int) -> str:
@@ -248,6 +258,8 @@ def _merge_back(st: dict, sub: dict, base: dict) -> None:
 
 
 async def _run_cards(st: dict, agent: str, step: str) -> None:
+    if (st.get("intake") or {}).get("accepted") is False:
+        return  # A0 rejected the pitch: no agent runs
     """One step for every card. A3/A6 cards are independent, so they run at once (up to MAX_PARALLEL)."""
     hids = _hids(st, agent)
     if agent not in PER_CARD or len(hids) < 2 or MAX_PARALLEL < 2:
@@ -268,8 +280,10 @@ async def _run_cards(st: dict, agent: str, step: str) -> None:
         _merge_back(st, sub, base)
 
 
-async def setup(config: dict, llm: dict, retrieval: str, message: str = "", search: str = "corpus") -> tuple[dict, str]:
-    st: dict = {"config": config, "llm": llm, "retrieval": retrieval, "search": search}
+async def setup(config: dict, llm: dict, retrieval: str, message: str = "", search: str = "corpus",
+                extras: dict | None = None) -> tuple[dict, str]:
+    """extras: tools, cite, judge, max_cards, pitch, store_pitch (see p3graph/state.py)."""
+    st: dict = {"config": config, "llm": llm, "retrieval": retrieval, "search": search, **(extras or {})}
     note = ""
     msg = (message or "").strip()
     if msg.lower().rstrip(".!") not in NO_INSTRUCTION:  # a real instruction: every agent's prompt gets it
@@ -277,7 +291,13 @@ async def setup(config: dict, llm: dict, retrieval: str, message: str = "", sear
                           for a in ("a1_disease", "a2_mechanism", "a3_profile", "a6_redteam")}
         note = f" · instruction: {msg[:60]}"
     apply(st, await N.setup(st))
-    return st, f"run {st['run_id'][:8]} · as_of {st['config']['as_of']} · llm {st['llm']['mode']} · search {st['search']}{note}"
+    apply(st, await N.intake(st))  # A0 input gate (pass-through without a pitch)
+    gate = (st["steps"][-1]["detail"] if st.get("pitch") else "no pitch")
+    if (st.get("intake") or {}).get("accepted") is False:
+        return st, f"PITCH REJECTED, no agent will run: {gate}"
+    flags = " · ".join(k for k in ("tools", "cite", "judge") if st.get(k))
+    return st, (f"run {st['run_id'][:8]} · as_of {st['config']['as_of']} · llm {st['llm']['mode']} · "
+                f"search {st['search']} · {flags or 'no tools/cite/judge'} · pitch: {gate}{note}")
 
 
 async def report(st: dict) -> tuple[dict, str]:

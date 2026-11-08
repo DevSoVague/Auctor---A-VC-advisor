@@ -20,7 +20,7 @@ from lfx.schema.data import Data
 
 
 class P3A6Llm(Component):
-    display_name = "P3 · A6.3 Llm"
+    display_name = "P3 · A6.4 Llm"
     description = "A6 Red Team: ONE model call. Records model, finish_reason (length = truncated), tokens, latency."
     icon = "brain"
     name = "P3A6Llm"

@@ -20,7 +20,7 @@ from lfx.schema.data import Data
 
 
 class P3A6Route(Component):
-    display_name = "P3 · A6.8 Route"
+    display_name = "P3 · A6.11 Route"
     description = "A6 Red Team: Red-team decision: revise once (reruns A3 and A6 for that card), kill, or survive."
     icon = "git-branch"
     name = "P3A6Route"

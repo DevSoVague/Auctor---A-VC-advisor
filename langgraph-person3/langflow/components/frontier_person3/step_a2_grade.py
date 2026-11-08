@@ -20,7 +20,7 @@ from lfx.schema.data import Data
 
 
 class P3A2Grade(Component):
-    display_name = "P3 · A2.5 Grade"
+    display_name = "P3 · A2.6 Grade"
     description = "A2 Mechanism: Evidence tier, validation level and tractability gate, computed in code. Ranks the cards."
     icon = "bar-chart"
     name = "P3A2Grade"

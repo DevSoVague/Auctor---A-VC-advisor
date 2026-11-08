@@ -20,7 +20,7 @@ from lfx.schema.data import Data
 
 
 class P3A3Commit(Component):
-    display_name = "P3 · A3.7 Commit"
+    display_name = "P3 · A3.9 Commit"
     description = "A3 TPP: Emits claims and events, writes this agent's output into the run state."
     icon = "save"
     name = "P3A3Commit"
