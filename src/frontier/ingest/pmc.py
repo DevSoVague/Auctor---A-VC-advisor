@@ -143,21 +143,23 @@ def fetch(eutils: pubmed.Eutils, pmcid: str, refresh: bool = False) -> bytes:
     return xml
 
 
-def store(conn, pmid: str, pmcid: str, article: ET.Element) -> int:
-    """Write full text and chunks for one paper; returns the number of chunks."""
+def store_parts(
+    conn, pmid: str, parts: list[tuple[str, str]], fields: dict, released: date | None = None
+) -> int:
+    """Write full text and chunks for one paper; returns the number of chunks.
+
+    -1: paper not in the store; -2: full text public outside the 2023-2025 window."""
     from psycopg.types.json import Jsonb
 
-    parts = chunks(article)
     doc_id = f"pmid:{pmid}"
     with conn.cursor() as cur:
         cur.execute("SELECT max(source_date) FROM documents WHERE id = %s", (doc_id,))
         pubmed_date = cur.fetchone()[0]
         if pubmed_date is None:
             return -1
-        released = release_date(article)
         when = max(d for d in (pubmed_date, released) if d)
         if not in_window(when):
-            return -2  # full text public outside the 2023-2025 window
+            return -2
         cur.execute("DELETE FROM parent_chunks WHERE doc_id = %s", (doc_id,))
         if not parts:
             return 0
@@ -173,17 +175,22 @@ def store(conn, pmid: str, pmcid: str, article: ET.Element) -> int:
             "UPDATE documents SET full_text = %s, fields = fields || %s WHERE id = %s",
             (
                 "\n\n".join(f"## {s}\n{t}" for s, t in parts),
-                Jsonb(
-                    {
-                        "pmcid": pmcid,
-                        "pmc_license": license_of(article),
-                        "full_text_date": when.isoformat(),
-                    }
-                ),
+                Jsonb({**fields, "full_text_date": when.isoformat()}),
                 doc_id,
             ),
         )
     return len(parts)
+
+
+def store(conn, pmid: str, pmcid: str, article: ET.Element) -> int:
+    """Write full text and chunks for one paper from its PMC article XML."""
+    return store_parts(
+        conn,
+        pmid,
+        chunks(article),
+        {"pmcid": pmcid, "pmc_license": license_of(article)},
+        release_date(article),
+    )
 
 
 def main() -> int:

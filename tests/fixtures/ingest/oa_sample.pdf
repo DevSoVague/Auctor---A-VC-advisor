@@ -1,0 +1,54 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 154 >>
+stream
+BT /F1 11 Tf 14 TL 72 720 Td (Made-up trial of FIX-101 in chronic obstructive pulmonary disease) Tj T* (Introduction) Tj T* (Made-up background.) Tj T* ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 131 >>
+stream
+BT /F1 11 Tf 14 TL 72 720 Td (Methods) Tj T* (Made-up randomized design.) Tj T* (Results) Tj T* (FEV1 improved by 100 mL.) Tj T* ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 127 >>
+stream
+BT /F1 11 Tf 14 TL 72 720 Td (Discussion) Tj T* (Made-up discussion.) Tj T* (References) Tj T* (1. Made-up reference.) Tj T* ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 8 0 R >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000402 00000 n 
+0000000528 00000 n 
+0000000710 00000 n 
+0000000836 00000 n 
+0000001014 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+1140
+%%EOF
