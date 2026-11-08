@@ -150,6 +150,11 @@ def _by_id(inp: MemoInput) -> dict[str, HypothesisBundle]:
 
 
 def _the_move(c: PursuitCandidate) -> str:
+    if c.follow_on_to and c.form == "build":
+        return (
+            f"Build a follow-on to {c.follow_on_to[0]}, already approved; "
+            "it must beat it on the product profile."
+        )
     if c.form == "invest":
         return f"Invest in {c.owner}, whose {c.stage or 'program'} asset is the closest fit."
     if c.form == "access":
@@ -207,6 +212,14 @@ def _write(
                 [x.id for x in r.claims],
                 status,
                 claims,
+            )
+        )
+    if s.approved:
+        wrong.append(
+            Statement(
+                kind="reasoning",
+                text=f"Consensus risk: {s.approved[0]} is already approved on this mechanism, "
+                "so the opportunity is a follow-on and the approved drug's success is priced in.",
             )
         )
     held = [r for r in (h.judgment.rulings if h.judgment else []) if r.holds]

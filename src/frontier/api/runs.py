@@ -127,9 +127,28 @@ class Runner:
             async for chunk in self.graph.astream(inp, self.cfg(run_id), stream_mode="updates"):
                 if any(node in COMMIT_NODES for node in chunk):  # keep the workbook current
                     N.write_workbook((await self.graph.aget_state(self.cfg(run_id))).values)
+            await self._log_cost(run_id)
             await self._write_memo(run_id)
         except Exception as exc:  # noqa: BLE001 - surfaced to the app as status 'error'
             self.runs[run_id]["error"] = f"{type(exc).__name__}: {exc}"
+
+    async def _log_cost(self, run_id: str) -> None:
+        """Copy the pipeline's token usage into llm_calls once the run has stopped or finished.
+
+        A logging problem is recorded as `cost_log_error` and never fails the run.
+        """
+        info = self.runs.setdefault(run_id, {})
+        try:
+            from frontier.core.config import Settings
+            from frontier.core.mirror import mirror_usage
+
+            snap = await self.graph.aget_state(self.cfg(run_id))
+            info["cost_rows"] = await mirror_usage(
+                Settings().database_url, run_id, snap.values.get("usage") or {}
+            )
+            info["cost_log_error"] = None
+        except Exception as exc:  # noqa: BLE001
+            info["cost_log_error"] = f"{type(exc).__name__}: {exc}"
 
     async def _write_memo(self, run_id: str) -> None:
         """Agent 8: when the run has finished (not paused for a review), write the memo files.
@@ -335,6 +354,7 @@ async def get_run(run_id: str) -> dict:
         "error": runner.runs.get(run_id, {}).get("error"),
         "memo": runner.runs.get(run_id, {}).get("memo"),
         "memo_error": runner.runs.get(run_id, {}).get("memo_error"),
+        "cost_log_error": runner.runs.get(run_id, {}).get("cost_log_error"),
         "settings": runner.runs.get(run_id, {}).get("settings"),
         "next": list(snap.next),
         "current_hypothesis": v.get("current"),

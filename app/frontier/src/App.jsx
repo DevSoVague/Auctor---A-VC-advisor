@@ -257,6 +257,13 @@ function NewRun({ onStarted }) {
   );
 }
 
+// Cost tile: an honest zero in test mode, real dollars (to a tenth of a cent) in a live run.
+function costStat(run, s) {
+  const usd = run.cost?.total_usd ?? 0;
+  if (s?.llm === "stub") return { value: "$0", label: `${run.step_count} steps · test mode, no model calls` };
+  return { value: `$${usd.toFixed(usd < 1 ? 3 : 2)}`, label: `${run.step_count} steps · model cost` };
+}
+
 // ---------------------------------------------------------------- citations
 const SUPPORT = { yes: "text-ok", partly: "text-amber", no: "text-bad", not_found: "text-bad", after_cutoff: "text-bad" };
 
@@ -634,10 +641,11 @@ function RunView({ runId }) {
     const kept = c.reduce((n, x) => n + (x.kept || 0), 0);
     const total = c.reduce((n, x) => n + (x.kept || 0) + (x.downgraded || 0) + (x.flagged || 0), 0);
     const flagged = c.reduce((n, x) => n + (x.flagged || 0), 0);
+    const partly = c.reduce((n, x) => n + (x.downgraded || 0), 0);
     const hs = run.hypotheses || [];
     const killed = new Set((run.killed || []).map((k) => k.hypothesis_id));
     const survived = hs.filter((h) => h.verdict === "survives" && !killed.has(h.id)).length;
-    return { kept, total, flagged, hs, killed, survived };
+    return { kept, partly, total, flagged, hs, killed, survived };
   }, [run]);
 
   if (err && !run) return <p className="border-l-2 border-bad pl-3 text-[14px] text-bad">{err}</p>;
@@ -664,9 +672,9 @@ function RunView({ runId }) {
 
       <Stats items={[
         { value: stats.hs.length || "—", label: stats.hs.length ? `hypotheses · ${stats.survived} survived · ${stats.killed.size} killed` : "hypotheses" },
-        { value: stats.kept, of: stats.total, label: "sources hold" },
-        { value: stats.flagged, label: "flagged" },
-        { value: `$${(run.cost?.total_usd ?? 0).toFixed(2)}`, label: `${run.step_count} steps` },
+        { value: stats.kept + stats.partly, of: stats.total, label: "citations supported (partly supported ones are labelled)" },
+        { value: stats.flagged, label: "unsupported citations removed before the memo" },
+        costStat(run, s),
       ]} />
 
       <Pipeline run={run} />

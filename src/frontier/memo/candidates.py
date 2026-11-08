@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 
 from frontier.memo.caution import CautionBars
 from frontier.memo.models import HypothesisBundle, MemoInput
-from frontier.memo.scoring import FIT
+from frontier.memo.scoring import FIT, approved_for, approved_on_mechanism
 
 Form = Literal["invest", "access", "build"]
 
@@ -32,13 +32,17 @@ class PursuitCandidate(BaseModel):
     fit: float | None = None  # to A3's product profile, 0 to 1
     why_listed: str
     must_haves: list[str] = Field(default_factory=list)  # build only
+    follow_on_to: list[str] = Field(default_factory=list)  # approved drugs on the same mechanism
     claim_ids: list[str] = Field(default_factory=list)
 
 
-def _for(h: HypothesisBundle, min_fit: float) -> list[PursuitCandidate]:
+def _for(h: HypothesisBundle, min_fit: float, disease: str = "COPD") -> list[PursuitCandidate]:
     out: list[PursuitCandidate] = []
+    approved = approved_on_mechanism(h, disease)
     if h.landscape:
         for p in h.landscape.programs:
+            if approved_for(p.stage, disease):
+                continue  # already approved for this disease: priced in, not a way in
             fit = FIT[p.profile_fit]
             ids = [c.id for c in p.claims]
             if p.deprioritized and fit >= min_fit:
@@ -97,13 +101,20 @@ def _for(h: HypothesisBundle, min_fit: float) -> list[PursuitCandidate]:
                 form="build",
                 hypothesis_id=h.id,
                 name="New asset: " + "; ".join(h.profile.must_haves),
-                why_listed="no existing asset or company clears the fit bar",
+                why_listed=(
+                    "no existing asset or company clears the fit bar"
+                    if not approved
+                    else f"the mechanism is already approved ({'; '.join(approved)}); "
+                    "the opening is a follow-on that beats it on the product profile"
+                ),
                 must_haves=list(h.profile.must_haves),
                 claim_ids=[c.id for c in h.profile.claims],
             )
         )
     # One entry per id (an asset can appear twice in A4/A5 output); best fit first, with a
     # fixed tie-break so the order is the same on every run.
+    if approved:
+        out = [c.model_copy(update={"follow_on_to": approved}) for c in out]
     unique = {c.id: c for c in reversed(out)}
     return sorted(unique.values(), key=lambda c: (-(c.fit or 0.0), c.form, c.id))
 
@@ -113,4 +124,4 @@ def candidates(
 ) -> dict[str, list[PursuitCandidate]]:
     """Survivor id -> its candidates, best fit first. Killed hypotheses get none."""
     min_fit = (bars or CautionBars.load()).min_profile_fit
-    return {h.id: _for(h, min_fit) for h in inp.survivors}
+    return {h.id: _for(h, min_fit, inp.config.disease) for h in inp.survivors}

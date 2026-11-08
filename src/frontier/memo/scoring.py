@@ -35,6 +35,7 @@ class Scorecard(BaseModel):
     crowding: float | None = None
     pub_count: int | None = None
     best_fit: float | None = None  # None when A4/A5 found nothing
+    approved: list[str] = Field(default_factory=list)  # approved for the disease, same mechanism
     revised: bool = False
     risks: int = 0
     risks_without_cheap_test: int = 0
@@ -65,12 +66,40 @@ class Scorecard(BaseModel):
         return "risk outweighs return"
 
 
-def _best_fit(h: HypothesisBundle) -> float | None:
+def approved_for(stage: str | None, disease: str) -> bool:
+    """True when a program's stage says it is already approved for this disease.
+
+    A5 writes stages such as "Approved", "Approved (COPD)" or "Approved (plaque psoriasis)". The
+    last is approved for another disease, so for COPD it is a repurposing chance, not priced in.
+    """
+    text = (stage or "").strip().lower()
+    if not text.startswith("approved"):
+        return False
+    rest = text.removeprefix("approved").strip()
+    return not rest or disease.lower() in rest or "copd" in rest
+
+
+def approved_on_mechanism(h: HypothesisBundle, disease: str) -> list[str]:
+    """Programs on this hypothesis's mechanism that are already approved for the disease.
+
+    Their commercial story is public, so the memo treats the mechanism as consensus: it never
+    offers the approved drug itself as a pursuit, only follow-on plays.
+    """
+    if not h.landscape:
+        return []
+    return sorted(
+        {f"{p.asset} ({p.owner})" for p in h.landscape.programs if approved_for(p.stage, disease)}
+    )
+
+
+def _best_fit(h: HypothesisBundle, disease: str) -> float | None:
     fits = []
     if h.inactive:
         fits += [a.profile_fit for a in (*h.inactive.repurposing, *h.inactive.shelved)]
-    if h.landscape:
-        fits += [FIT[p.profile_fit] for p in h.landscape.programs]
+    if h.landscape:  # an already-approved program is priced in: it is not a way in
+        fits += [
+            FIT[p.profile_fit] for p in h.landscape.programs if not approved_for(p.stage, disease)
+        ]
     return max(fits) if fits else None
 
 
@@ -107,7 +136,9 @@ def _upside(s: Scorecard) -> tuple[Rating, list[str]]:
     elif s.tier == 2:
         points += 1
         why.append("tier 2 evidence")
-    if s.crowding is not None and s.crowding <= 0.4:
+    if s.approved:
+        why.append(f"already approved on this mechanism ({s.approved[0]}): the field is priced in")
+    elif s.crowding is not None and s.crowding <= 0.4:
         points += 2
         why.append(f"uncrowded field (crowding {s.crowding:.2f})")
     elif s.crowding is not None and s.crowding <= 0.7:
@@ -156,7 +187,8 @@ def score(h: HypothesisBundle, inp: MemoInput) -> Scorecard:
         evidence_lines=h.grade.get("lines"),
         crowding=h.landscape.crowding_score if h.landscape else None,
         pub_count=h.grade.get("pub_count"),
-        best_fit=_best_fit(h),
+        best_fit=_best_fit(h, inp.config.disease),
+        approved=approved_on_mechanism(h, inp.config.disease),
         revised=h.revised,
         risks=len(risks),
         risks_without_cheap_test=sum(1 for r in risks if not r.cheapest_test.strip()),

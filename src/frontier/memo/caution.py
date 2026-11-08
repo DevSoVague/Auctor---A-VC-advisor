@@ -51,6 +51,7 @@ class PursuitSignals:
     risks_without_cheap_test: int
     claims_total: int
     claims_supported: int
+    approved_on_mechanism: tuple[str, ...] = ()  # already approved for the disease: priced in
 
     @classmethod
     def from_pursuit(cls, scorecard, candidate) -> PursuitSignals:
@@ -69,6 +70,7 @@ class PursuitSignals:
             risks_without_cheap_test=scorecard.risks_without_cheap_test,
             claims_total=scorecard.claims_checked,
             claims_supported=scorecard.claims_supported,
+            approved_on_mechanism=tuple(scorecard.approved),
         )
 
 
@@ -106,6 +108,11 @@ def _soft_failures(p: PursuitSignals, bars: CautionBars) -> list[str]:
     ):
         fit = "none" if p.best_profile_fit is None else f"{p.best_profile_fit:.2f}"
         out.append(f"{p.name}: best asset fit to the product profile is {fit}")
+    if p.approved_on_mechanism:
+        out.append(
+            f"{p.name}: consensus mechanism, already approved ({p.approved_on_mechanism[0]}); "
+            "this is a follow-on play, not a new discovery"
+        )
     if p.revised:
         out.append(f"{p.name}: survived the Red Teamer only after a revise round")
     if p.risks_without_cheap_test:

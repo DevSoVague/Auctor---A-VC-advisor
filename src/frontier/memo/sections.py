@@ -368,8 +368,10 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
             or [[("", "None killed in this run.")]]
         )
     )
+    b += _screened(inp, d)
 
     b.append(Heading("H. Citations (Citation Checker)", 2))
+    b += _citation_summary(inp, d)
     by_agent: dict[str, list] = {}
     for r in inp.ledger:
         by_agent.setdefault(r.agent, []).append(r)
@@ -463,6 +465,76 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
             )
         )
     return b
+
+
+def _screened(inp: MemoInput, d: MemoDraft) -> list[Block]:
+    """What the memo agent kept out: hypotheses it did not recommend, and approved drugs."""
+    from frontier.memo.scoring import scorecards
+
+    chosen = {p.hypothesis_id for p in d.pursuits}
+    items: list[list[Run]] = []
+    for sc in scorecards(inp):
+        if sc.approved:
+            items.append(
+                [
+                    ("b", f"{sc.hypothesis_id} {sc.mechanism}: "),
+                    (
+                        "",
+                        f"already approved ({'; '.join(sc.approved)}). Priced in, so the approved "
+                        "drug is never offered as a pursuit"
+                        + (
+                            "; a follow-on is recommended instead."
+                            if sc.hypothesis_id in chosen
+                            else "; no follow-on made the shortlist."
+                        ),
+                    ),
+                ]
+            )
+        if sc.hypothesis_id not in chosen and not sc.approved:
+            items.append(
+                [
+                    ("b", f"{sc.hypothesis_id} {sc.mechanism}: "),
+                    (
+                        "",
+                        f"survived the red team but not recommended (upside {sc.upside}, "
+                        f"risk {sc.risk}; ranked below the recommended pursuits).",
+                    ),
+                ]
+            )
+    if not items:
+        return []
+    return [
+        Para([("b", "Screened out by the memo agent (not killed by the red team)")]),
+        Bullets(items),
+    ]
+
+
+def _citation_summary(inp: MemoInput, d: MemoDraft) -> list[Block]:
+    """What the checker caught and proof none of it reached the memo (counts are of claims)."""
+    status = inp.claim_status()
+    if not status:
+        return []
+    n = lambda kind: sum(1 for v in status.values() if v == kind)  # noqa: E731
+    cited_ids = {
+        c
+        for p in d.pursuits
+        for st in (*p.why_good, *p.what_could_go_wrong, p.return_vs_risk)
+        for c in st.claim_ids
+    } | {c for st in d.bottom_line for c in st.claim_ids}
+    leaked = sum(1 for c in cited_ids if status.get(c) == "removed")
+    return [
+        Para(
+            [
+                (
+                    "",
+                    f"The checker examined {len(status)} claims: {n('verified')} fully supported, "
+                    f"{n('partly')} partly supported (kept, labelled and with lower confidence), "
+                    f"{n('removed')} removed because no source supported them. "
+                    f"The memo cites {len(cited_ids)} claims, of which {leaked} were removed.",
+                )
+            ]
+        )
+    ]
 
 
 def build_outline(inp: MemoInput, draft: MemoDraft, charts: dict[str, Path]) -> Outline:
