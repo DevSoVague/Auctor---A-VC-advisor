@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up items in Google News search RSS format, for tests only. -->
+<rss version="2.0"><channel><title>"COPD" - Google News</title>
+  <item>
+    <title>[fixture] Fixture Bio starts Phase 3 of FIX-101 in COPD - Fixture Wire</title>
+    <link>https://news.google.com/rss/articles/FIXTURE-0001</link>
+    <guid isPermaLink="false">FIXTURE-0001</guid>
+    <pubDate>Thu, 31 Dec 2020 23:30:00 -0500</pubDate>
+    <description>&lt;a href="https://example.invalid/fixture-0001"&gt;[fixture] Fixture Bio starts Phase 3 of FIX-101 in COPD&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;font color="#6f6f6f"&gt;Fixture Wire&lt;/font&gt;</description>
+    <source url="https://example.invalid">Fixture Wire</source>
+  </item>
+  <item>
+    <title>[fixture] Same story, reported later - Other Fixture News</title>
+    <link>https://news.google.com/rss/articles/FIXTURE-0002</link>
+    <pubDate>Mon, 14 Dec 2020 10:00:00 GMT</pubDate>
+    <source url="https://example.invalid">Other Fixture News</source>
+  </item>
+  <item>
+    <title>[fixture] Same story, reported later - Fixture Daily</title>
+    <link>https://news.google.com/rss/articles/FIXTURE-0003</link>
+    <pubDate>Tue, 15 Dec 2020 10:00:00 GMT</pubDate>
+    <source url="https://example.invalid">Fixture Daily</source>
+  </item>
+  <item><title>[fixture] Item with no date is skipped</title></item>
+</channel></rss>

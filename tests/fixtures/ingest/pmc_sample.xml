@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up article in PMC JATS format, for tests only. -->
+<pmc-articleset>
+  <article xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ali="http://www.niso.org/schemas/ali/1.0/">
+    <front><article-meta>
+      <pub-date pub-type="epub"><day>10</day><month>03</month><year>2023</year></pub-date>
+      <pub-date pub-type="pmc-release"><day>10</day><month>03</month><year>2024</year></pub-date>
+      <permissions><license license-type="open-access" xlink:href="https://creativecommons.org/licenses/by/4.0/">
+        <ali:license_ref>https://creativecommons.org/licenses/by/4.0/</ali:license_ref></license></permissions>
+    </article-meta></front>
+    <body>
+      <sec><title>Introduction</title><p>Made-up background on <italic>FIX-101</italic>.</p></sec>
+      <sec><title>Methods</title>
+        <sec><title>Design</title><p>Made-up randomized design.</p></sec>
+      </sec>
+      <sec><title>Results</title>
+        <p>Made-up: FEV<sub>1</sub> improved by 100 mL.</p>
+        <table-wrap><label>Table 2</label><caption><p>Adverse events</p></caption>
+          <table><tr><th>Event</th><th>FIX-101</th></tr><tr><td>Cough</td><td>5%</td></tr></table>
+        </table-wrap>
+      </sec>
+    </body>
+  </article>
+</pmc-articleset>

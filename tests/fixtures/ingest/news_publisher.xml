@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up items in a publisher RSS format, for tests only. -->
+<rss version="2.0"><channel><title>All News</title>
+  <item>
+    <title>[fixture] Fixture Pharma trims pipeline</title>
+    <link>https://example.invalid/fixture-0101</link>
+    <pubDate>Fri, 06 Nov 2026 16:43:26 GMT</pubDate>
+    <description>Made-up summary: the chronic obstructive pulmonary disease program is shelved.</description>
+  </item>
+  <item>
+    <title>[fixture] Fixture Bio raises a Series B for obesity</title>
+    <link>https://example.invalid/fixture-0102</link>
+    <pubDate>Fri, 06 Nov 2026 12:00:00 GMT</pubDate>
+    <description>Made-up summary with no respiratory angle.</description>
+  </item>
+</channel></rss>

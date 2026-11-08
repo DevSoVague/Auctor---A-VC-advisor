@@ -1,0 +1,5 @@
+Brnd_Name,Gnrc_Name,Tot_Mftr,Mftr_Name,Tot_Spndng_2023,Tot_Dsg_Unts_2023,Tot_Clms_2023,Tot_Benes_2023,Avg_Spnd_Per_Dsg_Unt_Wghtd_2023,Avg_Spnd_Per_Clm_2023,Avg_Spnd_Per_Bene_2023
+Daliresp,Fixture-Generic-C,1,Overall,"1,000,000.00",50000,2000,500,20.0,500.0,2000.0
+Daliresp,Fixture-Generic-C,1,Fixture Pharma,"1,000,000.00",50000,2000,500,20.0,500.0,2000.0
+Dupixent Pen,Fixture-Generic-B,1,Overall,3000000,1000,300,100,3000.0,10000.0,30000.0
+Dupixent Syringe,Fixture-Generic-B,1,Overall,1000000,500,100,50,2000.0,10000.0,20000.0
