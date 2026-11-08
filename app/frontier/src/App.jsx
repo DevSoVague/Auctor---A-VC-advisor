@@ -72,7 +72,12 @@ function NewRun({ onStarted }) {
   });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const set = (k) => (e) => setF({ ...f, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
+  const set = (k) => (e) => {
+    const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
+    // Test mode's sample evidence stops in 2020, so it only works with a 2021 cutoff.
+    if (k === "llm") return setF({ ...f, llm: value, as_of: value === "stub" ? "2021-01-01" : today });
+    setF({ ...f, [k]: value });
+  };
 
   const start = async (e) => {
     e.preventDefault();
@@ -97,8 +102,12 @@ function NewRun({ onStarted }) {
           <input className={field} value={f.disease} onChange={set("disease")} />
         </label>
         <label className={label}>Evidence cutoff
-          <input type="date" className={field} value={f.as_of} onChange={set("as_of")} />
-          <span className="mt-1 block text-xs text-slate-500">Nothing published after this date is used (backtests use an earlier date).</span>
+          <input type="date" className={field} value={f.as_of} onChange={set("as_of")} disabled={f.llm === "stub"} />
+          <span className="mt-1 block text-xs text-slate-500">
+            {f.llm === "stub"
+              ? "Test mode uses sample evidence up to 2020, so the cutoff is fixed at 2021-01-01."
+              : "Nothing published after this date is used (backtests use an earlier date)."}
+          </span>
         </label>
         <label className={label}>Review mode
           <select className={field} value={f.mode} onChange={set("mode")}>
