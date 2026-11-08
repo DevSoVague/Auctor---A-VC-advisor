@@ -28,7 +28,14 @@ echo "API up on http://localhost:$PORT"
 # subdomain keeps the address the same across restarts, so the Base44 app's API_BASE_URL
 # secret (https://frontier-ctrlaltcure-api.loca.lt) never needs changing.
 SUBDOMAIN="${SUBDOMAIN:-frontier-ctrlaltcure-api}"
-npx --yes localtunnel@2 --port "$PORT" --subdomain "$SUBDOMAIN" &
+# localtunnel drops idle connections now and then (it exits quietly), so reconnect in a loop.
+(
+  while true; do
+    npx --yes localtunnel@2 --port "$PORT" --subdomain "$SUBDOMAIN"
+    echo "[$(date +%H:%M:%S)] tunnel dropped, reconnecting" >&2
+    sleep 2
+  done
+) &
 LT_PID=$!
 echo "Public address: https://$SUBDOMAIN.loca.lt (if it prints a different one, the name was"
 echo "taken: put the printed address in the Base44 app's API_BASE_URL secret)."
