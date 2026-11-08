@@ -202,6 +202,14 @@ def tools_step(spec: Spec):
     return toolloop
 
 
+def cite_mode(state) -> str:
+    """'node' (A7 after every agent, restarts) | 'end' (one A7 pass at the report) | 'off'."""
+    m = state.get("cite_mode")
+    if m in ("node", "end", "off"):
+        return m
+    return "off" if state.get("cite") is False else "node"
+
+
 def _cite_out(spec: Spec, w: dict):
     if spec.agent == "a2_mechanism":
         return E.A2Output(cards=[E.HypothesisCard.model_validate(c) for c in w["cards"]])
@@ -214,8 +222,8 @@ def cite_step(spec: Spec):
     at most A7.MAX_RESTARTS times; then unsupported sources are stripped. Off when state['cite'] is False."""
     @step(spec, "cite")
     async def cite(state, run, w, hid):
-        if state.get("cite") is False:
-            return R({"cite_retry": False}, "citation check off")
+        if cite_mode(state) != "node":
+            return R({"cite_retry": False}, f"citation check: {cite_mode(state)} (not per node)")
         C = E.a7_citations
         out = _cite_out(spec, w)
         res = await C.check(spec.agent, out, _pack(w), run.ctx, hid)
@@ -355,7 +363,10 @@ async def a1_postcheck(state, run, w, hid):
 @step(A1, "validate")
 async def a1_validate(state, run, w, hid):
     out = E.WhyNow.model_validate(w["out"])
-    return _validate_result(A1, E.a1_disease.A1Error, out, E.a1_disease.check(out), w)
+    problems = E.a1_disease.check(out)
+    if cite_mode(state) != "node":  # citations are checked at the end (or off): do not block on them here
+        problems = [x for x in problems if "needs a cited claim" not in x]
+    return _validate_result(A1, E.a1_disease.A1Error, out, problems, w)
 
 
 @step(A1, "commit")

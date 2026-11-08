@@ -295,13 +295,15 @@ async def setup(config: dict, llm: dict, retrieval: str, message: str = "", sear
     gate = (st["steps"][-1]["detail"] if st.get("pitch") else "no pitch")
     if (st.get("intake") or {}).get("accepted") is False:
         return st, f"PITCH REJECTED, no agent will run: {gate}"
-    flags = " · ".join(k for k in ("tools", "cite", "judge") if st.get(k))
+    flags = " · ".join([k for k in ("tools", "judge") if st.get(k)] + [f"cite {st.get('cite_mode', 'node')}"])
     return st, (f"run {st['run_id'][:8]} · as_of {st['config']['as_of']} · llm {st['llm']['mode']} · "
                 f"search {st['search']} · {flags or 'no tools/cite/judge'} · pitch: {gate}{note}")
 
 
 async def report(st: dict) -> tuple[dict, str]:
     st = copy.deepcopy(st)
+    if (st.get("intake") or {}).get("accepted") is not False:
+        apply(st, await N.final_citations(st))  # cite_mode 'end': one A7 pass before the report
     apply(st, await N.report(st))
     from p3graph import narrate as NR
 

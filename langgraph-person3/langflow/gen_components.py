@@ -156,7 +156,9 @@ class P3StepSetup(Component):
                               "pitch stops the run. Empty = open scan."),
         DropdownInput(name="store_pitch", display_name="Store pitch in shared DB", options=["off", "on"], value="off"),
         DropdownInput(name="tools", display_name="Agent tools (DB/web)", options=["on", "off"], value="on"),
-        DropdownInput(name="cite", display_name="A7 citation check every node", options=["on", "off"], value="on"),
+        DropdownInput(name="cite_mode", display_name="A7 citation check", options=["every node", "end only", "off"],
+                      value="every node", info="every node = check after each agent, restart on hallucination (max 2); "
+                      "end only = agents are not blocked, one check over everything before the report; off = none."),
         DropdownInput(name="judge", display_name="A6b judge decides", options=["on", "off"], value="on"),
         MessageTextInput(name="max_cards", display_name="Max cards (0 = all)", value="1"),
         DropdownInput(name="audience", display_name="Audience", options=["generalist", "specialist"],
@@ -172,7 +174,8 @@ class P3StepSetup(Component):
         llm = {"mode": self.llm_mode, "model": None if self.model == "profile default" else self.model,
                "profile": self.profile}
         msg = getattr(self.message, "text", None) if self.message else None
-        extras = {"tools": self.tools == "on", "cite": self.cite == "on", "judge": self.judge == "on",
+        mode = {"every node": "node", "end only": "end", "off": "off"}.get(self.cite_mode, "node")
+        extras = {"tools": self.tools == "on", "cite": mode != "off", "cite_mode": mode, "judge": self.judge == "on",
                   "max_cards": int((self.max_cards or "0").strip() or 0), "pitch": (self.pitch or "").strip() or None,
                   "store_pitch": self.store_pitch == "on"}
         st, status = await lf_graph.setup(cfg, llm, self.retrieval.strip() or "stub", message=msg or "",
