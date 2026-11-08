@@ -20,7 +20,7 @@ after `commit` (revise / kill / survive). All the logic lives in ../frontier-eng
 nodes only call its step functions, so results are identical to `agent.run()`.
 
 Each node keeps its working data in state["work"]["agent[:hid]"] and writes a debug file
-runs/<run_id>/steps/NNN_<node>.json (what it changed, plus the full prompt / reasoning for `llm`).
+one line in runs/<run_id>/log.jsonl (what it changed, plus the full prompt / reasoning for `llm`).
 """
 
 from __future__ import annotations
@@ -125,14 +125,8 @@ def step(spec: Spec, name: str, fresh: bool = False):
 
 
 def _dump(state: P3State, node_name: str, hid: str | None, row: dict, res: R) -> None:
-    try:
-        d = N.RUNS / state["run_id"] / "steps"
-        d.mkdir(parents=True, exist_ok=True)
-        n = len(state.get("steps") or []) + 1
-        f = d / f"{n:03d}_{node_name}{'_' + hid if hid else ''}.json"
-        f.write_text(json.dumps({**row, "changed": res.delta, **res.artifact}, indent=1, default=str))
-    except OSError:
-        pass  # debug files are best effort
+    """Per-step files were removed: log.jsonl holds the same record (one line per step)."""
+    return
 
 
 def _system(state: P3State, agent: str) -> str | None:

@@ -169,11 +169,11 @@ def test_every_step_runs_in_order_and_is_logged(stub):
     assert all("ms" in x and x["detail"] is not None for x in s["steps"])
     # per-step debug files + step trace
     d = Path(s["workbook_path"]).parent
-    files = sorted((d / "steps").glob("*.json"))
-    assert len(files) == len(nodes) - 2 - nodes.count("next_card")  # setup, intake and next_card write no step file
-    llm_file = next(f for f in files if "a1_llm" in f.name)
-    dump = json.loads(llm_file.read_text())
+    assert not (d / "steps").exists()  # one log.jsonl line per step instead of a file per step
+    recs = [json.loads(x) for x in (d / "log.jsonl").read_text().splitlines()]
+    dump = next(r for r in recs if r["node"] == "a1_llm")
     assert dump["messages"][0]["role"] == "system" and dump["changed"]["raw"]["text"]
+    assert not any(r["node"] in ("setup", "intake") for r in recs)  # the folder starts with the first agent
     assert "| a6_route |" in (d / "steps.md").read_text()
 
 
@@ -502,6 +502,7 @@ def test_rejected_pitch_stops_before_any_agent(stub, tmp_path):
     assert [x["node"] for x in s["steps"]] == ["setup", "intake"]
     assert not s["intake"]["accepted"] and "rejected" in s["report"]
     assert not stub.calls  # no tokens spent
+    assert not (N.RUNS / s["run_id"]).exists()  # and no run folder is left behind
 
 
 def test_accepted_pitch_reaches_a1_and_a2(stub, tmp_path, monkeypatch):

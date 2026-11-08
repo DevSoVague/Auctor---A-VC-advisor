@@ -289,3 +289,23 @@ conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search e
 - **A shared store vs. a private one** for pitches.
 - **A web form, or a Langflow/LangGraph upload field,** for the pitch.
 - **Not live-tested yet:** the database and Docker were shut down.
+
+## Fewer run folders and files (2026-11-08)
+
+- **No folder until an agent runs.** Setup and intake no longer write anything, so a failed start, a rejected pitch, or a node error before A1 leaves no folder. Before, every Playground send created one.
+- **No more `steps/` folder** (it held 90–330 JSON files per run). The same per-step record is one line in `log.jsonl`.
+- **Each run now has:**
+
+  | File | Contents |
+  |---|---|
+  | `live.jsonl` | Node Monitor events |
+  | `log.jsonl` / `log.md` | Full step log |
+  | `chat.md` | Readable chat of the run |
+  | `steps.md`, `report.md`, `result.json`, `analysis.xlsx` | Written at the end |
+  | `pitch.txt` | Only with `--pitch` |
+
+- **Cleanup is never automatic.**
+  - `python -m p3graph clean` lists unfinished runs: no `report.md` and idle for more than 30 minutes.
+  - Add `--keep N` to also list finished runs beyond the newest N.
+  - Nothing is deleted without `--yes`.
+  - Only folders with uuid names are considered. `langflow.log` and `monitor.log` are never touched.
