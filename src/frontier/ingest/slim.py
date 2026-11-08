@@ -1,8 +1,10 @@
 """Slim the store to what the team whiteboard asks for (person 1).
 
-Keeps the 50 curated drug-trial papers, drugs (fda, curated), the trials linked to those
-drugs, and market context. Every other PubMed paper, every news item and every unlinked
-trial is first written to data/archive/ (git-ignored), then deleted from the store. Stops
+Keeps the papers in a curated collection (the 50 drug-trial papers and any later set),
+drugs (fda, curated), the trials linked to those drugs, market context and news (news is
+back in the store at Person 3's request, 2026-11-08). Every other PubMed paper and every
+unlinked trial is first written to data/archive/ (git-ignored), then deleted from the
+store. Stops
 without deleting anything if any of the 50 papers is missing or untagged, or if the store
 has no drugs to link trials to.
 
@@ -20,10 +22,7 @@ from frontier.ingest import collections, structured
 
 ARCHIVE = REPO_ROOT / "data" / "archive"
 KEEP = "copd-drug-trials-2023-2024"
-DROP = (
-    "source = 'news'"
-    " OR (source = 'pubmed' AND NOT COALESCE(fields->'collections', '[]'::jsonb) ? %(keep)s)"
-)
+DROP = "source = 'pubmed' AND jsonb_array_length(COALESCE(fields->'collections', '[]'::jsonb)) = 0"
 
 
 def check(conn) -> list[str]:
@@ -75,9 +74,9 @@ def archive(conn) -> dict[str, int]:
     """Add every row about to be deleted to data/archive/; returns rows newly archived."""
     ARCHIVE.mkdir(parents=True, exist_ok=True)
     counts = {}
-    for source in ("pubmed", "news"):
+    for source in ("pubmed",):
         rows = conn.execute(
-            ROW + "source = %(source)s AND (" + DROP + ")", {"source": source, "keep": KEEP}
+            ROW + "source = %(source)s AND (" + DROP + ")", {"source": source}
         ).fetchall()
         counts[source] = _add_to_archive(
             ARCHIVE / f"{source}-2023-2025.json.gz", [r[0] for r in rows]
@@ -91,7 +90,7 @@ def archive(conn) -> dict[str, int]:
 
 def delete(conn) -> int:
     unlinked = unlinked_trials(conn)
-    cur = conn.execute("DELETE FROM documents WHERE " + DROP, {"keep": KEEP})
+    cur = conn.execute("DELETE FROM documents WHERE " + DROP)
     n = cur.rowcount
     cur = conn.execute("DELETE FROM documents WHERE source = 'ctgov' AND id = ANY(%s)", (unlinked,))
     return n + cur.rowcount

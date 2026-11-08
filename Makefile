@@ -61,12 +61,15 @@ reset-db:
 ingest:
 	@echo "make ingest: not built yet (PRD build order step 4)"; exit 1
 
+# Tests write rows and roll them back, so they never use .env's DATABASE_URL (the shared Neon
+# evidence store). They use the local Docker database; tests that need it skip when it is down.
+TEST_DATABASE_URL ?= postgresql://frontier:frontier@localhost:5433/frontier
 test:
 	$(UV) run --locked ruff check .
-	LLM_MODE=stub $(UV) run --locked pytest --ignore=tests/test_p3_citation_steps.py
+	DATABASE_URL=$(TEST_DATABASE_URL) LLM_MODE=stub $(UV) run --locked pytest --ignore=tests/test_p3_citation_steps.py
 	# Separate process: this test loads the older person3/1to6merged pipeline, and both
 	# copies of Person 3's pipeline share the package name p3graph.
-	LLM_MODE=stub $(UV) run --locked pytest tests/test_p3_citation_steps.py
+	DATABASE_URL=$(TEST_DATABASE_URL) LLM_MODE=stub $(UV) run --locked pytest tests/test_p3_citation_steps.py
 
 lint:
 	$(UV) run --locked ruff check --fix .
