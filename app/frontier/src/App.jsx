@@ -396,15 +396,70 @@ function RunView({ runId }) {
   );
 }
 
+// ---------------------------------------------------------------- sign in
+// Our own sign-in screen. (redirectToLogin() sends visitors to /login on this site, which
+// for a CLI-deployed app is this same page, so it loops; loginWithProvider goes through
+// Base44's auth service instead.)
+function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const withPassword = async (e) => {
+    e.preventDefault();
+    setBusy(true); setErr("");
+    try {
+      const res = await base44.auth.loginViaEmailPassword(email, password);
+      const token = res?.access_token || res?.data?.access_token;
+      if (token) base44.auth.setToken(token, true);
+      window.location.reload();
+    } catch (x) { setErr("Sign-in failed. Check your email and password, or use Google."); setBusy(false); }
+  };
+
+  const field = "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none";
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+      <div className={`${card} w-full max-w-sm p-8`}>
+        <div className="flex items-center gap-3">
+          <FlaskConical className="h-7 w-7 text-teal-600" />
+          <div>
+            <h1 className="text-lg font-semibold text-slate-900">Frontier Hypothesis Engine</h1>
+            <p className="text-xs text-slate-500">UPMC Enterprises · sign in to continue</p>
+          </div>
+        </div>
+        <button className={`${primary} mt-6 w-full`} onClick={() => base44.auth.loginWithProvider("google", window.location.origin + "/")}>
+          Continue with Google
+        </button>
+        <div className="my-5 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200" />or<span className="h-px flex-1 bg-slate-200" /></div>
+        <form onSubmit={withPassword} className="space-y-3">
+          <label className="block text-sm font-medium text-slate-700">Email
+            <input type="email" className={field} value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </label>
+          <label className="block text-sm font-medium text-slate-700">Password
+            <input type="password" className={field} value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </label>
+          {err && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700">{err}</p>}
+          <button className={`${secondary} w-full`} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Sign in</button>
+        </form>
+        <p className="mt-5 flex items-center gap-1.5 text-xs text-slate-500"><ShieldCheck className="h-3.5 w-3.5" /> Only signed-in users can start or review analyses.</p>
+      </div>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- shell
 export default function App() {
   const [user, setUser] = useState(null);
+  const [authState, setAuthState] = useState("checking"); // checking | in | out
   const [runs, setRuns] = useState([]);
   const [selected, setSelected] = useState(null);
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => base44.auth.redirectToLogin(window.location.href));
+    base44.auth.me()
+      .then((u) => { setUser(u); setAuthState("in"); })
+      .catch(() => setAuthState("out"));
   }, []);
 
   const loadRuns = useCallback(() => {
@@ -412,7 +467,8 @@ export default function App() {
   }, []);
   useEffect(() => { if (user) loadRuns(); }, [user, loadRuns, selected]);
 
-  if (!user) return <div className="flex h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
+  if (authState === "checking") return <div className="flex h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
+  if (authState === "out") return <SignIn />;
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -427,7 +483,7 @@ export default function App() {
           </div>
           <div className="flex items-center gap-3 text-sm text-slate-300">
             <span>{user.email}</span>
-            <button className="rounded p-1 hover:bg-slate-800" title="Log out" onClick={() => base44.auth.logout()}><LogOut className="h-4 w-4" /></button>
+            <button className="rounded p-1 hover:bg-slate-800" title="Log out" onClick={() => base44.auth.logout(window.location.origin + "/")}><LogOut className="h-4 w-4" /></button>
           </div>
         </div>
       </header>
