@@ -73,6 +73,7 @@ class P3State(TypedDict, total=False):
     # ---- output
     report: str
     workbook_path: str
+    a8: dict  # agent 8's working data, passed between its steps (a8_read ... a8_commit)
     memo: dict  # agent 8: {docx, pdf, xlsx} file names in the run folder
     memo_error: str | None  # agent 8: why the memo was not written, when it was not
 

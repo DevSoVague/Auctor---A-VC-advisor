@@ -336,38 +336,59 @@ def _verdict_line(v: dict, j: dict, revised: bool) -> str:
     return out
 
 
-async def a8_memo(state: P3State) -> dict:
-    """Agent 8 (person 5): the investor memo, written last from the run's own checked output.
+A8_STEPS = ["read", "score", "pick", "prompt", "llm", "check", "merge", "charts", "docx", "pdf",
+            "xlsx", "commit"]
 
-    It reads the saved agent outputs only: no search, no web. It reports to the monitor like every
-    other agent: what it read, what the code picked, the model call (when the run is live), the
-    rules it applied and the files it wrote. A memo problem never fails the run.
+
+def a8_node(step: str):
+    """One step of agent 8 (person 5), the memo writer, as a graph node: a8_read ... a8_commit.
+
+    Agent 8 reads only the run's own saved outputs (no search, no web). Like every other agent each
+    step reports to the monitor: what it read, what it decided and why, the model call when the run
+    is live, the rules applied, the files written. A memo problem never fails the run: the step
+    records the error, the later steps skip, and the run still finishes.
     """
-    import time
 
-    send = live.observer(state, "a8_memo", agent="a8_orchestrator")
-    send("start")
-    t0 = time.time()
-    try:
-        from frontier.memo.run_memo import memo_for_run
-    except ImportError as exc:  # the frontier package is not installed in this environment
-        msg = f"memo skipped: the frontier package is not installed here ({exc}). Run: pip install -e <repo>"
-        send("end", {"detail": msg, "skipped": True})
-        return {"memo": {}, "memo_error": msg}
-    try:
-        run_dir = Path(state["workbook_path"]).parent
-        files = await memo_for_run(dict(state), run_dir, send=send)
-    except Exception as exc:  # noqa: BLE001 - observability and the memo must not fail the run
-        msg = f"{type(exc).__name__}: {exc}"
-        send("error", {"error": msg})
-        return {"memo": {}, "memo_error": msg}
-    ms = int((time.time() - t0) * 1000)
-    detail = "memo written: " + ", ".join(files.values())
-    NR.say(_writer(), state["run_id"], "Memo", "📝", "a8_memo",
-           f"The investor memo is written ({', '.join(files.values())}) in {Path(state['workbook_path']).parent}.", ms)
-    send("end", {"detail": detail, "result": {"files": files}})
-    return {"memo": files, "memo_error": None,
-            "steps": [{"node": "a8_memo", "agent": "a8_orchestrator", "hid": None, "ms": ms, "detail": detail}]}
+    async def node(state: P3State) -> dict:
+        import time
+
+        send = live.observer(state, f"a8_{step}", agent="a8_orchestrator")
+        send("start")
+        t0 = time.time()
+        work = dict(state.get("a8") or {})
+        try:
+            from frontier.memo import steps as A8
+        except ImportError as exc:  # the frontier package is not installed in this environment
+            msg = f"memo skipped: the frontier package is not installed here ({exc}). pip install -e <repo>"
+            send("end", {"detail": msg, "skipped": True})
+            return {"a8": {**work, "error": msg}, "memo": {}, "memo_error": msg}
+        try:
+            run_dir = Path(state["workbook_path"]).parent
+            work, detail = await A8.run_step(step, dict(state), work, run_dir, send)
+            send("end", {"detail": detail})
+        except Exception as exc:  # noqa: BLE001 - the memo must not fail the run
+            work["error"] = f"{type(exc).__name__}: {exc}"
+            detail = work["error"]
+            send("error", {"error": detail})
+        ms = int((time.time() - t0) * 1000)
+        out: dict = {"a8": work, "steps": [{"node": f"a8_{step}", "agent": "a8_orchestrator",
+                                            "hid": None, "ms": ms, "detail": detail}]}
+        if step == "commit":
+            files = dict(work.get("files") or {})
+            out.update(memo=files, memo_error=None if files else (work.get("error") or "no memo"))
+            if files:
+                NR.say(_writer(), state["run_id"], "Memo", "📝", "a8_commit",
+                       f"The investor memo is written ({', '.join(files.values())}) in "
+                       f"{Path(state['workbook_path']).parent}.", ms)
+        return out
+
+    node.__name__ = f"a8_{step}"
+    return node
+
+
+def a8_route(state: P3State) -> str:
+    """After a8_check: back to the model once with the rule breaks listed, else on to the merge."""
+    return "a8_llm" if (state.get("a8") or {}).get("retry") else "a8_merge"
 
 
 def report_md(state: P3State) -> str:

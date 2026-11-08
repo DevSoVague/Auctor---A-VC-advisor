@@ -394,15 +394,21 @@ async def report(st: dict) -> tuple[dict, str]:
     return st, st["workbook_path"]
 
 
-async def a8_memo(st: dict) -> tuple[dict, str]:
-    """Agent 8: the investor memo, from the run's own checked output (no search, no web).
-    Reports to the monitor like every other node (what it read, the model call, the files)."""
+async def a8_step(st: dict, step: str) -> tuple[dict, str]:
+    """One step of agent 8 (the memo writer): the same graph node the CLI runs, so the canvas and the
+    monitor show the same thing. Agent 8 reads only the run's own saved outputs: no search, no web.
+
+    After `check` the graph may send the run back to the model once (rule breaks listed); here that loop
+    is done in place, because a canvas cannot loop."""
     st = copy.deepcopy(st)
-    apply(st, await N.a8_memo(st))
-    files = st.get("memo") or {}
-    if files:
-        return st, "memo written: " + ", ".join(files.values())
-    return st, st.get("memo_error") or "no memo was written"
+    apply(st, await N.a8_node(step)(st))
+    if step == "check":
+        while (st.get("a8") or {}).get("retry"):
+            apply(st, await N.a8_node("llm")(st))
+            apply(st, await N.a8_node("check")(st))
+    row = (st.get("steps") or [{}])[-1]
+    detail = row.get("detail") if row.get("node", "").startswith("a8_") else ""
+    return st, detail or f"a8 {step}"
 
 
 async def execute_custom(st: dict, *, name: str, after: str, node: str, params: str) -> tuple[dict, str]:

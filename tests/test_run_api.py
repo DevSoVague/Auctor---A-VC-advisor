@@ -176,7 +176,7 @@ def test_a_failed_run_can_be_retried_from_its_checkpoint(client):
 
 
 def test_agent_8_reports_to_the_monitor_like_the_other_agents(client):
-    """The a8_memo node writes the memo inside the graph and emits live events the monitor shows."""
+    """Agent 8 is twelve graph nodes (a8_read ... a8_commit); each reports to the monitor."""
     import json
 
     run_id = client.post("/runs", json={**STUB, "mode": "single_shot"}).json()["run_id"]
@@ -184,12 +184,13 @@ def test_agent_8_reports_to_the_monitor_like_the_other_agents(client):
     assert body["status"] == "done" and body["memo"]["docx"] == "memo.docx"
     live = client.get(f"/runs/{run_id}/files/live.jsonl").text.splitlines()
     events = [json.loads(line) for line in live if line.strip()]
-    a8 = [e for e in events if e.get("node") == "a8_memo"]
-    kinds = [e["event"] for e in a8]
-    assert kinds[0] == "start" and kinds[-1] == "end", kinds
-    assert kinds.count("inputs") == 3  # what it read, the rules applied, the files written
-    reads = next(e for e in a8 if e["event"] == "inputs")["inputs"]
+    started = [e["node"] for e in events if e["event"] == "start" and e["node"].startswith("a8_")]
+    assert started == [
+        f"a8_{s}"
+        for s in "read score pick prompt llm check merge charts docx pdf xlsx commit".split()
+    ]
+    ended = {e["node"] for e in events if e["event"] == "end" and e["node"].startswith("a8_")}
+    assert ended == set(started)
+    reads = next(e for e in events if e["node"] == "a8_read" and e["event"] == "inputs")["inputs"]
     assert reads["agent 8 reads"].endswith("no search, no web)")
-    assert {"hypotheses", "claims checked", "code picked"} <= reads.keys()
-    assert a8[-1]["result"]["files"]["docx"] == "memo.docx"
-    assert all(e.get("agent") == "a8_orchestrator" for e in a8)
+    assert all(e.get("agent") == "a8_orchestrator" for e in events if e["node"].startswith("a8_"))

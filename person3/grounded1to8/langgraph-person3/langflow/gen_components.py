@@ -129,39 +129,70 @@ class {cls}(Component):
 '''
 
 
-A8 = HEAD.replace("from lfx.schema.data import Data", "from lfx.schema.data import Data\nfrom lfx.schema.message import Message") + '''
+# Agent 8 (the memo writer) is split into visible steps like every other agent; the work is in frontier.memo.steps.
+A8_STEPS = ["read", "score", "pick", "prompt", "llm", "check", "merge", "charts", "docx", "pdf", "xlsx", "commit"]
+A8_INFO = {
+    "read": ("eye", "What the run gave agent 8: which agents' outputs exist, claim counts, gaps. Reads only the run; never searches."),
+    "score": ("gauge", "Code: upside and risk ratings and the reasons, per surviving hypothesis."),
+    "pick": ("list-checks", "Code: the menu of ways in, the 2-3 pursuits chosen, the Proceed with Caution check, the catalysts."),
+    "prompt": ("message-square", "The exact messages the memo model gets: the rules plus the brief of allowed facts."),
+    "llm": ("brain", "The memo model call (none in a stub run). The monitor shows the messages and the streamed answer."),
+    "check": ("shield-check", "The rules applied to the model's wording: names, numbers, citations, order. One retry, then template wording."),
+    "merge": ("merge", "Model wording if it passed the rules, otherwise the template wording."),
+    "charts": ("bar-chart", "Draws the memo's charts."),
+    "docx": ("file-text", "Writes memo.docx."),
+    "pdf": ("file-type", "Writes memo.pdf (needs LibreOffice; skipped with a note if it is missing)."),
+    "xlsx": ("file-spreadsheet", "Writes programs.xlsx, the program table."),
+    "commit": ("save", "The files written, and the summary shown in the chat."),
+}
 
-class P3StepA8Memo(Component):
-    display_name = "P3 · A8 Memo"
-    description = ("Agent 8: writes the investor memo (Word, PDF, Excel) from the run's own checked output. "
-                   "It never searches. It reports to the monitor.")
-    icon = "file-text"
-    name = "P3StepA8Memo"
 
-    inputs = [HandleInput(name="state", display_name="Run state", input_types=["Data"], required=True)]
-    outputs = [
-        Output(display_name="Report + memo", name="summary", method="build_summary"),
-        Output(display_name="Run state", name="state_out", method="build_state"),
+A8_LABEL = {"llm": "Model call", "docx": "Word memo", "pdf": "PDF", "xlsx": "Excel table", "read": "Read the run",
+            "score": "Score", "pick": "Pick pursuits", "prompt": "Prompt", "check": "Rule check", "merge": "Merge wording",
+            "charts": "Charts", "commit": "Commit"}
+
+
+def a8_step_file(step: str) -> str:
+    icon, desc = A8_INFO[step]
+    cls = f"P3A8{step.capitalize()}"
+    n = A8_STEPS.index(step) + 1
+    extra_out, extra_method, head = "", "", HEAD
+    if step == "commit":
+        head = HEAD.replace("from lfx.schema.data import Data", "from lfx.schema.data import Data\nfrom lfx.schema.message import Message")
+        extra_out = '''
+        Output(display_name="Report + memo", name="summary", method="build_summary"),'''
+        extra_method = '''
+
+    async def build_summary(self) -> Message:
+        st, _ = await self._done()
+        files = st.get("memo") or {}
+        memo = ("\\n\\n## Memo (agent 8)\\n" + "\\n".join(f"- {k}: runs/{st['run_id']}/{v}" for k, v in files.items())
+                if files else f"\\n\\n## Memo (agent 8)\\nNot written: {st.get('memo_error') or 'unknown reason'}")
+        return Message(text=st.get("report", "") + memo)'''
+    return f'''{head}
+
+class {cls}(Component):
+    display_name = "P3 · A8.{n} {A8_LABEL[step]}"
+    description = "A8 Memo: {desc}"
+    icon = "{icon}"
+    name = "{cls}"
+
+    inputs = [
+{STATE_IN}    ]
+    outputs = [Output(display_name="Run state", name="state_out", method="run_step"),{extra_out}
     ]
 
     async def _done(self):
         lf_graph = _load_lf()
 
         if not hasattr(self, "_cache"):
-            self._cache = await lf_graph.a8_memo(self.state.data)
+            self._cache = await lf_graph.a8_step(self.state.data, "{step}")
         return self._cache
 
-    async def build_summary(self) -> Message:
+    async def run_step(self) -> Data:
         st, status = await self._done()
         self.status = status
-        files = st.get("memo") or {}
-        memo = ("\\n\\n## Memo (agent 8)\\n" + "\\n".join(f"- {k}: runs/{st['run_id']}/{v}" for k, v in files.items())
-                if files else f"\\n\\n## Memo (agent 8)\\nNot written: {st.get('memo_error') or 'unknown reason'}")
-        return Message(text=st.get("report", "") + memo)
-
-    async def build_state(self) -> Data:
-        st, _ = await self._done()
-        return Data(data=st)
+        return Data(data=st){extra_method}
 '''
 
 
@@ -296,7 +327,7 @@ class P3StepJoin(Component):
         return Data(data=st)
 '''
 
-AFTER = [f"{a}_{s}" for a in ORDER for s in ORDER[a]] + ["setup", "report"]
+AFTER = [f"{a}_{s}" for a in ORDER for s in ORDER[a]] + ["setup", "report"]  # A8 has no insert points
 CUSTOM = HEAD + f'''
 
 class P3CustomNode(Component):
@@ -337,8 +368,11 @@ def main() -> None:
         for step in ORDER[a]:
             (OUT / f"step_{a}_{step}.py").write_text(step_file(a, step))
             n += 1
-    for name, src in (("step_setup", SETUP), ("step_report", REPORT), ("step_a8_memo", A8), ("step_custom", CUSTOM), ("step_join", JOIN)):
+    for name, src in (("step_setup", SETUP), ("step_report", REPORT), ("step_custom", CUSTOM), ("step_join", JOIN)):
         (OUT / f"{name}.py").write_text(src)
+        n += 1
+    for step in A8_STEPS:
+        (OUT / f"step_a8_{step}.py").write_text(a8_step_file(step))
         n += 1
     print(f"wrote {n} components to {OUT}")
 

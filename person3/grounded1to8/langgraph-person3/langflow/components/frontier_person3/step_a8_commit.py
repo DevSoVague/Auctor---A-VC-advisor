@@ -20,34 +20,35 @@ from lfx.schema.data import Data
 from lfx.schema.message import Message
 
 
-class P3StepA8Memo(Component):
-    display_name = "P3 · A8 Memo"
-    description = ("Agent 8: writes the investor memo (Word, PDF, Excel) from the run's own checked output. "
-                   "It never searches. It reports to the monitor.")
-    icon = "file-text"
-    name = "P3StepA8Memo"
+class P3A8Commit(Component):
+    display_name = "P3 · A8.12 Commit"
+    description = "A8 Memo: The files written, and the summary shown in the chat."
+    icon = "save"
+    name = "P3A8Commit"
 
-    inputs = [HandleInput(name="state", display_name="Run state", input_types=["Data"], required=True)]
-    outputs = [
+    inputs = [
+        HandleInput(name="state", display_name="Run state", input_types=["Data"], required=True,
+                    info="State from the previous node."),
+    ]
+    outputs = [Output(display_name="Run state", name="state_out", method="run_step"),
         Output(display_name="Report + memo", name="summary", method="build_summary"),
-        Output(display_name="Run state", name="state_out", method="build_state"),
     ]
 
     async def _done(self):
         lf_graph = _load_lf()
 
         if not hasattr(self, "_cache"):
-            self._cache = await lf_graph.a8_memo(self.state.data)
+            self._cache = await lf_graph.a8_step(self.state.data, "commit")
         return self._cache
 
-    async def build_summary(self) -> Message:
+    async def run_step(self) -> Data:
         st, status = await self._done()
         self.status = status
+        return Data(data=st)
+
+    async def build_summary(self) -> Message:
+        st, _ = await self._done()
         files = st.get("memo") or {}
         memo = ("\n\n## Memo (agent 8)\n" + "\n".join(f"- {k}: runs/{st['run_id']}/{v}" for k, v in files.items())
                 if files else f"\n\n## Memo (agent 8)\nNot written: {st.get('memo_error') or 'unknown reason'}")
         return Message(text=st.get("report", "") + memo)
-
-    async def build_state(self) -> Data:
-        st, _ = await self._done()
-        return Data(data=st)

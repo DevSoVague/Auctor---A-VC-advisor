@@ -538,12 +538,12 @@
     "id": "p3-chat",
     "type": "genericNode",
     "position": {
-     "x": 1280,
-     "y": 4260.0
+     "x": 5280,
+     "y": 5100
     },
     "positionAbsolute": {
-     "x": 1280,
-     "y": 4260.0
+     "x": 5280,
+     "y": 5100
     },
     "dragging": false,
     "selected": false,
@@ -573,7 +573,7 @@
          "Data"
         ],
         "dynamic": false,
-        "info": "",
+        "info": "State from the previous node.",
         "title_case": false,
         "track_in_telemetry": false,
         "type": "other",
@@ -586,7 +586,7 @@
         "list": false,
         "show": true,
         "multiline": true,
-        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\nfrom lfx.schema.message import Message\n\n\nclass P3StepA8Memo(Component):\n    display_name = \"P3 \u00b7 A8 Memo\"\n    description = (\"Agent 8: writes the investor memo (Word, PDF, Excel) from the run's own checked output. \"\n                   \"It never searches. It reports to the monitor.\")\n    icon = \"file-text\"\n    name = \"P3StepA8Memo\"\n\n    inputs = [HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True)]\n    outputs = [\n        Output(display_name=\"Report + memo\", name=\"summary\", method=\"build_summary\"),\n        Output(display_name=\"Run state\", name=\"state_out\", method=\"build_state\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_memo(self.state.data)\n        return self._cache\n\n    async def build_summary(self) -> Message:\n        st, status = await self._done()\n        self.status = status\n        files = st.get(\"memo\") or {}\n        memo = (\"\\n\\n## Memo (agent 8)\\n\" + \"\\n\".join(f\"- {k}: runs/{st['run_id']}/{v}\" for k, v in files.items())\n                if files else f\"\\n\\n## Memo (agent 8)\\nNot written: {st.get('memo_error') or 'unknown reason'}\")\n        return Message(text=st.get(\"report\", \"\") + memo)\n\n    async def build_state(self) -> Data:\n        st, _ = await self._done()\n        return Data(data=st)\n",
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\nfrom lfx.schema.message import Message\n\n\nclass P3A8Commit(Component):\n    display_name = \"P3 \u00b7 A8.12 Commit\"\n    description = \"A8 Memo: The files written, and the summary shown in the chat.\"\n    icon = \"save\"\n    name = \"P3A8Commit\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n        Output(display_name=\"Report + memo\", name=\"summary\", method=\"build_summary\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"commit\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n\n    async def build_summary(self) -> Message:\n        st, _ = await self._done()\n        files = st.get(\"memo\") or {}\n        memo = (\"\\n\\n## Memo (agent 8)\\n\" + \"\\n\".join(f\"- {k}: runs/{st['run_id']}/{v}\" for k, v in files.items())\n                if files else f\"\\n\\n## Memo (agent 8)\\nNot written: {st.get('memo_error') or 'unknown reason'}\")\n        return Message(text=st.get(\"report\", \"\") + memo)\n",
         "fileTypes": [],
         "file_path": "",
         "password": false,
@@ -598,13 +598,13 @@
         "title_case": false
        }
       },
-      "description": "Agent 8: writes the investor memo (Word, PDF, Excel) from the run's own checked output. It never searches. It reports to the monitor.",
-      "icon": "file-text",
+      "description": "A8 Memo: The files written, and the summary shown in the chat.",
+      "icon": "save",
       "base_classes": [
        "Data",
        "Message"
       ],
-      "display_name": "P3 \u00b7 A8 Memo",
+      "display_name": "P3 \u00b7 A8.12 Commit",
       "documentation": "",
       "minimized": false,
       "custom_fields": {},
@@ -615,12 +615,12 @@
       "outputs": [
        {
         "types": [
-         "Message"
+         "Data"
         ],
-        "selected": "Message",
-        "name": "summary",
-        "display_name": "Report + memo",
-        "method": "build_summary",
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
         "value": "__UNDEFINED__",
         "cache": true,
         "allows_loop": false,
@@ -629,12 +629,12 @@
        },
        {
         "types": [
-         "Data"
+         "Message"
         ],
-        "selected": "Data",
-        "name": "state_out",
-        "display_name": "Run state",
-        "method": "build_state",
+        "selected": "Message",
+        "name": "summary",
+        "display_name": "Report + memo",
+        "method": "build_summary",
         "value": "__UNDEFINED__",
         "cache": true,
         "allows_loop": false,
@@ -649,20 +649,1164 @@
       "metadata": {},
       "tool_mode": false
      },
-     "type": "P3StepA8Memo",
-     "id": "p3-a8",
-     "display_name": "P3 \u00b7 A8 Memo",
-     "description": "Agent 8: writes the investor memo (Word, PDF, Excel) from the run's own checked output. It never searches. It reports to the monitor."
+     "type": "P3A8Commit",
+     "id": "p3-a8-commit",
+     "display_name": "P3 \u00b7 A8.12 Commit",
+     "description": "A8 Memo: The files written, and the summary shown in the chat."
     },
-    "id": "p3-a8",
+    "id": "p3-a8-commit",
+    "type": "genericNode",
+    "position": {
+     "x": 4880,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 4880,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Xlsx(Component):\n    display_name = \"P3 \u00b7 A8.11 Excel table\"\n    description = \"A8 Memo: Writes programs.xlsx, the program table.\"\n    icon = \"file-spreadsheet\"\n    name = \"P3A8Xlsx\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"xlsx\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: Writes programs.xlsx, the program table.",
+      "icon": "file-spreadsheet",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.11 Excel table",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Xlsx",
+     "id": "p3-a8-xlsx",
+     "display_name": "P3 \u00b7 A8.11 Excel table",
+     "description": "A8 Memo: Writes programs.xlsx, the program table."
+    },
+    "id": "p3-a8-xlsx",
+    "type": "genericNode",
+    "position": {
+     "x": 4480,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 4480,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Pdf(Component):\n    display_name = \"P3 \u00b7 A8.10 PDF\"\n    description = \"A8 Memo: Writes memo.pdf (needs LibreOffice; skipped with a note if it is missing).\"\n    icon = \"file-type\"\n    name = \"P3A8Pdf\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"pdf\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: Writes memo.pdf (needs LibreOffice; skipped with a note if it is missing).",
+      "icon": "file-type",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.10 PDF",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Pdf",
+     "id": "p3-a8-pdf",
+     "display_name": "P3 \u00b7 A8.10 PDF",
+     "description": "A8 Memo: Writes memo.pdf (needs LibreOffice; skipped with a note if it is missing)."
+    },
+    "id": "p3-a8-pdf",
+    "type": "genericNode",
+    "position": {
+     "x": 4080,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 4080,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Docx(Component):\n    display_name = \"P3 \u00b7 A8.9 Word memo\"\n    description = \"A8 Memo: Writes memo.docx.\"\n    icon = \"file-text\"\n    name = \"P3A8Docx\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"docx\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: Writes memo.docx.",
+      "icon": "file-text",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.9 Word memo",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Docx",
+     "id": "p3-a8-docx",
+     "display_name": "P3 \u00b7 A8.9 Word memo",
+     "description": "A8 Memo: Writes memo.docx."
+    },
+    "id": "p3-a8-docx",
+    "type": "genericNode",
+    "position": {
+     "x": 3680,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 3680,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Charts(Component):\n    display_name = \"P3 \u00b7 A8.8 Charts\"\n    description = \"A8 Memo: Draws the memo's charts.\"\n    icon = \"bar-chart\"\n    name = \"P3A8Charts\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"charts\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: Draws the memo's charts.",
+      "icon": "bar-chart",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.8 Charts",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Charts",
+     "id": "p3-a8-charts",
+     "display_name": "P3 \u00b7 A8.8 Charts",
+     "description": "A8 Memo: Draws the memo's charts."
+    },
+    "id": "p3-a8-charts",
+    "type": "genericNode",
+    "position": {
+     "x": 3280,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 3280,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Merge(Component):\n    display_name = \"P3 \u00b7 A8.7 Merge wording\"\n    description = \"A8 Memo: Model wording if it passed the rules, otherwise the template wording.\"\n    icon = \"merge\"\n    name = \"P3A8Merge\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"merge\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: Model wording if it passed the rules, otherwise the template wording.",
+      "icon": "merge",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.7 Merge wording",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Merge",
+     "id": "p3-a8-merge",
+     "display_name": "P3 \u00b7 A8.7 Merge wording",
+     "description": "A8 Memo: Model wording if it passed the rules, otherwise the template wording."
+    },
+    "id": "p3-a8-merge",
+    "type": "genericNode",
+    "position": {
+     "x": 2880,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 2880,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Check(Component):\n    display_name = \"P3 \u00b7 A8.6 Rule check\"\n    description = \"A8 Memo: The rules applied to the model's wording: names, numbers, citations, order. One retry, then template wording.\"\n    icon = \"shield-check\"\n    name = \"P3A8Check\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"check\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: The rules applied to the model's wording: names, numbers, citations, order. One retry, then template wording.",
+      "icon": "shield-check",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.6 Rule check",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Check",
+     "id": "p3-a8-check",
+     "display_name": "P3 \u00b7 A8.6 Rule check",
+     "description": "A8 Memo: The rules applied to the model's wording: names, numbers, citations, order. One retry, then template wording."
+    },
+    "id": "p3-a8-check",
+    "type": "genericNode",
+    "position": {
+     "x": 2480,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 2480,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Llm(Component):\n    display_name = \"P3 \u00b7 A8.5 Model call\"\n    description = \"A8 Memo: The memo model call (none in a stub run). The monitor shows the messages and the streamed answer.\"\n    icon = \"brain\"\n    name = \"P3A8Llm\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"llm\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: The memo model call (none in a stub run). The monitor shows the messages and the streamed answer.",
+      "icon": "brain",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.5 Model call",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Llm",
+     "id": "p3-a8-llm",
+     "display_name": "P3 \u00b7 A8.5 Model call",
+     "description": "A8 Memo: The memo model call (none in a stub run). The monitor shows the messages and the streamed answer."
+    },
+    "id": "p3-a8-llm",
+    "type": "genericNode",
+    "position": {
+     "x": 2080,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 2080,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Prompt(Component):\n    display_name = \"P3 \u00b7 A8.4 Prompt\"\n    description = \"A8 Memo: The exact messages the memo model gets: the rules plus the brief of allowed facts.\"\n    icon = \"message-square\"\n    name = \"P3A8Prompt\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"prompt\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: The exact messages the memo model gets: the rules plus the brief of allowed facts.",
+      "icon": "message-square",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.4 Prompt",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Prompt",
+     "id": "p3-a8-prompt",
+     "display_name": "P3 \u00b7 A8.4 Prompt",
+     "description": "A8 Memo: The exact messages the memo model gets: the rules plus the brief of allowed facts."
+    },
+    "id": "p3-a8-prompt",
+    "type": "genericNode",
+    "position": {
+     "x": 1680,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 1680,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Pick(Component):\n    display_name = \"P3 \u00b7 A8.3 Pick pursuits\"\n    description = \"A8 Memo: Code: the menu of ways in, the 2-3 pursuits chosen, the Proceed with Caution check, the catalysts.\"\n    icon = \"list-checks\"\n    name = \"P3A8Pick\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"pick\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: Code: the menu of ways in, the 2-3 pursuits chosen, the Proceed with Caution check, the catalysts.",
+      "icon": "list-checks",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.3 Pick pursuits",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Pick",
+     "id": "p3-a8-pick",
+     "display_name": "P3 \u00b7 A8.3 Pick pursuits",
+     "description": "A8 Memo: Code: the menu of ways in, the 2-3 pursuits chosen, the Proceed with Caution check, the catalysts."
+    },
+    "id": "p3-a8-pick",
+    "type": "genericNode",
+    "position": {
+     "x": 1280,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 1280,
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Score(Component):\n    display_name = \"P3 \u00b7 A8.2 Score\"\n    description = \"A8 Memo: Code: upside and risk ratings and the reasons, per surviving hypothesis.\"\n    icon = \"gauge\"\n    name = \"P3A8Score\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"score\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: Code: upside and risk ratings and the reasons, per surviving hypothesis.",
+      "icon": "gauge",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.2 Score",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Score",
+     "id": "p3-a8-score",
+     "display_name": "P3 \u00b7 A8.2 Score",
+     "description": "A8 Memo: Code: upside and risk ratings and the reasons, per surviving hypothesis."
+    },
+    "id": "p3-a8-score",
     "type": "genericNode",
     "position": {
      "x": 880,
-     "y": 4260.0
+     "y": 5100
     },
     "positionAbsolute": {
      "x": 880,
-     "y": 4260.0
+     "y": 5100
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).\n_P3 = os.getenv(\"P3_LANGFLOW_HOME\", \"/Users/sovague/Desktop/ctrl+alt+cure/upmc/langgraph-person3/langflow\")\n\n\ndef _load_lf():\n    \"\"\"Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only\n    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).\"\"\"\n    if _P3 not in sys.path:\n        sys.path.insert(0, _P3)\n    import lf_graph\n\n    return lf_graph\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass P3A8Read(Component):\n    display_name = \"P3 \u00b7 A8.1 Read the run\"\n    description = \"A8 Memo: What the run gave agent 8: which agents' outputs exist, claim counts, gaps. Reads only the run; never searches.\"\n    icon = \"eye\"\n    name = \"P3A8Read\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_step\"),\n    ]\n\n    async def _done(self):\n        lf_graph = _load_lf()\n\n        if not hasattr(self, \"_cache\"):\n            self._cache = await lf_graph.a8_step(self.state.data, \"read\")\n        return self._cache\n\n    async def run_step(self) -> Data:\n        st, status = await self._done()\n        self.status = status\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "A8 Memo: What the run gave agent 8: which agents' outputs exist, claim counts, gaps. Reads only the run; never searches.",
+      "icon": "eye",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "P3 \u00b7 A8.1 Read the run",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_step",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "P3A8Read",
+     "id": "p3-a8-read",
+     "display_name": "P3 \u00b7 A8.1 Read the run",
+     "description": "A8 Memo: What the run gave agent 8: which agents' outputs exist, claim counts, gaps. Reads only the run; never searches."
+    },
+    "id": "p3-a8-read",
+    "type": "genericNode",
+    "position": {
+     "x": 480,
+     "y": 5100
+    },
+    "positionAbsolute": {
+     "x": 480,
+     "y": 5100
     },
     "dragging": false,
     "selected": false,
@@ -7725,540 +8869,6 @@
   ],
   "edges": [
    {
-    "source": "p3-a3-commit",
-    "target": "p3-join",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Commit",
-      "id": "p3-a3-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "branches",
-      "id": "p3-join",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-merge",
-    "target": "p3-a4-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Merge",
-      "id": "p3-a4-merge",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a4-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-merge{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-prompt",
-    "target": "p3-a5-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Prompt",
-      "id": "p3-a5-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-llm",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-prompt{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a8",
-    "target": "p3-chat",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3StepA8Memo",
-      "id": "p3-a8",
-      "name": "summary",
-      "output_types": [
-       "Message"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "input_value",
-      "id": "p3-chat",
-      "inputTypes": [
-       "Data",
-       "DataFrame",
-       "Message"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepA8Memo\u0153,\u0153id\u0153:\u0153p3-a8\u0153,\u0153name\u0153:\u0153summary\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a8{\u0153dataType\u0153:\u0153P3StepA8Memo\u0153,\u0153id\u0153:\u0153p3-a8\u0153,\u0153name\u0153:\u0153summary\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}-p3-chat{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-retrieve",
-    "target": "p3-a6-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Retrieve",
-      "id": "p3-a6-retrieve",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-retrieve{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-toolloop",
-    "target": "p3-a2-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Toolloop",
-      "id": "p3-a2-toolloop",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-llm",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-toolloop{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-postcheck",
-    "target": "p3-a1-validate",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Postcheck",
-      "id": "p3-a1-postcheck",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-validate",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-postcheck{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-setup",
-    "target": "p3-a1-retrieve",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3StepSetup",
-      "id": "p3-setup",
-      "name": "state",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-retrieve",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-setup{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-establish",
-    "target": "p3-a4-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Establish",
-      "id": "p3-a4-establish",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a4-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-establish{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-commit",
-    "target": "p3-a2-retrieve",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Commit",
-      "id": "p3-a1-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-retrieve",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-commit{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-merge",
-    "target": "p3-a5-score",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Merge",
-      "id": "p3-a5-merge",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-score",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-merge{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-score{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-shortlist",
-    "target": "p3-a5-establish",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Shortlist",
-      "id": "p3-a5-shortlist",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-establish",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-shortlist{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-establish{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-prompt",
-    "target": "p3-a4-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Prompt",
-      "id": "p3-a4-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a4-llm",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-prompt{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-commit",
-    "target": "p3-a3-retrieve",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Commit",
-      "id": "p3-a2-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-retrieve",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-score",
-    "target": "p3-a5-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Score",
-      "id": "p3-a5-score",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-score{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-retrieve",
-    "target": "p3-a3-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Retrieve",
-      "id": "p3-a3-retrieve",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-retrieve{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-cite",
-    "target": "p3-a1-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Cite",
-      "id": "p3-a1-cite",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-cite{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-validate",
-    "target": "p3-a1-cite",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Validate",
-      "id": "p3-a1-validate",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-cite",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-validate{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-llm",
-    "target": "p3-a1-parse",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Llm",
-      "id": "p3-a1-llm",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-parse",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-llm{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
     "source": "p3-a2-postcheck",
     "target": "p3-a2-cite",
     "data": {
@@ -8282,6 +8892,90 @@
     "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Postcheck\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
     "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "id": "reactflow__edge-p3-a2-postcheck{\u0153dataType\u0153:\u0153P3A2Postcheck\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-llm",
+    "target": "p3-a4-merge",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Llm",
+      "id": "p3-a4-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-merge",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Llm\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-llm{\u0153dataType\u0153:\u0153P3A4Llm\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-merge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-report",
+    "target": "p3-a8-read",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3StepReport",
+      "id": "p3-report",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-read",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-read\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-report{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-read{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-read\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-llm",
+    "target": "p3-a5-merge",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Llm",
+      "id": "p3-a5-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-merge",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-llm{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-merge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -8315,12 +9009,12 @@
     "selected": false
    },
    {
-    "source": "p3-a1-parse",
-    "target": "p3-a1-postcheck",
+    "source": "p3-a5-shortlist",
+    "target": "p3-a5-establish",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A1Parse",
-      "id": "p3-a1-parse",
+      "dataType": "P3A5Shortlist",
+      "id": "p3-a5-shortlist",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8328,16 +9022,16 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a1-postcheck",
+      "id": "p3-a5-establish",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-parse{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-shortlist{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-establish{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -8371,12 +9065,12 @@
     "selected": false
    },
    {
-    "source": "p3-a3-llm",
-    "target": "p3-a3-parse",
+    "source": "p3-a5-establish",
+    "target": "p3-a5-prompt",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A3Llm",
-      "id": "p3-a3-llm",
+      "dataType": "P3A5Establish",
+      "id": "p3-a5-establish",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8384,55 +9078,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a3-parse",
+      "id": "p3-a5-prompt",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-llm{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-establish{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a4-commit",
-    "target": "p3-join",
+    "source": "p3-a1-commit",
+    "target": "p3-a2-retrieve",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A4Commit",
-      "id": "p3-a4-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "branches",
-      "id": "p3-join",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-commit{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-llm",
-    "target": "p3-a6-parse",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Llm",
-      "id": "p3-a6-llm",
+      "dataType": "P3A1Commit",
+      "id": "p3-a1-commit",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8440,184 +9106,16 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a6-parse",
+      "id": "p3-a2-retrieve",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-llm{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-prompt",
-    "target": "p3-a2-toolloop",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Prompt",
-      "id": "p3-a2-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-toolloop",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-prompt{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-commit",
-    "target": "p3-join",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Commit",
-      "id": "p3-a2-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "base",
-      "id": "p3-join",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153base\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153base\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-parse",
-    "target": "p3-a3-validate",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Parse",
-      "id": "p3-a3-parse",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-validate",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-parse{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-report",
-    "target": "p3-a8",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3StepReport",
-      "id": "p3-report",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a8",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-report{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-commit",
-    "target": "p3-a4-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Commit",
-      "id": "p3-a3-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "a3_state",
-      "id": "p3-a4-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-prompt{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-join",
-    "target": "p3-a6-retrieve",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3StepJoin",
-      "id": "p3-join",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-retrieve",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepJoin\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-join{\u0153dataType\u0153:\u0153P3StepJoin\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-commit{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -8651,12 +9149,12 @@
     "selected": false
    },
    {
-    "source": "p3-a5-llm",
-    "target": "p3-a5-merge",
+    "source": "p3-a3-retrieve",
+    "target": "p3-a3-prompt",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A5Llm",
-      "id": "p3-a5-llm",
+      "dataType": "P3A3Retrieve",
+      "id": "p3-a3-retrieve",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8664,16 +9162,716 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a5-merge",
+      "id": "p3-a3-prompt",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-llm{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-merge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-retrieve{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-commit",
+    "target": "p3-a4-gather",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Commit",
+      "id": "p3-a2-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-gather",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-gather{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-charts",
+    "target": "p3-a8-docx",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Charts",
+      "id": "p3-a8-charts",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-docx",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Charts\u0153,\u0153id\u0153:\u0153p3-a8-charts\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-docx\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-charts{\u0153dataType\u0153:\u0153P3A8Charts\u0153,\u0153id\u0153:\u0153p3-a8-charts\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-docx{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-docx\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-commit",
+    "target": "p3-a5-prompt",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Commit",
+      "id": "p3-a3-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "a3_state",
+      "id": "p3-a5-prompt",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-prompt{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-check",
+    "target": "p3-a8-merge",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Check",
+      "id": "p3-a8-check",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-merge",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Check\u0153,\u0153id\u0153:\u0153p3-a8-check\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-check{\u0153dataType\u0153:\u0153P3A8Check\u0153,\u0153id\u0153:\u0153p3-a8-check\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-merge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-pdf",
+    "target": "p3-a8-xlsx",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Pdf",
+      "id": "p3-a8-pdf",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-xlsx",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Pdf\u0153,\u0153id\u0153:\u0153p3-a8-pdf\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-xlsx\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-pdf{\u0153dataType\u0153:\u0153P3A8Pdf\u0153,\u0153id\u0153:\u0153p3-a8-pdf\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-xlsx{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-xlsx\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-parse",
+    "target": "p3-a6-validate",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Parse",
+      "id": "p3-a6-parse",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-validate",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Parse\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-parse{\u0153dataType\u0153:\u0153P3A6Parse\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-llm",
+    "target": "p3-a1-parse",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Llm",
+      "id": "p3-a1-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-parse",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-llm{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-prompt",
+    "target": "p3-a1-toolloop",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Prompt",
+      "id": "p3-a1-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-toolloop",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Prompt\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-prompt{\u0153dataType\u0153:\u0153P3A1Prompt\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-postcheck",
+    "target": "p3-a3-cite",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Postcheck",
+      "id": "p3-a3-postcheck",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-cite",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-postcheck{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-join",
+    "target": "p3-a6-retrieve",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3StepJoin",
+      "id": "p3-join",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-retrieve",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepJoin\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-join{\u0153dataType\u0153:\u0153P3StepJoin\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-commit",
+    "target": "p3-join",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Commit",
+      "id": "p3-a5-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "branches",
+      "id": "p3-join",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-commit{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-toolloop",
+    "target": "p3-a2-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Toolloop",
+      "id": "p3-a2-toolloop",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-toolloop{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-parse",
+    "target": "p3-a1-postcheck",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Parse",
+      "id": "p3-a1-parse",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-postcheck",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-parse{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-pick",
+    "target": "p3-a8-prompt",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Pick",
+      "id": "p3-a8-pick",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-prompt",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Pick\u0153,\u0153id\u0153:\u0153p3-a8-pick\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-pick{\u0153dataType\u0153:\u0153P3A8Pick\u0153,\u0153id\u0153:\u0153p3-a8-pick\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-chat-in",
+    "target": "p3-setup",
+    "data": {
+     "sourceHandle": {
+      "dataType": "ChatInput",
+      "id": "p3-chat-in",
+      "name": "message",
+      "output_types": [
+       "Message"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "message",
+      "id": "p3-setup",
+      "inputTypes": [
+       "Message"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153ChatInput\u0153,\u0153id\u0153:\u0153p3-chat-in\u0153,\u0153name\u0153:\u0153message\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153message\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153inputTypes\u0153:[\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-chat-in{\u0153dataType\u0153:\u0153ChatInput\u0153,\u0153id\u0153:\u0153p3-chat-in\u0153,\u0153name\u0153:\u0153message\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}-p3-setup{\u0153fieldName\u0153:\u0153message\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153inputTypes\u0153:[\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-commit",
+    "target": "p3-join",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Commit",
+      "id": "p3-a2-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "base",
+      "id": "p3-join",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153base\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153base\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-gather",
+    "target": "p3-a5-shortlist",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Gather",
+      "id": "p3-a5-gather",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-shortlist",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-gather{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-shortlist{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-score",
+    "target": "p3-a5-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Score",
+      "id": "p3-a5-score",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-score{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-llm",
+    "target": "p3-a6-parse",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Llm",
+      "id": "p3-a6-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-parse",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-llm{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-setup",
+    "target": "p3-a1-retrieve",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3StepSetup",
+      "id": "p3-setup",
+      "name": "state",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-retrieve",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-setup{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-commit",
+    "target": "p3-a6-judge",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Commit",
+      "id": "p3-a6-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-judge",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-commit{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-judge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-merge",
+    "target": "p3-a8-charts",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Merge",
+      "id": "p3-a8-merge",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-charts",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Merge\u0153,\u0153id\u0153:\u0153p3-a8-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-charts\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-merge{\u0153dataType\u0153:\u0153P3A8Merge\u0153,\u0153id\u0153:\u0153p3-a8-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-charts{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-charts\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-cite",
+    "target": "p3-a1-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Cite",
+      "id": "p3-a1-cite",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-cite{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-parse",
+    "target": "p3-a3-validate",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Parse",
+      "id": "p3-a3-parse",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-validate",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-parse{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-retrieve",
+    "target": "p3-a6-prompt",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Retrieve",
+      "id": "p3-a6-retrieve",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-prompt",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-retrieve{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -8708,7 +9906,7 @@
    },
    {
     "source": "p3-a3-commit",
-    "target": "p3-a5-prompt",
+    "target": "p3-a4-prompt",
     "data": {
      "sourceHandle": {
       "dataType": "P3A3Commit",
@@ -8720,7 +9918,7 @@
      },
      "targetHandle": {
       "fieldName": "a3_state",
-      "id": "p3-a5-prompt",
+      "id": "p3-a4-prompt",
       "inputTypes": [
        "Data"
       ],
@@ -8728,19 +9926,19 @@
      }
     },
     "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-prompt{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-prompt{\u0153fieldName\u0153:\u0153a3_state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a2-cite",
-    "target": "p3-a2-commit",
+    "source": "p3-a2-prompt",
+    "target": "p3-a2-toolloop",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A2Cite",
-      "id": "p3-a2-cite",
+      "dataType": "P3A2Prompt",
+      "id": "p3-a2-prompt",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8748,27 +9946,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a2-commit",
+      "id": "p3-a2-toolloop",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Cite\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-cite{\u0153dataType\u0153:\u0153P3A2Cite\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-prompt{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a5-gather",
-    "target": "p3-a5-shortlist",
+    "source": "p3-a1-postcheck",
+    "target": "p3-a1-validate",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A5Gather",
-      "id": "p3-a5-gather",
+      "dataType": "P3A1Postcheck",
+      "id": "p3-a1-postcheck",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8776,223 +9974,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a5-shortlist",
+      "id": "p3-a1-validate",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-gather{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-shortlist{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-postcheck{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a6-parse",
-    "target": "p3-a6-validate",
+    "source": "p3-a4-merge",
+    "target": "p3-a4-commit",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A6Parse",
-      "id": "p3-a6-parse",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-validate",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Parse\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-parse{\u0153dataType\u0153:\u0153P3A6Parse\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-chat-in",
-    "target": "p3-setup",
-    "data": {
-     "sourceHandle": {
-      "dataType": "ChatInput",
-      "id": "p3-chat-in",
-      "name": "message",
-      "output_types": [
-       "Message"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "message",
-      "id": "p3-setup",
-      "inputTypes": [
-       "Message"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153ChatInput\u0153,\u0153id\u0153:\u0153p3-chat-in\u0153,\u0153name\u0153:\u0153message\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153message\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153inputTypes\u0153:[\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-chat-in{\u0153dataType\u0153:\u0153ChatInput\u0153,\u0153id\u0153:\u0153p3-chat-in\u0153,\u0153name\u0153:\u0153message\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}-p3-setup{\u0153fieldName\u0153:\u0153message\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153inputTypes\u0153:[\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-prompt",
-    "target": "p3-a1-toolloop",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Prompt",
-      "id": "p3-a1-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-toolloop",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Prompt\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-prompt{\u0153dataType\u0153:\u0153P3A1Prompt\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-toolloop",
-    "target": "p3-a3-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Toolloop",
-      "id": "p3-a3-toolloop",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-llm",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-toolloop{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-commit",
-    "target": "p3-a6-judge",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Commit",
-      "id": "p3-a6-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-judge",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-commit{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-judge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-retrieve",
-    "target": "p3-a1-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Retrieve",
-      "id": "p3-a1-retrieve",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-retrieve{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-llm",
-    "target": "p3-a4-merge",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Llm",
-      "id": "p3-a4-llm",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
+      "dataType": "P3A4Merge",
       "id": "p3-a4-merge",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Llm\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-llm{\u0153dataType\u0153:\u0153P3A4Llm\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-merge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-prompt",
-    "target": "p3-a6-toolloop",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Prompt",
-      "id": "p3-a6-prompt",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -9000,27 +10002,167 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a6-toolloop",
+      "id": "p3-a4-commit",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-prompt{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-merge{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a5-commit",
+    "source": "p3-a8-llm",
+    "target": "p3-a8-check",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Llm",
+      "id": "p3-a8-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-check",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Llm\u0153,\u0153id\u0153:\u0153p3-a8-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-check\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-llm{\u0153dataType\u0153:\u0153P3A8Llm\u0153,\u0153id\u0153:\u0153p3-a8-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-check{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-check\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-gather",
+    "target": "p3-a4-triage",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Gather",
+      "id": "p3-a4-gather",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-triage",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-gather{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-triage{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-establish",
+    "target": "p3-a4-prompt",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Establish",
+      "id": "p3-a4-establish",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-prompt",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-establish{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-docx",
+    "target": "p3-a8-pdf",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Docx",
+      "id": "p3-a8-docx",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-pdf",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Docx\u0153,\u0153id\u0153:\u0153p3-a8-docx\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-pdf\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-docx{\u0153dataType\u0153:\u0153P3A8Docx\u0153,\u0153id\u0153:\u0153p3-a8-docx\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-pdf{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-pdf\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-commit",
+    "target": "p3-a3-retrieve",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Commit",
+      "id": "p3-a2-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-retrieve",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-commit",
     "target": "p3-join",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A5Commit",
-      "id": "p3-a5-commit",
+      "dataType": "P3A3Commit",
+      "id": "p3-a3-commit",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -9035,20 +10177,20 @@
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
     "targetHandle": "{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-commit{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a6-toolloop",
-    "target": "p3-a6-llm",
+    "source": "p3-a4-prompt",
+    "target": "p3-a4-llm",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A6Toolloop",
-      "id": "p3-a6-toolloop",
+      "dataType": "P3A4Prompt",
+      "id": "p3-a4-prompt",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -9056,128 +10198,16 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a6-llm",
+      "id": "p3-a4-llm",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-toolloop{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-prompt",
-    "target": "p3-a3-toolloop",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Prompt",
-      "id": "p3-a3-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-toolloop",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-prompt{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-postcheck",
-    "target": "p3-a6-cite",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Postcheck",
-      "id": "p3-a6-postcheck",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-cite",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-postcheck{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-validate",
-    "target": "p3-a3-postcheck",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Validate",
-      "id": "p3-a3-validate",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-postcheck",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-validate{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-postcheck",
-    "target": "p3-a3-cite",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Postcheck",
-      "id": "p3-a3-postcheck",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-cite",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-postcheck{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-prompt{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -9211,12 +10241,12 @@
     "selected": false
    },
    {
-    "source": "p3-a4-triage",
-    "target": "p3-a4-establish",
+    "source": "p3-a8-score",
+    "target": "p3-a8-pick",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A4Triage",
-      "id": "p3-a4-triage",
+      "dataType": "P3A8Score",
+      "id": "p3-a8-score",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -9224,55 +10254,55 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a4-establish",
+      "id": "p3-a8-pick",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Triage\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-triage{\u0153dataType\u0153:\u0153P3A4Triage\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-establish{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Score\u0153,\u0153id\u0153:\u0153p3-a8-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-pick\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-score{\u0153dataType\u0153:\u0153P3A8Score\u0153,\u0153id\u0153:\u0153p3-a8-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-pick{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-pick\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a2-grade",
-    "target": "p3-a2-postcheck",
+    "source": "p3-a4-commit",
+    "target": "p3-join",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A2Grade",
-      "id": "p3-a2-grade",
+      "dataType": "P3A4Commit",
+      "id": "p3-a4-commit",
       "name": "state_out",
       "output_types": [
        "Data"
       ]
      },
      "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-postcheck",
+      "fieldName": "branches",
+      "id": "p3-join",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Grade\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-grade{\u0153dataType\u0153:\u0153P3A2Grade\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-commit{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-join{\u0153fieldName\u0153:\u0153branches\u0153,\u0153id\u0153:\u0153p3-join\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a4-gather",
-    "target": "p3-a4-triage",
+    "source": "p3-a1-retrieve",
+    "target": "p3-a1-prompt",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A4Gather",
-      "id": "p3-a4-gather",
+      "dataType": "P3A1Retrieve",
+      "id": "p3-a1-retrieve",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -9280,16 +10310,100 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a4-triage",
+      "id": "p3-a1-prompt",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-gather{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-triage{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-retrieve{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-validate",
+    "target": "p3-a1-cite",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Validate",
+      "id": "p3-a1-validate",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-cite",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-validate{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-toolloop",
+    "target": "p3-a1-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Toolloop",
+      "id": "p3-a1-toolloop",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-toolloop{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-prompt",
+    "target": "p3-a3-toolloop",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Prompt",
+      "id": "p3-a3-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-toolloop",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-prompt{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -9351,6 +10465,34 @@
     "selected": false
    },
    {
+    "source": "p3-a3-toolloop",
+    "target": "p3-a3-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Toolloop",
+      "id": "p3-a3-toolloop",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-toolloop{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
     "source": "p3-a6-route",
     "target": "p3-report",
     "data": {
@@ -9374,34 +10516,6 @@
     "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Route\u0153,\u0153id\u0153:\u0153p3-a6-route\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
     "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "id": "reactflow__edge-p3-a6-route{\u0153dataType\u0153:\u0153P3A6Route\u0153,\u0153id\u0153:\u0153p3-a6-route\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-report{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-commit",
-    "target": "p3-a4-gather",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Commit",
-      "id": "p3-a2-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a4-gather",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-gather{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -9435,12 +10549,12 @@
     "selected": false
    },
    {
-    "source": "p3-a1-toolloop",
-    "target": "p3-a1-llm",
+    "source": "p3-a3-validate",
+    "target": "p3-a3-postcheck",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A1Toolloop",
-      "id": "p3-a1-toolloop",
+      "dataType": "P3A3Validate",
+      "id": "p3-a3-validate",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -9448,27 +10562,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a1-llm",
+      "id": "p3-a3-postcheck",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-toolloop{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-validate{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a5-establish",
-    "target": "p3-a5-prompt",
+    "source": "p3-a3-llm",
+    "target": "p3-a3-parse",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A5Establish",
-      "id": "p3-a5-establish",
+      "dataType": "P3A3Llm",
+      "id": "p3-a3-llm",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -9476,16 +10590,354 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a5-prompt",
+      "id": "p3-a3-parse",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-establish{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-llm{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-prompt",
+    "target": "p3-a6-toolloop",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Prompt",
+      "id": "p3-a6-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-toolloop",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-prompt{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-commit",
+    "target": "p3-chat",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Commit",
+      "id": "p3-a8-commit",
+      "name": "summary",
+      "output_types": [
+       "Message"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "input_value",
+      "id": "p3-chat",
+      "inputTypes": [
+       "Data",
+       "DataFrame",
+       "Message"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Commit\u0153,\u0153id\u0153:\u0153p3-a8-commit\u0153,\u0153name\u0153:\u0153summary\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-commit{\u0153dataType\u0153:\u0153P3A8Commit\u0153,\u0153id\u0153:\u0153p3-a8-commit\u0153,\u0153name\u0153:\u0153summary\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}-p3-chat{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-cite",
+    "target": "p3-a2-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Cite",
+      "id": "p3-a2-cite",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Cite\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-cite{\u0153dataType\u0153:\u0153P3A2Cite\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-xlsx",
+    "target": "p3-a8-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Xlsx",
+      "id": "p3-a8-xlsx",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Xlsx\u0153,\u0153id\u0153:\u0153p3-a8-xlsx\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-xlsx{\u0153dataType\u0153:\u0153P3A8Xlsx\u0153,\u0153id\u0153:\u0153p3-a8-xlsx\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-prompt",
+    "target": "p3-a8-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Prompt",
+      "id": "p3-a8-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Prompt\u0153,\u0153id\u0153:\u0153p3-a8-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-prompt{\u0153dataType\u0153:\u0153P3A8Prompt\u0153,\u0153id\u0153:\u0153p3-a8-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a8-read",
+    "target": "p3-a8-score",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A8Read",
+      "id": "p3-a8-read",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a8-score",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A8Read\u0153,\u0153id\u0153:\u0153p3-a8-read\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a8-read{\u0153dataType\u0153:\u0153P3A8Read\u0153,\u0153id\u0153:\u0153p3-a8-read\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a8-score{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a8-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-toolloop",
+    "target": "p3-a6-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Toolloop",
+      "id": "p3-a6-toolloop",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-toolloop{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-triage",
+    "target": "p3-a4-establish",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Triage",
+      "id": "p3-a4-triage",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-establish",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Triage\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-triage{\u0153dataType\u0153:\u0153P3A4Triage\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-establish{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-merge",
+    "target": "p3-a5-score",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Merge",
+      "id": "p3-a5-merge",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-score",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-merge{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-score{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-postcheck",
+    "target": "p3-a6-cite",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Postcheck",
+      "id": "p3-a6-postcheck",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-cite",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-postcheck{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-grade",
+    "target": "p3-a2-postcheck",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Grade",
+      "id": "p3-a2-grade",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-postcheck",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Grade\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-grade{\u0153dataType\u0153:\u0153P3A2Grade\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-prompt",
+    "target": "p3-a5-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Prompt",
+      "id": "p3-a5-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-prompt{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false

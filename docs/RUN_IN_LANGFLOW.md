@@ -62,19 +62,28 @@ python -m p3graph run --llm live --search evstore+web --max-cards 3
 
 Open http://127.0.0.1:7872 while it runs. The monitor server starts with the first run.
 
-## Is agent 8 in the monitor?
+## Agent 8 (the memo) is opened up like every other agent
 
-Yes. The graph now ends `… → report → a8_memo → END` (`p3graph/graph.py`), and the Langflow flow ends
-`… → P3 · Report + Workbook → P3 · A8 Memo → Chat Output`. The `a8_memo` node emits the same events as the
-other agents, to `runs/<run id>/live.jsonl`, which the monitor reads:
+Agent 8 used to be one node. It is now twelve, in the graph (`p3graph/graph.py`: `report -> a8_read -> ... -> a8_commit`)
+and in the Langflow canvas (a row of twelve `P3 · A8.n` nodes after the report), each reporting to the monitor.
+The monitor shows a progress strip **A8 · Memo writer** (one box per step, with that step's one-line result) and a
+full card per step (open it for the exact inputs, messages and answers).
 
-| Monitor card | What it shows |
-|---|---|
-| Step inputs (1) | what agent 8 read: hypotheses, survivors, killed, claims checked / verified / partly / removed, the evidence window, gaps, the pursuits the **code** picked, the caution flag |
-| Request / model output | in a live run, the exact messages sent to the memo model and its streamed answer |
-| Step inputs (2) | who wrote the wording (model or template), the fallback reason if the model's text was rejected, the rules the code applied |
-| Step inputs (3) | the files it wrote and the pursuits recommended |
-| End | `memo written: memo.docx, memo.pdf, programs.xlsx` (or why it was skipped) |
+| # | Step | What it does | What the monitor shows |
+|---|---|---|---|
+| 1 | Read the run | collects the run's saved outputs; never searches | which agents' outputs exist, hypotheses (survived / killed), claims checked / verified / partly / removed, gaps |
+| 2 | Score | code rates upside and risk per surviving hypothesis | each hypothesis: evidence tier, crowding, upside, risk, the reasons, already-approved flag |
+| 3 | Pick pursuits | code builds the menu of ways in and picks 2 to 3 | the menu, the chosen pursuits, the Proceed with Caution check and reasons, the 12-month catalysts |
+| 4 | Prompt | builds what the memo model may use | the exact messages (rules + the brief), the number of citable claims |
+| 5 | Model call | the memo model writes the wording (none in a stub run) | request, streamed answer, response |
+| 6 | Rule check | applies the rules to the wording | names, numbers, citations, order; the rule breaks, and whether the model gets its one retry |
+| 7 | Merge wording | model wording if it passed, otherwise template wording | who wrote it, the fallback reason, the bottom line and each pursuit as written |
+| 8 | Charts | draws the charts | which charts |
+| 9 | Word memo | writes `memo.docx` | the headings |
+| 10 | PDF | writes `memo.pdf` (needs LibreOffice) | the file, or a skip note |
+| 11 | Excel table | writes `programs.xlsx` | the file and its sheets |
+| 12 | Commit | the summary | the files, the pursuits, the caution flag |
 
-Agent 8 never searches: it reads only the run's own saved outputs. A memo problem never fails the run; it
-shows as an error card and the run still finishes.
+After step 6 the graph can send the run back to step 5 once with the rule breaks listed (in the canvas this loop
+runs inside the Rule check node, because a canvas cannot loop). Agent 8 never searches: it reads only the run's own
+saved outputs. A problem in any step is shown as an error card; later steps skip and the run still finishes.

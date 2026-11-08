@@ -22,7 +22,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE / "components"))
 
 from build_flow import _handle  # noqa: E402
-from gen_components import ORDER  # noqa: E402
+from gen_components import A8_STEPS, ORDER  # noqa: E402
 from lfx.components.input_output import ChatInput, ChatOutput  # noqa: E402
 from lfx.graph import Graph  # noqa: E402
 
@@ -72,12 +72,16 @@ def build(llm_mode: str = "stub", as_of: str = "today", model: str = "profile de
     report = _cls("step_report", "P3StepReport")(_id="p3-report")
     report.set(state=last)
     pos["p3-report"] = (1, len(ROWS) + 1.5)
-    a8 = _cls("step_a8_memo", "P3StepA8Memo")(_id="p3-a8")
-    a8.set(state=report.build_state)  # agent 8 runs last, from the run's own checked output
-    pos["p3-a8"] = (2, len(ROWS) + 1.5)
+    out = report.build_state  # agent 8, the memo writer, runs last: one node per step, like the other agents
+    for c, step in enumerate(A8_STEPS):
+        comp = _cls(f"step_a8_{step}", f"P3A8{step.capitalize()}")(_id=f"p3-a8-{step}")
+        comps[f"a8-{step}"] = comp
+        comp.set(state=out)
+        out = comp.run_step
+        pos[f"p3-a8-{step}"] = (c + 1, len(ROWS) + 3)
     chat = ChatOutput(_id="p3-chat")
-    chat.set(input_value=a8.build_summary)
-    pos["p3-chat"] = (3, len(ROWS) + 1.5)
+    chat.set(input_value=comps["a8-commit"].build_summary)
+    pos["p3-chat"] = (len(A8_STEPS) + 1, len(ROWS) + 3)
     return Graph(start=chat_in, end=chat, flow_name=NAME, description="Person 3, every agent step as a node."), pos
 
 
