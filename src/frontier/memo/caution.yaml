@@ -1,0 +1,14 @@
+# "Proceed with Caution" bars. Proposed defaults; the team still has to confirm them
+# (docs/PRD.md, open decision "Set the bars that trigger Proceed with Caution").
+# We run one disease, so pursuits are judged against these absolute bars, not other diseases.
+
+# Hard bars: failing any one of these flags the memo.
+weak_validation_levels: [bronze]   # HypothesisCard.validation_level
+max_evidence_tier: 2               # tier 3 or 4 is weak (1 = human genetics or clinical precedent)
+min_supported_share: 0.8           # share of a pursuit's claims agent 7 marked supports == "yes"
+min_survivors: 2                   # surviving hypotheses after the Red Teamer
+
+# Soft bars: a pursuit that fails this many of them flags the memo.
+soft_failures_to_flag: 2
+max_crowding_score: 0.7            # assumes crowding_score is scaled 0 to 1; agree the scale with person 4
+min_profile_fit: 0.5               # best asset or program fit, invest and access pursuits only
