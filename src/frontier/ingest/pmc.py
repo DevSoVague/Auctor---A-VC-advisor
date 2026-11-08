@@ -52,7 +52,11 @@ def _text(node: ET.Element) -> str:
 
 def _date(node: ET.Element) -> date | None:
     try:
-        return date(int(node.findtext("year")), int(node.findtext("month") or 12), int(node.findtext("day") or 28))
+        return date(
+            int(node.findtext("year")),
+            int(node.findtext("month") or 12),
+            int(node.findtext("day") or 28),
+        )
     except (TypeError, ValueError):
         return None
 
@@ -74,7 +78,14 @@ def license_of(article: ET.Element) -> str | None:
 
 
 def _table(wrap: ET.Element) -> str:
-    head = " ".join(p for p in (wrap.findtext("label"), _text(wrap.find("caption")) if wrap.find("caption") is not None else "") if p)
+    head = " ".join(
+        p
+        for p in (
+            wrap.findtext("label"),
+            _text(wrap.find("caption")) if wrap.find("caption") is not None else "",
+        )
+        if p
+    )
     rows = [" | ".join(_text(c) for c in tr) for tr in wrap.iter("tr")]
     return "\n".join([head, *rows]).strip()
 
@@ -123,7 +134,9 @@ def fetch(eutils: pubmed.Eutils, pmcid: str, refresh: bool = False) -> bytes:
     path = RAW_DIR / f"{pmcid}.xml.gz"
     if path.exists() and not refresh:
         return gzip.decompress(path.read_bytes())
-    xml = eutils._call("efetch.fcgi", {"db": "pmc", "id": pmcid.removeprefix("PMC"), "retmode": "xml"}).content
+    xml = eutils._call(
+        "efetch.fcgi", {"db": "pmc", "id": pmcid.removeprefix("PMC"), "retmode": "xml"}
+    ).content
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(gzip.compress(xml))
     return xml
@@ -148,13 +161,22 @@ def store(conn, pmid: str, pmcid: str, article: ET.Element) -> int:
         cur.executemany(
             "INSERT INTO parent_chunks (parent_id, doc_id, position, section, text, published_date)"
             " VALUES (%s, %s, %s, %s, %s, %s)",
-            [(f"chunk:{doc_id}:p{i}", doc_id, i, section, text, when) for i, (section, text) in enumerate(parts, 1)],
+            [
+                (f"chunk:{doc_id}:p{i}", doc_id, i, section, text, when)
+                for i, (section, text) in enumerate(parts, 1)
+            ],
         )
         cur.execute(
             "UPDATE documents SET full_text = %s, fields = fields || %s WHERE id = %s",
             (
                 "\n\n".join(f"## {s}\n{t}" for s, t in parts),
-                Jsonb({"pmcid": pmcid, "pmc_license": license_of(article), "full_text_date": when.isoformat()}),
+                Jsonb(
+                    {
+                        "pmcid": pmcid,
+                        "pmc_license": license_of(article),
+                        "full_text_date": when.isoformat(),
+                    }
+                ),
                 doc_id,
             ),
         )
@@ -184,7 +206,8 @@ def main() -> int:
             else:
                 abstract_only += 1
                 print(f"pmid:{pmid} {pmcid}: no full text in PMC XML (abstract only)")
-    print(f"done: full text for {stored}, abstract only for {abstract_only + len(pmids) - len(mapping)}")
+    no_pmc = len(pmids) - len(mapping)
+    print(f"done: full text for {stored}, abstract only for {abstract_only + no_pmc}")
     return 0
 
 

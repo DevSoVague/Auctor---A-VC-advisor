@@ -9,9 +9,9 @@ import pytest
 from frontier.core.config import Settings
 from frontier.ingest import pmc
 
-ARTICLE = ET.fromstring(
-    (pmc.REPO_ROOT / "tests/fixtures/ingest/pmc_sample.xml").read_bytes()
-).find(".//article")
+ARTICLE = ET.fromstring((pmc.REPO_ROOT / "tests/fixtures/ingest/pmc_sample.xml").read_bytes()).find(
+    ".//article"
+)
 
 
 def test_chunks_follow_sections_then_tables():
