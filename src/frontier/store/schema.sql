@@ -9,8 +9,8 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- before as_of. ids follow the prefix list in agents/schemas.py and stay the same
 -- across versions and releases.
 CREATE TABLE IF NOT EXISTS documents (
-  id text NOT NULL,                  -- 'pmid:12345678', 'nct:NCT01234567', 'fda:NDA021395', 'sec:<accession>', 'pat:US1234567B2', 'ret:<DOI>', 'ot:<disease>:<ENSG>', 'chembl:CHEMBL1234'
-  source text NOT NULL,              -- pubmed | ctgov | fda | opentargets | chembl | edgar | retraction | patent
+  id text NOT NULL,                  -- 'pmid:12345678', 'nct:NCT01234567', 'fda:NDA021395', 'sec:<accession>', 'pat:US1234567B2', 'ret:<DOI>', 'ot:<disease>:<ENSG>', 'chembl:CHEMBL1234', 'news:<16-hex headline hash>'
+  source text NOT NULL,              -- pubmed | ctgov | fda | opentargets | chembl | edgar | retraction | patent | news
   source_date date NOT NULL,         -- the date the as-of filter uses
   version_label text NOT NULL,       -- e.g. aact-2020-12, ctgov-live, ot-20.11, ot-24.06, chembl-27
   title text, body text, url text,   -- body comes from this version, never the current record
