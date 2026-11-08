@@ -57,3 +57,84 @@ CREATE TABLE IF NOT EXISTS llm_cache (
   response text NOT NULL,            -- raw JSON text the model returned
   input_tokens int, output_tokens int,
   created_at timestamptz DEFAULT now());
+
+-- documents: extra columns from the team's DATABASE_SCHEMA.md (v0). Safe to rerun.
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS file_path text;           -- original file, if kept
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS origin text DEFAULT 'seed'; -- seed | scraper | agent
+
+-- Structured tables (person 1), built from documents by `python -m frontier.ingest.structured`.
+-- Every row carries a date the as-of filter uses (as_of_date or published_date): a backtest
+-- must drop rows dated on or after its cutoff, exactly as for documents.
+-- source_ids hold documents.id values (pmid:..., nct:..., fda:..., curated:...), not a foreign
+-- key, since documents.id repeats across versions.
+CREATE TABLE IF NOT EXISTS drugs (
+  drug_id         text PRIMARY KEY,          -- 'drug:tiotropium'
+  name            text NOT NULL,
+  brand_names     text[],
+  drug_class      text,                      -- LAMA | LABA | ICS | PDE4 | biologic ...
+  pathway         text,                      -- mechanism / target pathway
+  targets         text[],                    -- gene symbols or Open Targets ids (not filled yet)
+  status          text NOT NULL,             -- in_market | shelved | in_trial (for COPD)
+  as_of_date      date NOT NULL,             -- date this row's facts were public
+  source_ids      text[]
+);
+CREATE TABLE IF NOT EXISTS market_stats (
+  drug_id         text NOT NULL REFERENCES drugs(drug_id),
+  period          date NOT NULL,             -- start of the period the numbers describe
+  patients_est    int,                       -- Medicare Part D beneficiaries in the period
+  annual_cost_usd numeric,                   -- Part D spend per beneficiary in the period
+  total_spend_usd numeric,
+  total_claims    int,
+  insurance       text,                      -- covered | partial | not_covered | unknown
+  coverage_notes  text,
+  usage           text,                      -- label: indications and dosage
+  side_effects    text[],                    -- label: adverse reactions
+  warnings        text[],                    -- label: contraindications, warnings and precautions
+  published_date  date NOT NULL,             -- when these numbers and label text were public
+  source_ids      text[],
+  PRIMARY KEY (drug_id, period)
+);
+CREATE TABLE IF NOT EXISTS shelved_programs (
+  drug_id         text PRIMARY KEY REFERENCES drugs(drug_id),
+  shelved_date    date NOT NULL,             -- first public report of the failure
+  phase_reached   text,                      -- phase1 | phase2 | phase3
+  reason_category text,                      -- efficacy | safety | commercial | other
+  reason_detail   text,
+  side_effects    text[],
+  published_date  date NOT NULL,             -- latest source used in the row
+  source_ids      text[]
+);
+CREATE TABLE IF NOT EXISTS trials (
+  trial_id        text NOT NULL,             -- 'NCT01234567'
+  published_date  date NOT NULL,             -- registration or last-update date of this version
+  version_label   text NOT NULL,             -- ctgov-registration | ctgov-live
+  drug_id         text REFERENCES drugs(drug_id),
+  title           text,
+  phase           text,
+  status          text,                      -- null in a registration-only version
+  start_date      date,
+  completion_date date,                      -- primary completion
+  enrollment      int,
+  primary_outcome text,
+  why_stopped     text,
+  sponsor         text,
+  PRIMARY KEY (trial_id, published_date)
+);
+CREATE TABLE IF NOT EXISTS targets (         -- disease to target associations (not filled yet)
+  target_id text NOT NULL, symbol text, disease_id text NOT NULL,
+  association_score numeric, evidence_types text[], as_of_date date NOT NULL,
+  PRIMARY KEY (target_id, disease_id, as_of_date)
+);
+CREATE TABLE IF NOT EXISTS approvals (       -- regulatory status (not filled yet)
+  id serial PRIMARY KEY, drug_id text REFERENCES drugs(drug_id),
+  agency text, approved_date date NOT NULL, indication text, label_doc_id text
+);
+CREATE TABLE IF NOT EXISTS retractions (     -- never cite these (not filled yet)
+  doc_id text PRIMARY KEY, retracted_date date NOT NULL, reason text
+);
+CREATE TABLE IF NOT EXISTS ingest_log (
+  id serial PRIMARY KEY, source text, query text, fetched int, stored int, skipped int,
+  started_at timestamptz DEFAULT now(), error text
+);
+CREATE INDEX IF NOT EXISTS documents_source_date ON documents (source_date);
+CREATE INDEX IF NOT EXISTS trials_drug ON trials (drug_id);

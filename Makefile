@@ -38,7 +38,7 @@ schema:
 # Drops the evidence tables only. extractions, llm_cache and llm_calls hold paid model
 # work and the cost log, so a reset never drops them. No CASCADE: fail loudly if
 # anything new depends on these tables.
-EVIDENCE_TABLES := doc_entities, documents, entities, programs
+EVIDENCE_TABLES := market_stats, shelved_programs, trials, approvals, drugs, targets, retractions, doc_entities, documents, entities, programs
 reset-db:
 	$(COMPOSE) exec -T db psql -v ON_ERROR_STOP=1 -U frontier -d frontier -c "DROP TABLE IF EXISTS $(EVIDENCE_TABLES);"
 	$(MAKE) schema
