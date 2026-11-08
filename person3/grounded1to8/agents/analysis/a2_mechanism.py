@@ -11,6 +11,7 @@ gate and the converging-evidence rule are computed here in code, not by the mode
 
 from __future__ import annotations
 
+import asyncio
 from agents.analysis.tool_loop import with_tools
 from agents.analysis._common import (
     TIER_CAP, EvidencePack, build_messages, emit_claims, post_check,
@@ -46,7 +47,17 @@ async def retrieve(why_now: WhyNow, ctx) -> dict:
     for a in assoc[:15]:
         added = pack.add(await ctx.retrieval.search(f"{a['symbol']} {cfg.disease}", k=4))
         log.append({"call": f"search('{a['symbol']} {cfg.disease}', k=4)", "kept": [r["id"] for r in added]})
-    pub_counts = {a["symbol"]: len(await ctx.retrieval.search(a["symbol"], k=1000)) for a in assoc}
+    # Publication counts are a crowding signal over the paper corpus. sources=["pubmed"] keeps them off
+    # the web (one Tavily call per target would be hundreds of calls) and off non-paper records.
+    # The store has ~300 targets and each count is one vector search, so run them 8 at a time.
+    gate = asyncio.Semaphore(8)
+
+    async def count(symbol: str) -> int:
+        async with gate:
+            return len(await ctx.retrieval.search(symbol, sources=["pubmed"], k=1000))
+
+    counts = await asyncio.gather(*(count(a["symbol"]) for a in assoc))
+    pub_counts = {a["symbol"]: n for a, n in zip(assoc, counts)}
     return {"pack": pack, "assoc": assoc, "disease_drugs": disease_drugs,
             "pub_counts": pub_counts, "log": log}
 

@@ -37,10 +37,14 @@ if str(EVSTORE) not in sys.path:
 FLOOR = date.fromisoformat(os.getenv("DATA_FLOOR", "2023-01-01"))
 # Reference tables (Open Targets target-disease associations) are not COVID-era study results, so they
 # are exempt from FLOOR: any release dated before REFERENCE_CUTOFF (and before as_of) may be used.
-# The store's targets table is empty today: we fall back to the fixture's 2020-11 release (13 COPD
-# targets). TODO person 1: ingest Open Targets into the store's targets table (with tractability,
-# genetic score, max phase), then this fallback stops being used.
+# The store's targets table holds Open Targets 24.09 (person 1's opentargets loader). If it is empty
+# (a store built without that loader) we fall back to the fixture's 2020-11 release (13 COPD targets).
 REFERENCE_CUTOFF = date.fromisoformat(os.getenv("REFERENCE_CUTOFF", "2025-01-01"))
+TARGET_LIMIT = int(os.getenv("TARGET_LIMIT", "320"))  # most targets handed to A2 (one paper search each)
+# A target is worth A2's attention if a drug for COPD has reached phase 2 on it, or its genetics are
+# real (genetic_association >= 0.3), and some drug type can reach it. In Open Targets 24.09 that is
+# 306 of the 477 stored targets; ranking by overall score alone would drop IL33, IL4R and TSLP.
+MIN_PHASE, MIN_GENETIC = 2, 0.3
 
 DATE_KIND = {
     "pubmed": "pubmed_publication_date",
@@ -103,6 +107,11 @@ def _record_to_ev(rec: Any) -> dict:
                 ev[k] = f[k]
         if f.get("interventions"):
             ev["intervention"] = f["interventions"] if isinstance(f["interventions"], str) else json.dumps(f["interventions"])[:300]
+            if isinstance(f["interventions"], list):
+                ev["interventions"] = f["interventions"]  # the full list, for agents 4 and 5 (the string above is cut at 300 chars)
+        for k in ("sponsor_class", "conditions", "completion", "primary_completion", "enrollment"):
+            if f.get(k) not in (None, "", []):
+                ev[k] = f[k]
         if f.get("primary_outcomes"):
             ev["primary_endpoint"] = str(f["primary_outcomes"])[:300]
     elif src == "pubmed":
@@ -111,8 +120,20 @@ def _record_to_ev(rec: Any) -> dict:
                 ev[k] = f[k]
     elif src == "fda":
         ev["dates"] = {k: f.get(k) for k in ("label_effective", "cms_release") if f.get(k)}
+        # the drug a label approves, for agents 4 and 5 (generic name first; brand names resolve to it)
+        if f.get("generic") or f.get("brand"):
+            ev["drug"] = f.get("generic") or f.get("brand")
+        for k in ("brand", "manufacturer", "drug_class", "application_number"):
+            if f.get(k):
+                ev[k] = f[k]
     elif src == "curated":
         ev["dates"] = {k: f.get(k) for k in ("date",) if f.get(k)}
+        # a curated drug (drugs table): what agents 4 and 5 need to place it on a mechanism
+        for k in ("pathway", "drug_class", "brand_names", "targets"):
+            if f.get(k):
+                ev[k] = f[k]
+        if f.get("status"):
+            ev["drug_status"] = f["status"]  # in_market | shelved
     # evidence tags the agents' graders use (A2: human lines / failed precedent; A6: checklist)
     tags = ["human"] if src in ("pubmed", "ctgov", "fda", "curated") else []
     if src == "ctgov" and (str(f.get("status", "")).upper() in ("TERMINATED", "WITHDRAWN", "SUSPENDED")
@@ -158,6 +179,35 @@ def store_client(as_of: date, dsn: str | None = None, use_vectors: bool | None =
     return _CLIENTS[key]
 
 
+_MODALITY = {"SM": "small_molecule", "AB": "antibody"}  # Open Targets bucket prefix -> A2's modality
+
+
+def _tractability(labels) -> dict[str, bool]:
+    """The store's 'SM: Approved Drug' style labels as A2's {small_molecule, antibody, other} flags."""
+    out = {"small_molecule": False, "antibody": False, "other": False}
+    for label in labels or []:
+        out[_MODALITY.get(str(label).split(":", 1)[0].strip(), "other")] = True
+    return out
+
+
+def _target_record(r: dict, latest: date) -> dict:
+    """One row of the store's targets table as the target record A2 reads.
+
+    genetic_score is Open Targets' genetic_association score (0 when the target has no genetic
+    evidence), not the overall association score. The overall score stays visible as
+    association_score. known_drug_max_phase_in_disease is the furthest phase of a COPD drug on it.
+    """
+    phase = r.get("max_phase")
+    return {"target_id": r["target_id"], "symbol": r["symbol"], "name": r.get("name"),
+            "genetic_score": float(r.get("genetic_score") or 0),
+            "association_score": float(r.get("association_score") or 0),
+            "known_drug_max_phase_in_disease": float(phase) if phase is not None else None,
+            "evidence_types": r.get("evidence_types") or [],
+            "tractability": _tractability(r.get("tractability")), "safety": [],
+            "id": f"ot:{_iso(latest)}", "source": "opentargets", "source_date": _iso(latest),
+            "date_kind": "opentargets_release"}
+
+
 class EvidenceStoreRetrieval:
     """The agents' retrieval interface over the evidence store. Dicts out, FLOOR <= date < as_of."""
 
@@ -187,17 +237,18 @@ class EvidenceStoreRetrieval:
 
     async def targets(self, disease_id: str) -> list[dict]:
         """Open Targets associations: the store's targets table if it has rows, else the fixture release.
-        Both limited to releases dated before min(as_of, REFERENCE_CUTOFF); exempt from FLOOR."""
+        Both limited to releases dated before min(as_of, REFERENCE_CUTOFF); exempt from FLOOR.
+        The store keeps ~480 targets; A2 gets the relevant ones (see MIN_PHASE), strongest first."""
         cut = min(self.as_of, REFERENCE_CUTOFF)
         rows = await self.store._a("SELECT * FROM targets WHERE as_of_date < %s AND (disease_id = %s OR %s = '')",
                                    (cut, disease_id, disease_id or ""))
         if rows:
             latest = max(r["as_of_date"] for r in rows)
-            return [{"target_id": r["target_id"], "symbol": r["symbol"],
-                     "genetic_score": float(r.get("association_score") or 0),
-                     "evidence_types": r.get("evidence_types") or [], "tractability": {},
-                     "id": f"ot:{_iso(latest)}", "source": "opentargets", "source_date": _iso(latest),
-                     "date_kind": "opentargets_release"} for r in rows if r["as_of_date"] == latest]
+            recs = [_target_record(r, latest) for r in rows if r["as_of_date"] == latest]
+            keep = [t for t in recs if any(t["tractability"].values())
+                    and ((t["known_drug_max_phase_in_disease"] or 0) >= MIN_PHASE
+                         or t["genetic_score"] >= MIN_GENETIC)]
+            return sorted(keep, key=lambda t: -t["association_score"])[:TARGET_LIMIT]
         from agents.analysis.retrieval import StubRetrieval
 
         out = await StubRetrieval(cut).targets(disease_id)
