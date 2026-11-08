@@ -146,8 +146,9 @@ adds a **Deal economics** line per pursuit:
 | Build | Estimated development cost to proof of concept |
 
 It also shows market size and the potential return for every pursuit, with each figure cited and
-dated. Without that data the memo falls back to the qualitative rating and says
-"financial data not available". Section 10 lists the fields this needs.
+dated. Without that data the memo shows only the low/medium/high upside-and-risk rating and says
+nothing about missing financial data (decision, 2026-11-08: the safest and simplest fallback).
+Section 10 lists the fields this needs.
 
 ## 7. What the memo looks like
 
