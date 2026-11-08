@@ -69,8 +69,8 @@ def from_fda(doc: dict) -> tuple[dict, dict]:
         "insurance": "unknown",
         "coverage_notes": (
             f"Medicare Part D {part_d['year']}: {part_d['total_claims']:,.0f} claims, "
-            f"{part_d['total_beneficiaries']:,.0f} beneficiaries ({', '.join(part_d['brand_rows'])}; "
-            "all indications). Other insurers: not in sources."
+            f"{part_d['total_beneficiaries']:,.0f} beneficiaries "
+            f"({', '.join(part_d['brand_rows'])}; all indications). Other insurers: not in sources."
             if part_d
             else "No Medicare Part D row found. Other insurers: not in sources."
         ),
@@ -232,7 +232,8 @@ COLUMNS = {
 def write(conn, tables: dict) -> dict:
     """Replace the four tables' contents in one transaction."""
     with conn.cursor() as cur:
-        cur.execute("TRUNCATE market_stats, shelved_programs, trials, drugs")
+        # approvals references drugs, so it is emptied too; nothing fills it yet.
+        cur.execute("TRUNCATE market_stats, shelved_programs, trials, approvals, drugs")
         for table in ("drugs", "market_stats", "shelved_programs", "trials"):
             cols = COLUMNS[table]
             sql = (
@@ -240,7 +241,8 @@ def write(conn, tables: dict) -> dict:
             )
             cur.executemany(sql, [[row[c] for c in cols] for row in tables[table]])
         cur.execute(
-            "INSERT INTO ingest_log (source, query, fetched, stored, skipped) VALUES (%s, %s, %s, %s, 0)",
+            "INSERT INTO ingest_log (source, query, fetched, stored, skipped)"
+            " VALUES (%s, %s, %s, %s, 0)",
             (
                 "structured",
                 "documents: fda, curated, ctgov",

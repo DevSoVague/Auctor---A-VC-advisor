@@ -138,3 +138,16 @@ CREATE TABLE IF NOT EXISTS ingest_log (
 );
 CREATE INDEX IF NOT EXISTS documents_source_date ON documents (source_date);
 CREATE INDEX IF NOT EXISTS trials_drug ON trials (drug_id);
+
+-- Full text (person 1): documents.full_text and section-level parent chunks, as in the team's
+-- DATABASE_SCHEMA.md. Child chunks and their vectors are not built yet.
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS full_text text;
+CREATE TABLE IF NOT EXISTS parent_chunks (
+  parent_id       text PRIMARY KEY,          -- 'chunk:pmid:12345678:p3'
+  doc_id          text NOT NULL,             -- documents.id, e.g. 'pmid:12345678'
+  position        int  NOT NULL,             -- order within the document
+  section         text,                      -- Introduction | Methods | Results | Table 2 ...
+  text            text NOT NULL,
+  published_date  date NOT NULL              -- when this full text was public (as-of filter)
+);
+CREATE INDEX IF NOT EXISTS parent_chunks_doc ON parent_chunks (doc_id);

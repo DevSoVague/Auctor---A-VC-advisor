@@ -43,6 +43,7 @@ def test_reset_db_keeps_paid_tables():
     assert match, "EVIDENCE_TABLES missing from Makefile"
     dropped = {t.strip() for t in match.group(1).split(",")}
     assert dropped == {
+        "parent_chunks",
         "doc_entities",
         "documents",
         "entities",
