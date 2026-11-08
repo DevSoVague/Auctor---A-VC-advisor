@@ -10,7 +10,20 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      fontFamily: {
+        sans: ['"Hanken Grotesk"', 'Helvetica', 'Arial', 'sans-serif'],
+      },
       colors: {
+        // Auctor, direction 1 (grotesk, dark)
+        ink: '#17191D',
+        raised: '#1D2025',
+        paper: '#ECEAE4',
+        dim: '#8A8F96',
+        line: '#2A2D33',
+        edge: '#3A3E45',
+        amber: '#F2B134',
+        ok: '#9CC4A0',
+        bad: '#E2786A',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {

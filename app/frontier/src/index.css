@@ -36,6 +36,8 @@
   }
 }
 
-/* Ctrl+Alt+Cure runs in dark mode: native controls (date picker, selects) follow suit. */
+/* Auctor (direction 1, grotesk dark): native controls (date picker, selects) follow suit. */
 :root { color-scheme: dark; }
-html, body { background-color: #020617; }
+html, body { background-color: #17191D; color: #ECEAE4; font-family: "Hanken Grotesk", Helvetica, Arial, sans-serif; font-variant-numeric: tabular-nums; }
+::selection { background: #ECEAE4; color: #17191D; }
+select option { background: #17191D; color: #ECEAE4; }
