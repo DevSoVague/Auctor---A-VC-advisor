@@ -168,8 +168,9 @@ function Pipeline({ run }) {
 function NewRun({ onStarted }) {
   const today = new Date().toISOString().slice(0, 10);
   const [f, setF] = useState({
-    disease: "COPD", as_of: today, mode: "guided", audience: "generalist",
-    llm: "live", profile: "dev", search: "corpus", max_cards: 0,
+    // Test mode by default: it costs nothing, and live runs need the engine's model key.
+    disease: "COPD", as_of: "2021-01-01", mode: "guided", audience: "generalist",
+    llm: "stub", profile: "dev", search: "corpus", max_cards: 0,
   });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -321,7 +322,7 @@ function EvidenceChart({ citations }) {
         const total = t.kept + t.downgraded + t.flagged;
         return (
           <div key={a}>
-            <div className="mb-1.5 flex justify-between text-sm"><span className="text-slate-300">{agentName(a)}</span><span className="text-slate-400">{t.checked} checks</span></div>
+            <div className="mb-1.5 flex justify-between text-sm"><span className="text-slate-300">{agentName(a)}</span><span className="text-slate-400">{t.checked} {t.checked === 1 ? "check" : "checks"}</span></div>
             <StackedBar total={total} parts={[
               { value: t.kept, label: "kept", className: "bg-emerald-500" },
               { value: t.downgraded, label: "downgraded", className: "bg-amber-400" },
@@ -343,8 +344,10 @@ function EvidenceChart({ citations }) {
 const LEVEL = { gold: "bg-amber-400/15 text-amber-300 ring-amber-400/40", silver: "bg-slate-300/10 text-slate-200 ring-white/15/30", bronze: "bg-orange-400/15 text-orange-300 ring-orange-400/40" };
 const verdictTone = (v, killed) => (killed || v === "kill" ? "bad" : v === "survives" ? "good" : v ? "warn" : "muted");
 
-function HypothesisCard({ h, killed, current }) {
-  const v = killed ? "killed" : h.verdict || (current ? "in progress" : "queued");
+const pendingLabel = (status) => (status === "running" || status === "paused" ? "queued" : "not analysed");
+
+function HypothesisCard({ h, killed, current, runStatus }) {
+  const v = killed ? "killed" : h.verdict || (current ? "in progress" : pendingLabel(runStatus));
   return (
     <div className={`${card} flex flex-col p-5 ${current ? "ring-2 ring-teal-400/60" : ""}`}>
       <div className="flex items-start justify-between gap-3">
@@ -608,7 +611,7 @@ function RunView({ runId }) {
                       <p className="truncate text-sm font-medium text-slate-50">{h.mechanism}</p>
                       <p className="text-xs text-slate-400">{h.id} · {h.validation_level || "—"} · tier {h.evidence_tier ?? "—"}</p>
                     </div>
-                    <Pill tone={verdictTone(h.verdict, stats.killed.has(h.id))}>{stats.killed.has(h.id) ? "killed" : h.verdict || (run.current_hypothesis === h.id ? "in progress" : "queued")}</Pill>
+                    <Pill tone={verdictTone(h.verdict, stats.killed.has(h.id))}>{stats.killed.has(h.id) ? "killed" : h.verdict || (run.current_hypothesis === h.id && run.status !== "done" ? "in progress" : pendingLabel(run.status))}</Pill>
                   </li>
                 ))}
               </ul>
@@ -619,7 +622,7 @@ function RunView({ runId }) {
       )}
       {tab === "hypotheses" && (
         stats.hs.length
-          ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{stats.hs.map((h) => <HypothesisCard key={h.id} h={h} killed={stats.killed.has(h.id)} current={run.current_hypothesis === h.id && run.status !== "done"} />)}</div>
+          ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{stats.hs.map((h) => <HypothesisCard key={h.id} h={h} killed={stats.killed.has(h.id)} current={run.current_hypothesis === h.id && run.status !== "done"} runStatus={run.status} />)}</div>
           : <Section title="Hypotheses" icon={Target}><p className="text-sm text-slate-400">Ranked after the Mechanisms agent runs.</p></Section>
       )}
       {tab === "evidence" && <Section title="Evidence checks by agent" icon={ShieldCheck}><EvidenceChart citations={run.citations} /></Section>}
@@ -703,6 +706,12 @@ export default function App() {
     api("GET", "/runs").then((o) => { setRuns(o.data || []); setErr(""); }).catch((x) => setErr(String(x.message || x)));
   }, []);
   useEffect(() => { if (user) loadRuns(); }, [user, loadRuns, selected]);
+  const anyActive = runs.some((r) => r.status === "running" || r.status === "paused");
+  useEffect(() => {
+    if (!user || !anyActive) return;
+    const t = setInterval(loadRuns, 4000);
+    return () => clearInterval(t);
+  }, [user, anyActive, loadRuns]);
 
   if (authState === "checking") return <div className="flex h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-500" /></div>;
   if (authState === "out") return <SignIn />;
