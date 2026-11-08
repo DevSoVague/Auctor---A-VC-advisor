@@ -34,6 +34,7 @@ SHEETS = {
     "RedTeam": ["hypothesis_id", "verdict", "revise_target", "risk", "kill_criterion", "cheapest_test",
                 "source_ids", "premortem"],
     "Judge": ["hypothesis_id", "red_team_is", "decision", "risk", "holds", "severity", "why", "reasoning"],
+    "Intake": ["item", "value", "status", "store_id", "published", "note"],
     "Citations": ["agent", "hypothesis_id", "claim_id", "source_id", "source_date", "supports", "action"],
     "Restarts": ["agent", "hypothesis_id", "attempt", "hallucinated_claims"],
     "NewEvidence": ["status", "id", "reason"],
@@ -72,6 +73,7 @@ class AnalysisWorkbook:
         self.new_evidence: list[dict] = []
         self.citations: dict[tuple, list] = {}
         self.restarts: list[list] = []
+        self.intake: dict | None = None
 
     def attach(self) -> "AnalysisWorkbook":
         self.ctx.bus.subscribe(self.on_event)
@@ -87,6 +89,9 @@ class AnalysisWorkbook:
         if event == "tool_call":
             self.tool_calls.append(p)
             return  # its own sheet; written with the next agent_done
+        if event == "intake_done":
+            self.intake = p.get("report")
+            return
         if event == "citation_check":  # latest check per agent/card wins (after restarts)
             self.citations[(agent, hid)] = p.get("entries") or []
             return
@@ -192,6 +197,19 @@ class AnalysisWorkbook:
                 R["Citations"].append([e.get("agent"), e.get("hypothesis_id") or "", e["claim_id"], e["source_id"],
                                        e.get("source_date") or "", e["supports"], e["action"]])
         R["Restarts"] = list(self.restarts)
+        if self.intake:
+            i = self.intake
+            R["Intake"] += [["source", i["source"], "accepted" if i["accepted"] else "REJECTED", "", i["submitted"],
+                             "; ".join(i["reasons"] + i["warnings"])[:500]],
+                            ["document", f"{i['kind']} · {i['chars']} chars · sha256 {i['sha256'][:12]}", "", i.get("stored_as") or "private", "", ""]]
+            for k, v in (i.get("profile") or {}).items():
+                if k != "key_claims":
+                    R["Intake"].append([k, _join(v) if isinstance(v, list) else v, "", "", "", ""])
+            for c in (i.get("profile") or {}).get("key_claims") or []:
+                R["Intake"].append(["pitch claim", c["text"], "", "", "", _join(c.get("cited"))])
+            for c in i.get("cited") or []:
+                R["Intake"].append([f"cited {c['kind']}", c["ref"], c["status"], c.get("id") or "", c.get("published") or "",
+                                    c.get("reason") or ""])
         R["NewEvidence"] = [[o.get("status"), o.get("id"), o.get("reason")] for o in self.new_evidence]
         for i, t in enumerate(self.tool_calls, 1):
             R["ToolCalls"].append([i, t.get("agent"), t.get("checker") or "", t.get("tool"),

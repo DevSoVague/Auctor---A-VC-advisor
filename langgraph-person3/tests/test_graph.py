@@ -156,7 +156,7 @@ def test_every_step_runs_in_order_and_is_logged(stub):
     g, c = build(InMemorySaver()), cfg()
     s = run(drive(g, inp(), c)).values
     nodes = [x["node"] for x in s["steps"]]
-    assert nodes[:11] == ["setup", "a1_retrieve", "a1_prompt", "a1_toolloop", "a1_llm", "a1_parse", "a1_postcheck",
+    assert nodes[:12] == ["setup", "intake", "a1_retrieve", "a1_prompt", "a1_toolloop", "a1_llm", "a1_parse", "a1_postcheck",
                           "a1_validate", "a1_cite", "a1_commit", "a2_retrieve"]
     # A2 has a grade step, A3/A6 validate before postcheck
     a2 = [n for n in nodes if n.startswith("a2_")]
@@ -170,7 +170,7 @@ def test_every_step_runs_in_order_and_is_logged(stub):
     # per-step debug files + step trace
     d = Path(s["workbook_path"]).parent
     files = sorted((d / "steps").glob("*.json"))
-    assert len(files) == len(nodes) - 1 - nodes.count("next_card")  # setup and next_card write no step file
+    assert len(files) == len(nodes) - 2 - nodes.count("next_card")  # setup, intake and next_card write no step file
     llm_file = next(f for f in files if "a1_llm" in f.name)
     dump = json.loads(llm_file.read_text())
     assert dump["messages"][0]["role"] == "system" and dump["changed"]["raw"]["text"]
@@ -492,3 +492,28 @@ def test_cite_strips_unsupported_after_max_restarts():
     assert res["hallucinated"][0]["supports"] == "not_found"
     C.apply(p, res)
     assert p.claims[0].kind == "reasoning" and p.claims[0].text.startswith("[unverified]")
+
+
+# ---------------------------------------------------------------------------- A0 intake gate
+def test_rejected_pitch_stops_before_any_agent(stub, tmp_path):
+    p = tmp_path / "off.txt"
+    p.write_text("A fintech platform for payments. " * 40)
+    s = run(drive(build(InMemorySaver()), {**inp(), "pitch": str(p)}, cfg())).values
+    assert [x["node"] for x in s["steps"]] == ["setup", "intake"]
+    assert not s["intake"]["accepted"] and "rejected" in s["report"]
+    assert not stub.calls  # no tokens spent
+
+
+def test_accepted_pitch_reaches_a1_and_a2(stub, tmp_path, monkeypatch):
+    from agents.analysis import a0_intake as A0
+
+    async def fake(refs, cfg, ingest):
+        return [{**r, "status": "missing"} for r in refs]
+    monkeypatch.setattr(A0, "_compare", fake)
+    p = tmp_path / "pitch.md"
+    p.write_text("Inhaled PDE4B inhibitor for COPD exacerbations; chronic bronchitis patients; FEV1. " * 12)
+    s = run(drive(build(InMemorySaver()), {**inp(), "pitch": str(p)}, cfg())).values
+    assert s["intake"]["accepted"]
+    for agent in ("a1_disease", "a2_mechanism"):
+        msg = next(x for x in stub.calls if x["agent"] == agent)["messages"][-1]["content"]
+        assert "startup_pitch" in msg

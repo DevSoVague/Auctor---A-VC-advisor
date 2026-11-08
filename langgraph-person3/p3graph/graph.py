@@ -106,7 +106,11 @@ def build(checkpointer=None, workflow: dict | str | None = None):
     g.add_node("report", N.report)
 
     g.add_edge(START, "setup")
-    g.add_edge("setup", W.to("setup", "a1_retrieve"))
+    g.add_node("intake", N.intake)  # A0 input gate: a rejected pitch ends the run here
+    g.add_edge("setup", "intake")
+    first = W.to("setup", "a1_retrieve")
+    g.add_conditional_edges("intake", lambda s: END if (s.get("intake") or {}).get("accepted") is False else first,
+                            [first, END])
     g.add_edge("a1_commit", W.to("a1_commit", "review_a1"))
     g.add_edge("a2_commit", W.to("a2_commit", "review_a2"))
     g.add_edge("a3_commit", W.to("a3_commit", "review_a3"))

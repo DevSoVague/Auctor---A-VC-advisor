@@ -196,7 +196,7 @@ async def main_async(a) -> None:
             inp = {"config": {"disease": a.disease, "disease_id": a.disease_id, "as_of": a.as_of,
                               "mode": a.mode, "profile": a.profile, "audience": a.audience},
                    "llm": {"mode": a.llm, "model": a.model, "profile": a.profile},
-                   "retrieval": a.retrieval, "search": a.search, "tools": a.tools, "judge": not a.no_judge, "cite": not a.no_cite, "max_cards": a.max_cards}
+                   "retrieval": a.retrieval, "search": a.search, "tools": a.tools, "judge": not a.no_judge, "cite": not a.no_cite, "pitch": a.pitch, "store_pitch": a.store_pitch, "max_cards": a.max_cards}
             print(f"thread {tid} · {a.mode} · as_of {a.as_of} · llm {a.llm}"
                   f"{' ' + a.model if a.model else ''} · retrieval {a.retrieval} · search {a.search}"
                   f" · tools {'on' if a.tools else 'off'} · judge {'off' if a.no_judge else 'on'}")
@@ -225,6 +225,8 @@ def main() -> None:
                    help="where search() looks: the corpus, Tavily web search (needs TAVILY_API_KEY), both, the Postgres+Milvus database (database, database+web), or the COPD evidence store (evstore, evstore+web)")
     r.add_argument("--tools", action="store_true",
                    help="agents call evidence-store / web tools (A1 also ingests new evidence); use with --search evstore")
+    r.add_argument("--pitch", default=None, help="startup pitch document (PDF, DOCX, TXT, MD or URL): the run tests it")
+    r.add_argument("--store-pitch", action="store_true", help="also write the pitch to the shared evidence store")
     r.add_argument("--no-cite", action="store_true", help="skip the A7 citation check after every node")
     r.add_argument("--no-judge", action="store_true", help="skip A6b: route on A6's own verdict")
     r.add_argument("--max-cards", type=int, default=0, help="run only the top N cards through A3..A6b (0 = all)")

@@ -57,9 +57,13 @@ async def retrieve(cfg: RunConfig, ctx, queries: list[str] | None = None) -> tup
 
 
 def make_messages(cfg: RunConfig, pack: EvidencePack, feedback: str | None,
-                  system: str | None = None) -> list[dict]:
-    return build_messages(AGENT, {"disease": cfg.disease, "lookback_from": lookback(cfg)},
-                          pack, feedback, cfg, system)
+                  system: str | None = None, pitch: dict | None = None) -> list[dict]:
+    payload = {"disease": cfg.disease, "lookback_from": lookback(cfg)}
+    if pitch:  # A0 intake: the startup pitch this run tests (gated, fenced; claims are not evidence)
+        payload["startup_pitch"] = pitch
+        payload["ask"] = ("Answer why now is (or is not) the time for THIS pitch's mechanism and patients. "
+                          "Shifts must rest on evidence-pack sources, not on the pitch's own claims.")
+    return build_messages(AGENT, payload, pack, feedback, cfg, system)
 
 
 def finalize(out: WhyNow, cfg: RunConfig, pack: EvidencePack) -> list[dict]:

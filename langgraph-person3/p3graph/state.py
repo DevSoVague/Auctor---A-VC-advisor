@@ -32,6 +32,9 @@ class P3State(TypedDict, total=False):
     search: str  # where search() looks: corpus | web (Tavily) | both | database | evstore | evstore+web
     tools: bool  # agents call DB/web tools between prompt and llm (agents/analysis/db_tools.py)
     max_cards: int  # process only the top N cards through A3..A6b (0/None = all)
+    pitch: str | None  # A0 intake: path or URL of the startup's pitch document (the crux of a run)
+    store_pitch: bool  # also write the pitch to the shared store (default: private, run folder only)
+    intake: dict | None  # A0 IntakeReport
     cite: bool  # A7 citation check after every node (default on; False = off)
     judge: bool  # A6b judge decides each card from A3's profile and A6's verdict (drives a6_route)
 
