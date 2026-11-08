@@ -60,7 +60,9 @@ class RunRequest(BaseModel):
     llm: Literal["stub", "live"] = "live"
     profile: Literal["dev", "final"] = "dev"
     search: str = Field(
-        "corpus", description="corpus | database | web | both | evstore | evstore+web"
+        "evstore+web",
+        description="evstore+web (default: the COPD store, then Tavily) | evstore"
+        " | corpus (fixtures) | database | web | both",
     )
     retrieval: str = "stub"
     tools: bool = False
