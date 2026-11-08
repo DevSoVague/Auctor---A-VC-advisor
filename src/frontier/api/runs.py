@@ -184,6 +184,27 @@ def _citations(values: dict) -> dict:
     }
 
 
+def _hypothesis(card: dict, values: dict) -> dict:
+    """One hypothesis card for the app: the card's grading plus A6's verdict and top risk."""
+    hid = card.get("id")
+    verdict = (values.get("verdicts") or {}).get(hid) or {}
+    risks = verdict.get("risks") or []
+    judgment = (values.get("judgments") or {}).get(hid) or {}
+    return {
+        "id": hid,
+        "mechanism": card.get("mechanism"),
+        "direction": card.get("direction"),
+        "modality": card.get("modality"),
+        "evidence_tier": card.get("evidence_tier"),
+        "validation_level": card.get("validation_level"),
+        "biggest_uncertainty": card.get("biggest_uncertainty"),
+        "verdict": verdict.get("verdict"),
+        "top_risk": risks[0].get("text") if risks else None,
+        "cheapest_test": risks[0].get("cheapest_test") if risks else None,
+        "judge_decision": judgment.get("decision") or judgment.get("verdict"),
+    }
+
+
 def _run_dir(values: dict) -> Path | None:
     if values.get("workbook_path"):
         return Path(values["workbook_path"]).parent
@@ -259,9 +280,7 @@ async def get_run(run_id: str) -> dict:
         "next": list(snap.next),
         "current_hypothesis": v.get("current"),
         "queue": v.get("queue") or [],
-        "hypotheses": [
-            {"id": c.get("id"), "mechanism": c.get("mechanism")} for c in v.get("cards") or []
-        ],
+        "hypotheses": [_hypothesis(c, v) for c in v.get("cards") or []],
         "verdicts": {h: x.get("verdict") for h, x in (v.get("verdicts") or {}).items()},
         "killed": v.get("killed") or [],
         "steps": [
