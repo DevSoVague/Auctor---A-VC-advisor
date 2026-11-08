@@ -8,7 +8,7 @@
                                      action: approve | approve_all | rerun | edit
     GET  /runs/{id}/citations        every A7 citation ledger in the run
     GET  /runs/{id}/report           the run's report (markdown)
-    GET  /runs/{id}/files            files the run wrote (report, workbook; A8's memo when built)
+    GET  /runs/{id}/files            files the run wrote (report, workbook, A8's memo and sheet)
     GET  /runs/{id}/files/{name}     download one
 
 A run executes in the background until it finishes or pauses at a review (guided mode).
@@ -32,7 +32,11 @@ from pydantic import BaseModel, Field
 
 from frontier.core.costs import load_prices
 
-P3_ROOT = Path(__file__).resolve().parents[3] / "person3" / "1to6merged" / "langgraph-person3"
+# Which copy of Person 3's pipeline to run: person3/<P3_PIPELINE>/langgraph-person3.
+# grounded1to8 (default) adds A0 pitch intake and the A7 citation gate after every node;
+# 1to6merged is the earlier copy that Person 2's p3_node citation hook is spliced into.
+P3_PIPELINE = os.environ.get("P3_PIPELINE", "grounded1to8")
+P3_ROOT = Path(__file__).resolve().parents[3] / "person3" / P3_PIPELINE / "langgraph-person3"
 if str(P3_ROOT) not in sys.path:
     sys.path.insert(0, str(P3_ROOT))
 
@@ -56,12 +60,17 @@ class RunRequest(BaseModel):
     llm: Literal["stub", "live"] = "live"
     profile: Literal["dev", "final"] = "dev"
     search: str = Field(
-        "corpus", description="corpus | database | web | both | evstore | evstore+web"
+        "evstore+web",
+        description="evstore+web (default: the COPD store, then Tavily) | evstore"
+        " | corpus (fixtures) | database | web | both",
     )
     retrieval: str = "stub"
     tools: bool = False
     judge: bool = True
     max_cards: int = Field(0, ge=0, description="only the top N hypotheses (0 = all)")
+    pitch: str | None = Field(None, description="A0 intake: path or URL of a startup's pitch")
+    store_pitch: bool = False  # also write the pitch to the shared evidence store
+    cite_mode: Literal["node", "end", "off"] = "node"  # A7: after every agent, once, or off
 
 
 class Decision(BaseModel):
@@ -80,8 +89,13 @@ class Runner:
         self.tasks: dict[str, asyncio.Task] = {}
 
     async def start(self, db: Path | None = None, checkpointer=None) -> None:
+        import p3graph
         from p3graph import engine as _E  # noqa: F401  (sets up Person 3's import path)
         from p3graph.graph import build
+
+        loaded = Path(p3graph.__file__).resolve().parents[1]
+        if loaded != P3_ROOT.resolve():  # both copies are named p3graph; never run the wrong one
+            raise RuntimeError(f"p3graph was imported from {loaded}, expected {P3_ROOT}")
 
         if checkpointer is None:
             from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -113,8 +127,29 @@ class Runner:
             async for chunk in self.graph.astream(inp, self.cfg(run_id), stream_mode="updates"):
                 if any(node in COMMIT_NODES for node in chunk):  # keep the workbook current
                     N.write_workbook((await self.graph.aget_state(self.cfg(run_id))).values)
+            await self._write_memo(run_id)
         except Exception as exc:  # noqa: BLE001 - surfaced to the app as status 'error'
             self.runs[run_id]["error"] = f"{type(exc).__name__}: {exc}"
+
+    async def _write_memo(self, run_id: str) -> None:
+        """Agent 8: when the run has finished (not paused for a review), write the memo files.
+
+        A memo problem is recorded as `memo_error` and never fails the run itself.
+        """
+        snap = await self.graph.aget_state(self.cfg(run_id))
+        if snap.next or any(i for t in snap.tasks for i in t.interrupts):
+            return  # still going, or waiting for a human
+        info = self.runs.setdefault(run_id, {})
+        try:
+            from frontier.memo.run_memo import memo_for_run
+
+            d = _run_dir(snap.values)
+            if d is None:
+                raise RuntimeError("the run has no output folder")
+            info["memo"] = await memo_for_run(snap.values, d)
+            info["memo_error"] = None
+        except Exception as exc:  # noqa: BLE001
+            info["memo_error"] = f"{type(exc).__name__}: {exc}"
 
     async def snapshot(self, run_id: str):
         snap = await self.graph.aget_state(self.cfg(run_id))
@@ -177,11 +212,30 @@ def _cost(usage: dict) -> dict:
 
 
 def _citations(values: dict) -> dict:
-    return {
+    """'agent[:hypothesis]' -> citation report, from either pipeline copy.
+
+    1to6merged + Person 2's hook: signals['citations:...'] (already in this shape).
+    grounded1to8: 'citation_check' events; after a restart the last check is the one that counts.
+    """
+    out = {
         k.removeprefix("citations:"): v
         for k, v in (values.get("signals") or {}).items()
         if k.startswith("citations:")
     }
+    for event, p in values.get("events") or []:
+        if event != "citation_check":
+            continue
+        entries = p.get("entries") or []
+        actions = [e.get("action") for e in entries]
+        key = p.get("agent", "") + (f":{p['hypothesis_id']}" if p.get("hypothesis_id") else "")
+        out[key] = {
+            "checked_pairs": len(entries),
+            "kept": actions.count("keep"),
+            "downgraded": actions.count("downgrade"),
+            "flagged": actions.count("remove"),
+            "entries": entries,
+        }
+    return out
 
 
 def _hypothesis(card: dict, values: dict) -> dict:
@@ -231,6 +285,9 @@ async def start_run(req: RunRequest) -> dict:
         "tools": req.tools,
         "judge": req.judge,
         "max_cards": req.max_cards,
+        "pitch": req.pitch,
+        "store_pitch": req.store_pitch,
+        "cite_mode": req.cite_mode,
     }
     runner.runs[run_id] = {
         "started": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -276,6 +333,8 @@ async def get_run(run_id: str) -> dict:
         "run_id": run_id,
         "status": await runner.status_of(run_id),
         "error": runner.runs.get(run_id, {}).get("error"),
+        "memo": runner.runs.get(run_id, {}).get("memo"),
+        "memo_error": runner.runs.get(run_id, {}).get("memo_error"),
         "settings": runner.runs.get(run_id, {}).get("settings"),
         "next": list(snap.next),
         "current_hypothesis": v.get("current"),

@@ -26,8 +26,9 @@ def test_shipped_bars_load():
 
 
 def test_strong_pursuits_pass():
-    result = evaluate_caution([STRONG, replace(STRONG, name="Build: X", form="build",
-                                               best_profile_fit=None)], survivors=3)
+    result = evaluate_caution(
+        [STRONG, replace(STRONG, name="Build: X", form="build", best_profile_fit=None)], survivors=3
+    )
     assert result.proceed_with_caution is False
     assert result.reasons == []
     assert "not a comparison with other diseases" in result.basis

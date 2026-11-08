@@ -154,3 +154,10 @@ CREATE INDEX IF NOT EXISTS parent_chunks_doc ON parent_chunks (doc_id);
 
 -- Industry facts (company reports, filings, news) for marketed drugs, from the curated list.
 ALTER TABLE market_stats ADD COLUMN IF NOT EXISTS industry_notes text;
+
+-- Open Targets (person 1): release 24.09, the last before 2025 (reference data rule).
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS name text;
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS genetic_score numeric;    -- genetic_association datatype
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS tractability text[];      -- 'SM: Approved Drug', 'AB: UniProt loc high conf' ...
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS max_phase numeric;        -- highest phase of a drug for COPD on this target
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS release text;             -- Open Targets release, e.g. '24.09'

@@ -19,6 +19,7 @@ The repo uses a src/ layout (one importable package, `frontier`). Map PRD paths 
 | tests/, pitch/, app/, docs/ | same, top level | |
 
 Top-level `data/` holds raw downloads only and is git-ignored. Never commit data, `.env`, or run outputs.
+Exception (team decision, 2026-11-08): `person3/grounded1to8/evidence-store/data/` is committed in full (export, caches, pg_dump) so the repo holds everything from Person 3's grounded1to8. The embedding cache and the pg_dump are in git LFS (`person3/grounded1to8/.gitattributes`): install git-lfs (`brew install git-lfs && git lfs install`) and run `git lfs pull` after cloning. Keep it.
 
 ## Where the repo differs from the PRD
 
@@ -30,6 +31,9 @@ The PRD text stays verbatim; these are the team's deliberate departures from it.
 | Orchestration: CrewAI Flows (`@persist`, `kickoff`) | **LangGraph**: fixed code edges, a Postgres checkpointer keyed by run_id, `interrupt()` at checkpoints, resume with `Command(resume=action)` | CrewAI pulls in packages with no Intel-Mac builds (lancedb, onnxruntime, cryptography), so it can't install there; no code used it yet. LangGraph installs everywhere and is already the PRD's pick for "Ask the memo" |
 | Postgres on `localhost:5432` | `localhost:5433` | A local Postgres (e.g. Postgres.app) on 5432 intercepts connections |
 | Model IDs in `core/profiles.yaml` | Exact Nebius IDs; closest available where a PRD model isn't on our account (noted per line) | The PRD said to copy exact IDs from the console |
+| Agents 1 to 7 live in `agents/` | Person 3's LangGraph pipeline is vendored in `person3/grounded1to8/` (a copy of DevSoVague/db1to6merged@97a1e0d with our fixes) and the run API picks it with `P3_PIPELINE` (default `grounded1to8`); `person3/1to6merged/` is the older copy | Person 3's agents are already wired to the evidence store and the Citation Checker; both copies use the package name `p3graph`, so `make test` runs `tests/test_p3_citation_steps.py` in its own process |
+| Memo rendering is unspecified | Agent 8 builds Word (python-docx), PDF (LibreOffice headless, `soffice` must be installed; the PDF is skipped without it), Excel (openpyxl) and charts (matplotlib); the run API writes them into the run folder when a run finishes | Investors read Word/PDF with charts; user decision (Word + PDF) |
+| A8 may use retrieval like other agents | Agent 8 never retrieves, searches or uses the web; it reads only the run's saved outputs, and code (not the model) picks pursuits, scores, the caution flag and catalysts | User rule: no outside data, so no hallucinated sources; `tests/memo/test_memo_agent.py` enforces it |
 
 The PRD's rule still holds with LangGraph: **no model decides what runs next.** Every edge is code; conditional edges are plain Python functions over the run state.
 

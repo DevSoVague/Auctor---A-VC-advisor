@@ -1,0 +1,164 @@
+"""What the memo agent (A8) reads: one MemoInput per run (owner: person 5).
+
+A8 reads nothing else. No retrieval, no web search (docs/memo-plan.md, section 2a). Everything
+upstream, from every parallel hypothesis branch, is gathered into a MemoInput by memo/inputs.py.
+
+Agent outputs, including Person 3's A7 Judge (JudgeDecision), use the team's models in
+agents/schemas.py. The models here are memo-only.
+
+LoggedDecision accepts any actor or action string. It is deliberately looser than
+schemas.Decision, so that a new kind of log row can never stop the memo from being written.
+"""
+
+from datetime import datetime
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field
+
+from frontier.agents.schemas import (
+    Claim,
+    HypothesisCard,
+    InactiveAssets,
+    JudgeDecision,
+    Landscape,
+    LedgerEntry,
+    ProductProfile,
+    RunConfig,
+    Verdict,
+    WhyNow,
+)
+
+
+class LedgerRow(LedgerEntry):
+    """One Citation Checker result, tagged with the agent and hypothesis it came from."""
+
+    agent: str
+    hypothesis_id: str | None = None
+
+
+class LoggedDecision(BaseModel):
+    """One row of the decision log, from any branch, tagged with its hypothesis."""
+
+    actor: str  # reviewer | red_teamer | judge | orchestrator
+    action: str  # approve | approve_all | edit | rerun | revise | kill | override
+    target: str  # e.g. 'a3_profile:h1' or 'h1'
+    reason: str = ""
+    hypothesis_id: str | None = None
+    at: datetime | None = None
+
+
+class PitchProfile(BaseModel):
+    """What A0 read out of the startup's pitch (person3/grounded1to8: agents/analysis/a0_intake)."""
+
+    company: str
+    indication: str = ""
+    mechanism: str = ""
+    targets: list[str] = Field(default_factory=list)
+    modality: str = ""
+    stage: str = ""
+    key_claims: list[dict[str, Any]] = Field(default_factory=list)  # {text, cited}
+
+
+class PitchIntake(BaseModel):
+    """A0 intake report: the pitch the run tested, and how its cited items checked out."""
+
+    accepted: bool
+    reasons: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    source: str = ""
+    submitted: str = ""
+    cited: list[dict[str, Any]] = Field(default_factory=list)  # {ref, kind, status, id, ...}
+    profile: PitchProfile | None = None
+
+
+class KilledHypothesis(BaseModel):
+    hypothesis_id: str
+    mechanism: str = ""
+    reason: str = ""
+    kill_criterion: str = ""
+
+
+Status = Literal["survives", "killed", "incomplete"]
+
+
+class HypothesisBundle(BaseModel):
+    """Everything known about one hypothesis, whichever parallel branch produced it.
+
+    Any agent output may be None when that agent didn't run or its output failed validation;
+    MemoInput.gaps then says so, and the memo reports it instead of guessing.
+    """
+
+    id: str
+    rank: int  # A2 rank, 1 = best
+    status: Status
+    card: HypothesisCard
+    grade: dict[str, Any] = Field(default_factory=dict)  # A2's code-computed grading
+    profile: ProductProfile | None = None  # A3
+    inactive: InactiveAssets | None = None  # A4
+    landscape: Landscape | None = None  # A5
+    verdict: Verdict | None = None  # A6
+    judgment: JudgeDecision | None = None  # Person 3's A7 Judge
+    revised: bool = False  # used its one red-team revise round
+
+
+class MemoInput(BaseModel):
+    """The single input to A8: the whole run after every hypothesis branch has joined."""
+
+    run_id: str
+    config: RunConfig
+    pitch: PitchIntake | None = None  # A0, when the run tested a startup's pitch
+    why_now: WhyNow | None = None  # A1
+    hypotheses: list[HypothesisBundle]  # A2 rank order, survivors and killed alike
+    killed: list[KilledHypothesis] = Field(default_factory=list)
+    ledger: list[LedgerRow] = Field(default_factory=list)  # Citation Checker, every agent
+    decisions: list[LoggedDecision] = Field(default_factory=list)
+    pub_counts: dict[str, int] = Field(default_factory=dict)  # A2: documents per target
+    usage: dict[str, dict[str, Any]] = Field(default_factory=dict)  # tokens per agent
+    gaps: list[str] = Field(default_factory=list)  # missing upstream pieces, stated in the memo
+
+    def all_claims(self) -> dict[str, Claim]:
+        """Every claim any agent made about this run, by id."""
+        found: dict[str, Claim] = {}
+
+        def walk(obj) -> None:
+            if isinstance(obj, Claim):
+                found.setdefault(obj.id, obj)
+            elif isinstance(obj, BaseModel):
+                for name in type(obj).model_fields:
+                    walk(getattr(obj, name))
+            elif isinstance(obj, list | tuple):
+                for item in obj:
+                    walk(item)
+
+        walk(self.why_now)
+        for h in self.hypotheses:
+            walk([h.card, h.profile, h.inactive, h.landscape, h.verdict])
+        return found
+
+    def claim_status(self) -> dict[str, str]:
+        """What the Citation Checker says about each checked claim.
+
+        verified   at least one of its sources fully supports it
+        partly     kept with a lower confidence (partly supported)
+        removed    every source failed (not found, after the cutoff, or no support)
+        Claims the checker never saw are absent: callers treat them as 'unchecked'.
+        """
+        rows: dict[str, list[LedgerRow]] = {}
+        for r in self.ledger:
+            rows.setdefault(r.claim_id, []).append(r)
+        out = {}
+        for cid, rs in rows.items():
+            if any(r.supports == "yes" for r in rs):
+                out[cid] = "verified"
+            elif any(r.action == "downgrade" for r in rs):
+                out[cid] = "partly"
+            else:
+                out[cid] = "removed"
+        return out
+
+    @property
+    def survivors(self) -> list[HypothesisBundle]:
+        return [h for h in self.hypotheses if h.status == "survives"]
+
+    def decisions_for(self, hypothesis_id: str) -> list[LoggedDecision]:
+        return [d for d in self.decisions if d.hypothesis_id == hypothesis_id]

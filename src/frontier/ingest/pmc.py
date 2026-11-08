@@ -1,6 +1,6 @@
 """Full text from PubMed Central for curated papers (person 1).
 
-For each paper in a curated set (default: the 50 COPD drug-trial papers) that has a
+For each paper in a curated set (every set in ingest/curated/) that has a
 PMC id in its PubMed record, fetches the article XML from PMC through E-utilities,
 keeps the raw XML in data/pmc/ (git-ignored), and stores:
 
@@ -18,7 +18,6 @@ and are reported.
 from __future__ import annotations
 
 import gzip
-import json
 import sys
 import xml.etree.ElementTree as ET
 from datetime import date
@@ -199,7 +198,7 @@ def main() -> int:
     import psycopg
     from dotenv import dotenv_values
 
-    pmids = {p["id"].removeprefix("pmid:") for p in json.loads(CURATED.read_text())["papers"]}
+    pmids = {i.removeprefix("pmid:") for i in pubmed.curated_ids()}  # every curated set
     mapping = pmc_ids(pmids)
     print(f"{len(pmids)} papers, {len(mapping)} with a PMC id")
     env = {**dotenv_values(REPO_ROOT / ".env"), **os.environ}
