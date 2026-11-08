@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="urn:hl7-org:v3">
+  <effectiveTime value="20240301"/>
+  <component><structuredBody>
+    <component><section>
+      <code code="34067-9" codeSystem="2.16.840.1.113883.6.1"/>
+      <title>1 INDICATIONS AND USAGE</title>
+      <excerpt><highlight><text>Made-up highlight: should not appear.</text></highlight></excerpt>
+      <text><paragraph>Made-up: maintenance treatment of chronic obstructive pulmonary disease (COPD).</paragraph></text>
+    </section></component>
+    <component><section>
+      <code code="34084-4" codeSystem="2.16.840.1.113883.6.1"/>
+      <title>6 ADVERSE REACTIONS</title>
+      <text><paragraph>Made-up: back pain <content styleCode="bold">3%</content>, headache.</paragraph></text>
+      <component><section>
+        <code code="34084-4" codeSystem="2.16.840.1.113883.6.1"/>
+        <title>6.1 Clinical Trials Experience</title>
+        <text><paragraph>Made-up subsection.</paragraph></text>
+      </section></component>
+    </section></component>
+    <component><section>
+      <code code="34090-1" codeSystem="2.16.840.1.113883.6.1"/>
+      <title>12 CLINICAL PHARMACOLOGY</title>
+      <component><section>
+        <code code="43679-0" codeSystem="2.16.840.1.113883.6.1"/>
+        <title>12.1 Mechanism of Action</title>
+        <text><paragraph>Made-up: inhibits fixture enzymes.</paragraph></text>
+      </section></component>
+    </section></component>
+  </structuredBody></component>
+</document>
