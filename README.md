@@ -50,7 +50,7 @@ Public sources only, each record stored with its date: PubMed, ClinicalTrials.go
 
 ## Stack
 
-Python 3.11+ (uv), FastAPI and Pydantic v2, Postgres 16 with pgvector, CrewAI Flows, LiteLLM routing to Nebius Token Factory models (OpenAI and Gemini as fallbacks), python-docx and openpyxl for exports, and a Base44 app for review.
+Python 3.11+ (uv), FastAPI and Pydantic v2, Postgres 16 with pgvector, LangGraph for the flow, LiteLLM routing to Nebius Token Factory models (OpenAI and Gemini as fallbacks), python-docx and openpyxl for exports, and a Base44 app for review.
 
 ## Getting started
 

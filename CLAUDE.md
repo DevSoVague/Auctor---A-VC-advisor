@@ -20,6 +20,19 @@ The repo uses a src/ layout (one importable package, `frontier`). Map PRD paths 
 
 Top-level `data/` holds raw downloads only and is git-ignored. Never commit data, `.env`, or run outputs.
 
+## Where the repo differs from the PRD
+
+The PRD text stays verbatim; these are the team's deliberate departures from it. Follow the repo, and add a row here (and a run log entry) for any new one.
+
+| PRD says | Repo does | Why |
+|---|---|---|
+| Flat folders (`core/`, `agents/`, `data/`...) | `src/` layout; the PRD's `data/` is `src/frontier/ingest/` | Course reproducibility practice; the mapping table above |
+| Orchestration: CrewAI Flows (`@persist`, `kickoff`) | **LangGraph**: fixed code edges, a Postgres checkpointer keyed by run_id, `interrupt()` at checkpoints, resume with `Command(resume=action)` | CrewAI pulls in packages with no Intel-Mac builds (lancedb, onnxruntime, cryptography), so it can't install there; no code used it yet. LangGraph installs everywhere and is already the PRD's pick for "Ask the memo" |
+| Postgres on `localhost:5432` | `localhost:5433` | A local Postgres (e.g. Postgres.app) on 5432 intercepts connections |
+| Model IDs in `core/profiles.yaml` | Exact Nebius IDs; closest available where a PRD model isn't on our account (noted per line) | The PRD said to copy exact IDs from the console |
+
+The PRD's rule still holds with LangGraph: **no model decides what runs next.** Every edge is code; conditional edges are plain Python functions over the run state.
+
 ## Environment
 
 - Python is pinned in `.python-version`; dependencies are locked in `uv.lock`. Add packages with `uv add <pkg>` (or `uv add --dev`), never pip, and commit `pyproject.toml` and `uv.lock` together.
