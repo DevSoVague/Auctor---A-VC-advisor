@@ -6,8 +6,10 @@ follows the page's own citation_pdf_url tag, if there is one. A site that refuse
 download (403 and the like) is reported and skipped, never worked around. PDFs are kept
 in data/oapdf/ (git-ignored).
 
-A PDF is used only if it looks like the paper itself: at least 3 pages, the title's
-words on the first two pages, and no "supplement" at the top of page one. Its text is
+PDFs can also be saved there by hand as <pmid>.pdf (for sites that refuse scripts). A
+PDF is used only if it is the paper itself: at least 3 pages, no "supplement" at the top
+of page one, and the paper's DOI on the first two pages (or, without a DOI, nearly all
+of the title's words). Its text is
 split at the usual headings (Introduction, Methods, Results, Discussion, ...) and cut at
 References; with fewer than two headings found, it is split by page. It is stored like
 PMC full text (documents.full_text, parent_chunks) with fields.full_text_from =
@@ -53,8 +55,11 @@ def pdf_link(html: str) -> str | None:
 
 
 def pages_of(pdf: bytes) -> list[str]:
+    import logging
+
     from pypdf import PdfReader
 
+    logging.getLogger("pypdf").setLevel(logging.ERROR)  # font warnings, not errors
     return [p.extract_text() or "" for p in PdfReader(io.BytesIO(pdf)).pages]
 
 
@@ -62,21 +67,33 @@ def _words(text: str) -> list[str]:
     return re.findall(r"[a-z0-9]+", text.lower())
 
 
-def is_article(pages: list[str], title: str) -> str | None:
-    """None if the PDF looks like the paper; otherwise why not."""
+def is_article(pages: list[str], title: str, doi: str | None = None) -> str | None:
+    """None if the PDF is the paper; otherwise why not.
+
+    The DOI printed on the first pages is the check; title words are only a fallback,
+    since COPD trial titles share most of their words."""
     if len(pages) < 3:
         return f"only {len(pages)} pages"
     if "supplement" in " ".join(pages[0].split())[:400].lower():
         return "supplement, not the paper"
-    want = [w for w in _words(title) if len(w) > 3][:8]
+    if doi:
+        if doi.lower() not in re.sub(r"\s+", "", " ".join(pages[:2])).lower():
+            return f"DOI {doi} not found on the first pages"
+        return None
+    want = [w for w in _words(title) if len(w) > 3]
     have = set(_words(" ".join(pages[:2])))
-    if want and sum(w in have for w in want) < 0.8 * len(want):
+    if want and sum(w in have for w in want) < 0.9 * len(want):
         return "title not found on the first pages"
     return None
 
 
 def _clean(lines: list[str]) -> str:
     text = "\n".join(lines)
+    # Some publisher fonts map the minus sign to NUL: "95% CI \x00 0.1" is "95% CI -0.1".
+    # Dropping it would flip the sign, so a NUL before a number becomes a minus sign;
+    # other control characters (Postgres rejects NUL) are dropped.
+    text = re.sub(r"\x00\s*(?=\d)", "\u2212", text)
+    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", text)
     text = re.sub(r"(\w)-\n(\w)", r"\1\2", text)  # words hyphenated across lines
     return " ".join(text.split())
 
@@ -105,7 +122,7 @@ def sections(pages: list[str]) -> list[tuple[str, str]]:
 class Client:
     def __init__(self, email: str) -> None:
         agent = "frontier-hypothesis-engine/0.1 (research)"
-        if email:
+        if email and email.isascii():
             agent += f" mailto:{email}"
         self.http = httpx.Client(timeout=60, follow_redirects=True, headers={"User-Agent": agent})
 
@@ -161,7 +178,7 @@ def main() -> int:
                 "SELECT title FROM documents WHERE id = %s ORDER BY source_date DESC LIMIT 1",
                 (key,),
             ).fetchone()
-            why = is_article(pages, title or "")
+            why = is_article(pages, title or "", link.get("doi"))
             if why:
                 print(f"{key}: skipped, {why}")
                 continue

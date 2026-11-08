@@ -31,6 +31,11 @@ def test_sections_fall_back_to_pages_and_join_hyphenated_words():
     assert parts == [("Page 1", "Some text with a hyphenated word."), ("Page 2", "More text.")]
 
 
+def test_nul_minus_signs_become_minus_signs():
+    parts = oapdf.sections(["LS mean \x00 4.0; 95% CI \x00 6.7, \x00 1.4; p = 0.002\x01"])
+    assert parts == [("Page 1", "LS mean \u22124.0; 95% CI \u22126.7, \u22121.4; p = 0.002")]
+
+
 def test_is_article_rejects_supplements_short_files_and_other_papers():
     pages = oapdf.pages_of(PDF)
     assert oapdf.is_article(pages, TITLE) is None
@@ -39,6 +44,12 @@ def test_is_article_rejects_supplements_short_files_and_other_papers():
     assert oapdf.is_article(pages, "Another made-up paper about asthma inhalers").startswith(
         "title"
     )
+
+
+def test_is_article_checks_the_doi_even_across_line_breaks():
+    pages = ["Made-up paper\nhttps://doi.org/10.0000/fix.\n0801", "x", "y"]
+    assert oapdf.is_article(pages, "unrelated title", "10.0000/FIX.0801") is None
+    assert oapdf.is_article(pages, TITLE, "10.0000/fix.0802").startswith("DOI")
 
 
 def test_pdf_link_reads_either_attribute_order():
