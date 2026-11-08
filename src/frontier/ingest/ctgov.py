@@ -33,6 +33,7 @@ from datetime import UTC, date, datetime
 import httpx
 
 from frontier.core.config import REPO_ROOT, Settings
+from frontier.ingest.window import in_window
 
 API = "https://clinicaltrials.gov/api/v2/studies"
 CONDITION = "COPD"  # the API expands condition synonyms
@@ -243,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.refresh or not path.exists():
         download(path)
     studies = [s for s in load(path) if is_interventional(s)]
-    rows = [row for study in studies for row in versions(study)]
+    rows = [row for study in studies for row in versions(study) if in_window(row["source_date"])]
     print(f"{len(studies)} interventional studies, {len(rows)} versions", flush=True)
     if not args.download_only:
         import psycopg

@@ -11,10 +11,10 @@ For each drug in ingest/curated/copd_market_drugs.json:
   per dosage unit, summed over the drug's brand-name rows (all indications, not
   COPD only).
 
-Each drug is stored under one id, fda:<application number>, in two versions:
-  fda-label      label only, dated by the label's effective date
-  fda-label+cms  label plus Part D stats, dated by the later of the label date
-                 and the CMS release, so a backtest never sees the stats early.
+Each drug is stored as one row, id fda:<application number>: the label plus Part D stats
+and industry sources dated 2023-2025 (fda-label+cms, or fda-label+market without a Part D
+row), dated by the latest of the label, the CMS release and those sources. A drug whose
+row would fall outside 2023-2025 is skipped.
 
     uv run python -m frontier.ingest.fda
 """
@@ -35,6 +35,7 @@ from pathlib import Path
 import httpx
 
 from frontier.core.config import REPO_ROOT, Settings
+from frontier.ingest.window import in_window
 
 OPENFDA = "https://api.fda.gov/drug/label.json"
 LABEL_CUTOFF = "20251231"  # no 2026 label versions
@@ -188,6 +189,7 @@ def rows_for(
         )
         body = "\n".join([body_of(label, stats, drug_class), *industry_lines(industry)])
         out.append(("fda-label+cms" if stats else "fda-label+market", max(dates), market, body))
+    out = out[-1:]  # one row per drug (team whiteboard): the latest version only
     title = f"{label['brand']} ({label['generic']}): FDA label"
     return [
         {
@@ -266,7 +268,14 @@ def build(labels: dict, cms_rows: list[dict]) -> tuple[list[dict], list[str]]:
             report.append(f"{brand}: label has no application number or date, skipped")
             continue
         stats = cms_stats(cms_rows, drug["cms_brand"])
-        rows += rows_for(label, stats, drug["class"], drug.get("industry_sources"))
+        industry = [x for x in drug.get("industry_sources", []) if in_window(x["date"])]
+        drug_rows = rows_for(label, stats, drug["class"], industry)
+        if not in_window(drug_rows[0]["source_date"]):
+            report.append(
+                f"{brand}: dated {drug_rows[0]['source_date']}, outside 2023-2025, skipped"
+            )
+            continue
+        rows += drug_rows
         report.append(
             f"{brand}: label {label['label_effective']}, "
             + (
@@ -286,6 +295,17 @@ def upsert(conn, rows: list[dict]) -> int:
     return len(rows)
 
 
+def remove_stale(conn, rows: list[dict]) -> int:
+    """Drop fda rows this run did not produce, so each drug keeps one row."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "DELETE FROM documents WHERE source = 'fda'"
+            " AND (id, source_date) NOT IN (SELECT * FROM unnest(%s::text[], %s::date[]))",
+            ([r["id"] for r in rows], [r["source_date"] for r in rows]),
+        )
+        return cur.rowcount
+
+
 def main() -> int:
     import psycopg
 
@@ -294,6 +314,8 @@ def main() -> int:
     print("\n".join(report))
     with psycopg.connect(Settings().database_url) as conn:
         upsert(conn, rows)
+        removed = remove_stale(conn, rows)
+    print(f"removed {removed} older fda rows (one row per drug)")
     print(f"done: {len(rows)} rows ({len({r['id'] for r in rows})} drugs)")
     return 0
 

@@ -42,20 +42,16 @@ def test_build_checks_copd_and_dates_versions():
     by_id = {}
     for row in rows:
         by_id.setdefault(row["id"], []).append(row)
-    # Label after the CMS release? No: 2024 label, May 2025 CMS release, but no Part D row.
+    # One row per drug. 0401: 2024 label, no Part D row, no industry source in the window.
     assert [r["version_label"] for r in by_id["fda:NDAFIXTURE0401"]] == ["fda-label"]
     assert by_id["fda:NDAFIXTURE0401"][0]["source_date"] == date(2024, 6, 26)
     assert "inhibits fixture enzymes" in by_id["fda:NDAFIXTURE0401"][0]["body"]
-    roflu = by_id["fda:NDAFIXTURE0403"]
-    assert [(r["version_label"], r["source_date"]) for r in roflu] == [
-        ("fda-label", date(2020, 3, 1)),
-        ("fda-label+cms", date(2025, 5, 31)),  # stats only visible from the CMS release
-    ]
-    assert "medicare_part_d" not in roflu[0]["fields"]
-    assert roflu[1]["fields"]["medicare_part_d"]["total_claims"] == 2000
-    assert "Medicare Part D 2023" in roflu[1]["body"]
-    assert roflu[1]["fields"]["industry_sources"][0]["type"] == "news"  # from the curated list
-    assert "[news, 2017-06-27]" in roflu[1]["body"]
+    (roflu,) = by_id["fda:NDAFIXTURE0403"]  # the 2020 label-only version is not kept
+    assert (roflu["version_label"], roflu["source_date"]) == ("fda-label+cms", date(2025, 5, 31))
+    assert roflu["fields"]["medicare_part_d"]["total_claims"] == 2000
+    assert "Medicare Part D 2023" in roflu["body"]
+    assert roflu["fields"]["industry_sources"] == []  # its 2017 news headline is outside 2023-2025
+    assert "[news, 2017-06-27]" not in roflu["body"]
 
 
 def test_industry_sources_are_typed_dated_and_pre_2026():
@@ -81,7 +77,6 @@ def test_industry_only_drug_gets_market_version():
     ]
     rows = fda.rows_for(label, None, "class", industry)
     assert [(r["version_label"], r["source_date"]) for r in rows] == [
-        ("fda-label", date(2024, 6, 26)),
         ("fda-label+market", date(2024, 7, 1)),
     ]
 
@@ -108,6 +103,6 @@ def test_upsert_is_idempotent_and_rolled_back():
             count = conn.execute(
                 "SELECT count(*) FROM documents WHERE id LIKE 'fda:%FIXTURE%'"
             ).fetchone()[0]
-            assert count == 3
+            assert count == 2  # one row per drug
         finally:
             conn.rollback()  # never leave fixture rows in a real store

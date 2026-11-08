@@ -1,6 +1,6 @@
 {
   "name": "copd-shelved-drugs",
-  "note": "COPD drug programs that failed a primary endpoint or were judged not worth pursuing in COPD. Every fact is from the cited source; 'not stated in sources' marks gaps. Company is given only where a cited source names it. No source after 2025. phase_reached is null where the source doesn't state a phase. Each source has a type: academic, company, regulatory_filing or news. Each source has a 'fact': what that source alone reports, so older versions only show what was public then.",
+  "note": "COPD drug programs that failed a primary endpoint or were judged not worth pursuing in COPD. Only sources dated 2023-2025 are loaded (team whiteboard); older sources stay in the file with their facts but are skipped. Summary fields (status, reason, side_effects, trials) describe what the 2023-2025 sources report. Every fact is from the cited source; 'not stated in sources' marks gaps. Company is given only where a cited source names it. phase_reached is null where the source doesn't state a phase. Each source has a type and a 'fact'.",
   "drugs": [
     {
       "drug": "danirixin",
@@ -102,12 +102,10 @@
       "drug": "benralizumab (in COPD)",
       "company": "AstraZeneca",
       "pathway": "IL-5 receptor alpha-directed cytolytic antibody: depletes eosinophils",
-      "status": "Three phase 3 trials missed their primary endpoint: GALATHEA and TERRANOVA (2018-2019) and RESOLUTE (2025); AstraZeneca said it will analyse the full RESOLUTE data",
-      "reason": "No dose significantly reduced annualized exacerbations vs placebo at week 56 in patients with eosinophils >=220/uL (rate ratios 0.83-1.04). RESOLUTE (n=689, eosinophils >=300/uL, 3 or more exacerbations in the prior year): numerical improvement but no statistically significant reduction in exacerbations.",
-      "side_effects": "Types and frequencies of adverse events similar to placebo. RESOLUTE: safety and tolerability consistent with the known profile.",
+      "status": "Phase 3 RESOLUTE (2025) missed its primary endpoint; AstraZeneca to analyse the full data",
+      "reason": "RESOLUTE (n=689, eosinophils >=300/uL, 3 or more exacerbations in the prior year): numerical improvement but no statistically significant reduction in exacerbations.",
+      "side_effects": "Safety and tolerability consistent with the known profile.",
       "trials": [
-        "GALATHEA (phase 3)",
-        "TERRANOVA (phase 3)",
         "RESOLUTE (phase 3)"
       ],
       "sources": [

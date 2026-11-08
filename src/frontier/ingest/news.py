@@ -41,6 +41,7 @@ from urllib.parse import quote_plus
 import httpx
 
 from frontier.core.config import REPO_ROOT, Settings
+from frontier.ingest.window import END, START, in_window
 
 RAW_DIR = REPO_ROOT / "data" / "news"
 QUERY = '(COPD OR "chronic obstructive pulmonary disease")'
@@ -243,9 +244,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawTextHelpFormatter
     )
-    this_month = f"{today.year}-{today.month:02d}"
-    parser.add_argument("--start", default="2016-01", help="first month, YYYY-MM (default 2016-01)")
-    parser.add_argument("--end", default=this_month, help="last month, YYYY-MM")
+    parser.add_argument("--start", default=f"{START:%Y-%m}", help="first month, YYYY-MM")
+    parser.add_argument("--end", default=f"{END:%Y-%m}", help="last month, YYYY-MM")
     parser.add_argument("--refresh", action="store_true", help="download past months again")
     parser.add_argument("--feeds-only", action="store_true", help="skip the Google News history")
     parser.add_argument("--download-only", action="store_true", help="skip the database")
@@ -261,14 +261,27 @@ def main(argv: list[str] | None = None) -> int:
         if not args.feeds_only:
             for year, month in months(args.start, args.end):
                 refresh = args.refresh or (year, month) == (today.year, today.month)
-                batches.append((f"{year}-{month:02d}", google_month(fetcher, year, month, refresh)))
+                batches.append(
+                    (
+                        f"{year}-{month:02d}",
+                        [
+                            i
+                            for i in google_month(fetcher, year, month, refresh)
+                            if in_window(i.published)
+                        ],
+                    )
+                )
                 if conn is not None:
                     total += upsert(conn, dedupe(batches[-1][1]))
                     conn.commit()
                 print(f"{batches[-1][0]}: {len(batches[-1][1])} items", flush=True)
-        for name, url in FEEDS.items():
+        if not in_window(today):
+            print(f"publisher feeds skipped: today ({today}) is outside {START} to {END}")
+        for name, url in FEEDS.items() if in_window(today) else []:
             try:
-                items = publisher_feed(fetcher, name, url, today)
+                items = [
+                    i for i in publisher_feed(fetcher, name, url, today) if in_window(i.published)
+                ]
             except RuntimeError as error:  # one feed down must not stop the rest
                 print(f"{name}: skipped ({error})", flush=True)
                 continue

@@ -26,6 +26,7 @@ from pathlib import Path
 
 from frontier.core.config import REPO_ROOT, Settings
 from frontier.ingest import pubmed
+from frontier.ingest.window import in_window
 
 CURATED = Path(__file__).resolve().parent / "curated" / "copd_drug_trials_2023_2024.json"
 RAW_DIR = REPO_ROOT / "data" / "pmc"
@@ -155,6 +156,8 @@ def store(conn, pmid: str, pmcid: str, article: ET.Element) -> int:
             return -1
         released = release_date(article)
         when = max(d for d in (pubmed_date, released) if d)
+        if not in_window(when):
+            return -2  # full text public outside the 2023-2025 window
         cur.execute("DELETE FROM parent_chunks WHERE doc_id = %s", (doc_id,))
         if not parts:
             return 0
@@ -200,7 +203,10 @@ def main() -> int:
             root = ET.fromstring(fetch(eutils, pmcid))
             article = root.find(".//article")
             n = store(conn, pmid, pmcid, article) if article is not None else 0
-            if n > 0:
+            if n == -2:
+                abstract_only += 1
+                print(f"pmid:{pmid} {pmcid}: full text released outside 2023-2025, skipped")
+            elif n > 0:
                 stored += 1
                 print(f"pmid:{pmid} {pmcid}: {n} chunks")
             else:

@@ -16,6 +16,7 @@ from pathlib import Path
 
 from frontier.core.config import Settings
 from frontier.ingest.shelved import UPSERT, upsert
+from frontier.ingest.window import in_window
 
 DATA = Path(__file__).resolve().parent / "curated" / "copd_market_context.json"
 
@@ -26,6 +27,8 @@ def rows(data: dict | None = None) -> list[dict]:
     data = data or json.loads(DATA.read_text())
     out = []
     for n, f in enumerate(data["facts"], start=1):
+        if not in_window(f["date"]):
+            continue
         title = f["title"]
         body = f"[{f['type']}, {f['date']}] {f['fact']}\nSource: {f['url']}"
         out.append(

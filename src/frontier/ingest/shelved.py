@@ -2,8 +2,8 @@
 
 Reads ingest/curated/copd_shelved_drugs.json (pathway, status, reason, side effects,
 trials and dated sources per drug) and stores it in documents,
-source 'curated', id curated:shelved:<drug>. Each drug gets one row per source date
-(cumulative), so a backtest sees a failure as soon as it was first reported.
+source 'curated', id curated:shelved:<drug>: one row per drug, built from its sources
+dated 2023-2025 (team whiteboard). Older rows of these ids are removed.
 
     uv run python -m frontier.ingest.shelved
 """
@@ -18,6 +18,7 @@ from datetime import date
 from pathlib import Path
 
 from frontier.core.config import Settings
+from frontier.ingest.window import in_window
 
 DATA = Path(__file__).resolve().parent / "curated" / "copd_shelved_drugs.json"
 
@@ -37,49 +38,42 @@ def _cite(s: dict) -> str:
 
 
 def rows(data: dict | None = None) -> list[dict]:
-    """One version per drug per source date. A version holds only the sources public by
-    its date, so a backtest sees each failure as it was known then. The latest version
-    also carries the summary fields (status, reason, side effects, trials)."""
+    """One row per drug, from its 2023-2025 sources only (team whiteboard), dated by the
+    latest of them. A drug with no source in the window is left out."""
     data = data or json.loads(DATA.read_text())
     out = []
     for d in data["drugs"]:
-        dates = sorted({date.fromisoformat(s["date"]) for s in d["sources"]})
-        for n, when in enumerate(dates, start=1):
-            known = [s for s in d["sources"] if date.fromisoformat(s["date"]) <= when]
-            is_latest = n == len(dates)
-            lines = [
-                f"Company: {d['company'] or 'not stated in sources'}",
-                f"Pathway: {d['pathway']}",
-            ]
-            if is_latest:
-                lines += [
-                    f"Status: {d['status']}",
-                    f"Reason: {d['reason']}",
-                    f"Side effects: {d['side_effects']}",
-                    f"Trials: {', '.join(d['trials'])}",
-                ]
-            lines += ["Reported so far:"] + [f"- {_cite(s)}: {s['fact']}" for s in known]
-            body = "\n".join(lines)
-            keep = ("drug", "company", "pathway", "phase_reached", "reason_category")
-            fields = {k: d.get(k) for k in keep}
-            if is_latest:
-                fields.update({k: d[k] for k in ("status", "reason", "side_effects", "trials")})
-            fields.update(
-                {"sources": known, "category": "shelved_or_failed", "collection": data["name"]}
-            )
-            title = f"{d['drug']}: failed or shelved in COPD"
-            out.append(
-                {
-                    "id": f"curated:shelved:{slug(d['drug'])}",
-                    "source_date": when,
-                    "version_label": "curated-shelved-v2" + ("" if is_latest else "-partial"),
-                    "title": title,
-                    "body": body,
-                    "url": source_url(known[-1]),
-                    "fields": fields,
-                    "text_hash": hashlib.sha256(f"{title}\n{body}".encode()).hexdigest(),
-                }
-            )
+        known = [s for s in d["sources"] if in_window(s["date"])]
+        if not known:
+            continue
+        lines = [
+            f"Company: {d['company'] or 'not stated in sources'}",
+            f"Pathway: {d['pathway']}",
+            f"Status: {d['status']}",
+            f"Reason: {d['reason']}",
+            f"Side effects: {d['side_effects']}",
+            f"Trials: {', '.join(d['trials'])}",
+            "Sources:",
+        ] + [f"- {_cite(s)}: {s['fact']}" for s in known]
+        body = "\n".join(lines)
+        title = f"{d['drug']}: failed or shelved in COPD"
+        out.append(
+            {
+                "id": f"curated:shelved:{slug(d['drug'])}",
+                "source_date": max(date.fromisoformat(s["date"]) for s in known),
+                "version_label": "curated-shelved-v3",
+                "title": title,
+                "body": body,
+                "url": source_url(known[-1]),
+                "fields": {
+                    **{k: v for k, v in d.items() if k != "sources"},
+                    "sources": known,
+                    "category": "shelved_or_failed",
+                    "collection": data["name"],
+                },
+                "text_hash": hashlib.sha256(f"{title}\n{body}".encode()).hexdigest(),
+            }
+        )
     return out
 
 
@@ -123,7 +117,7 @@ def main() -> int:
         upsert(conn, records)
         removed = remove_stale(conn, records)
     for r in records:
-        print(f"{r['source_date']}  {r['version_label']:<28} {r['title']}")
+        print(f"{r['source_date']}  {r['title']}")
     drugs = len({r["id"] for r in records})
     print(f"done: {drugs} drugs, {len(records)} versions, {removed} stale removed")
     return 0

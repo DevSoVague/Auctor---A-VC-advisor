@@ -38,6 +38,7 @@ import httpx
 from dotenv import dotenv_values
 
 from frontier.core.config import REPO_ROOT, Settings
+from frontier.ingest.window import END, START, in_window
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 QUERY = '"Pulmonary Disease, Chronic Obstructive"[MeSH Terms]'  # PRD: Ingestion table
@@ -325,9 +326,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument("--start", default="2016-01", help="first month, YYYY-MM (default 2016-01)")
-    this_month = f"{today.year}-{today.month:02d}"
-    parser.add_argument("--end", default=this_month, help="last month, YYYY-MM")
+    parser.add_argument("--start", default=f"{START:%Y-%m}", help="first month, YYYY-MM")
+    parser.add_argument("--end", default=f"{END:%Y-%m}", help="last month, YYYY-MM")
     parser.add_argument("--refresh", action="store_true", help="download months again")
     parser.add_argument("--download-only", action="store_true", help="skip the database")
     args = parser.parse_args(argv)
@@ -344,7 +344,9 @@ def main(argv: list[str] | None = None) -> int:
             # The current month is never final, so it is always downloaded again.
             refresh = args.refresh or (year, month) == (today.year, today.month)
             path = download_month(eutils, year, month, refresh=refresh)
-            records = list(parse_xml(gzip.decompress(path.read_bytes())))
+            records = [
+                r for r in parse_xml(gzip.decompress(path.read_bytes())) if in_window(r.source_date)
+            ]
             if conn is not None:
                 upsert(conn, records)
                 conn.commit()

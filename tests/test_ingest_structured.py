@@ -27,9 +27,10 @@ def _docs():
 def test_build_tables():
     tables = structured.build(*_docs())
     drugs = {d["drug_id"]: d for d in tables["drugs"]}
-    # 9 shelved drugs plus the 2 fixture labels that mention COPD.
-    assert len(drugs) == 11
-    assert drugs["drug:danirixin"]["status"] == "shelved"
+    # 6 shelved drugs with 2023-2025 sources, plus the 2 fixture labels that mention COPD.
+    assert len(drugs) == 8
+    assert drugs["drug:astegolimab"]["status"] == "shelved"
+    assert "drug:danirixin" not in drugs  # its only source is from 2020
     assert drugs["drug:benralizumab"]["name"] == "benralizumab"
     marketed = drugs["drug:fixture-generic-c"]
     assert marketed["status"] == "in_market" and marketed["brand_names"] == ["FIXTUREBRAND C"]
@@ -42,12 +43,11 @@ def test_build_tables():
     assert roflu["published_date"] == date(2025, 5, 31)  # the stats version, not the 2020 label
     assert roflu["side_effects"] == ["Made-up: diarrhea, weight decrease."]
     assert roflu["insurance"] == "unknown" and "Medicare Part D 2023" in roflu["coverage_notes"]
-    assert roflu["industry_notes"].startswith("[news, 2017-06-27]")
-    assert "news:eac662c4fb4f51e7" in roflu["source_ids"]
+    assert roflu["industry_notes"] is None  # its 2017 headline is outside 2023-2025
 
     programs = {p["drug_id"]: p for p in tables["shelved_programs"]}
     benra = programs["drug:benralizumab"]
-    assert benra["shelved_date"] == date(2018, 5, 15)  # first public report
+    assert benra["shelved_date"] == date(2025, 9, 17)  # RESOLUTE, the only 2023-2025 source
     assert benra["published_date"] == date(2025, 9, 17)  # latest source in the row
     assert benra["phase_reached"] == "phase3" and benra["reason_category"] == "efficacy"
 
@@ -102,7 +102,7 @@ def test_write_is_rerunnable_and_rolled_back():
         try:
             structured.write(conn, tables)
             counts = structured.write(conn, tables)
-            assert counts["drugs"] == 11 and counts["trials"] == 5
+            assert counts["drugs"] == 8 and counts["trials"] == 5
             n = conn.execute("SELECT count(*) FROM trials").fetchone()[0]
             assert n == 5
         finally:
