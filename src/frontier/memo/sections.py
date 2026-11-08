@@ -132,6 +132,34 @@ def _front(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Sources) 
     b.append(Heading("Bottom line", 2))
     b.append(Bullets([_stmt(s, src) for s in d.bottom_line]))
 
+    pitch = inp.pitch
+    if pitch and pitch.accepted and pitch.profile:
+        pp = pitch.profile
+        counts: dict[str, int] = {}
+        for item in pitch.cited:
+            counts[str(item.get("status", "unknown"))] = counts.get(str(item.get("status")), 0) + 1
+        b.append(Heading("The pitch we tested", 2))
+        b.append(
+            Bullets(
+                [
+                    [("b", "Company: "), ("", pp.company)],
+                    [
+                        ("b", "Claim: "),
+                        (
+                            "",
+                            f"{pp.mechanism} for {pp.indication or 'this disease'}"
+                            + (f" ({pp.modality}, {pp.stage})" if pp.stage else ""),
+                        ),
+                    ],
+                    [
+                        ("b", "What it cites: "),
+                        ("", ", ".join(f"{n} {k}" for k, n in sorted(counts.items())) or "nothing"),
+                    ],
+                ]
+                + [[("i", "Warning: "), ("", w)] for w in pitch.warnings[:3]]
+            )
+        )
+
     b.append(Heading("Recommended pursuits", 2))
     b.append(
         Table(

@@ -1,0 +1,58 @@
+# ONE place that maps the agents' logical names to the real database names.
+# When the database owner sends the real schema, edit THIS file (and nothing else).
+# Defaults follow langgraph-person3/docs/DATABASE_SCHEMA.md.
+#
+# tables.<logical>.table : the real table name       .date : the date column (rows on/after as_of are hidden)
+# tables.<logical>.columns : columns the agents may read (an allow-list; anything else is refused)
+milvus:
+  collection: copd_child_chunks
+  vector_field: embedding
+  fields: {chunk_id: chunk_id, text: text, parent_id: parent_id, doc_id: doc_id, source: source, doc_type: doc_type, date: published_date}
+  date_format: yyyymmdd        # Milvus stores the date as an integer YYYYMMDD
+  metric: COSINE
+tables:
+  documents:
+    table: documents
+    key: doc_id
+    date: published_date
+    columns: [doc_id, source, doc_type, title, url, published_date, full_text, metadata, file_path, origin]
+  parent_chunks:
+    table: parent_chunks
+    key: parent_id
+    date: published_date
+    columns: [parent_id, doc_id, position, section, text, published_date]
+  drugs:
+    table: drugs
+    key: drug_id
+    date: as_of_date
+    columns: [drug_id, name, brand_names, drug_class, pathway, targets, status, as_of_date]
+  market_stats:
+    table: market_stats
+    key: id
+    date: period
+    columns: [id, drug_id, period, patients_est, annual_cost_usd, insurance, coverage_notes, side_effects, warnings, source_doc_id]
+  shelved_programs:
+    table: shelved_programs
+    key: id
+    date: shelved_date
+    columns: [id, drug_id, shelved_date, phase_reached, reason_category, reason_detail, side_effects, source_doc_id]
+  trials:
+    table: trials
+    key: trial_id
+    date: published_date
+    columns: [trial_id, drug_id, title, phase, status, start_date, completion_date, enrollment, primary_outcome, why_stopped, published_date]
+  targets:
+    table: targets
+    key: target_id
+    date: as_of_date
+    columns: [target_id, symbol, disease_id, association_score, evidence_types, as_of_date]
+  approvals:
+    table: approvals
+    key: id
+    date: approved_date
+    columns: [id, drug_id, agency, approved_date, indication, label_doc_id]
+  retractions:
+    table: retractions
+    key: doc_id
+    date: retracted_date
+    columns: [doc_id, retracted_date, reason]

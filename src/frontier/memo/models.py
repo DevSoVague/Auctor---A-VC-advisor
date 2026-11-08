@@ -46,6 +46,30 @@ class LoggedDecision(BaseModel):
     at: datetime | None = None
 
 
+class PitchProfile(BaseModel):
+    """What A0 read out of the startup's pitch (person3/grounded1to8: agents/analysis/a0_intake)."""
+
+    company: str
+    indication: str = ""
+    mechanism: str = ""
+    targets: list[str] = Field(default_factory=list)
+    modality: str = ""
+    stage: str = ""
+    key_claims: list[dict[str, Any]] = Field(default_factory=list)  # {text, cited}
+
+
+class PitchIntake(BaseModel):
+    """A0 intake report: the pitch the run tested, and how its cited items checked out."""
+
+    accepted: bool
+    reasons: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    source: str = ""
+    submitted: str = ""
+    cited: list[dict[str, Any]] = Field(default_factory=list)  # {ref, kind, status, id, ...}
+    profile: PitchProfile | None = None
+
+
 class KilledHypothesis(BaseModel):
     hypothesis_id: str
     mechanism: str = ""
@@ -81,6 +105,7 @@ class MemoInput(BaseModel):
 
     run_id: str
     config: RunConfig
+    pitch: PitchIntake | None = None  # A0, when the run tested a startup's pitch
     why_now: WhyNow | None = None  # A1
     hypotheses: list[HypothesisBundle]  # A2 rank order, survivors and killed alike
     killed: list[KilledHypothesis] = Field(default_factory=list)

@@ -35,6 +35,7 @@ from frontier.memo.models import (
     LedgerRow,
     LoggedDecision,
     MemoInput,
+    PitchIntake,
 )
 
 M = TypeVar("M", bound=BaseModel)
@@ -66,8 +67,25 @@ def _hypothesis_of(target: str, ids: set[str]) -> str | None:
     return None
 
 
-def _ledger(signals: dict) -> list[LedgerRow]:
-    """Citation Checker reports live at signals['citations:<agent>[:<hid>]']."""
+def _ledger(state: dict) -> list[LedgerRow]:
+    """Every Citation Checker result in the run, whichever pipeline copy produced it.
+
+    - person3/1to6merged with Person 2's hook: signals['citations:<agent>[:<hid>]'].
+    - person3/grounded1to8: 'citation_check' events, one per check; with cite_mode 'node' an
+      agent is re-checked after each restart, so only the last check per (agent, hypothesis)
+      counts. result.json carries the same payloads as 'citation_checks'.
+    """
+    checks = state.get("citation_checks")
+    if checks is None:
+        checks = [p for e, p in state.get("events") or [] if e == "citation_check"]
+    if checks:
+        last = {(c.get("agent"), c.get("hypothesis_id")): c for c in checks}
+        return [
+            LedgerRow.model_validate({**e, "agent": agent, "hypothesis_id": hid})
+            for (agent, hid), check in last.items()
+            for e in check.get("entries") or []
+        ]
+    signals = state.get("signals") or {}
     rows = []
     for key, report in sorted(signals.items()):
         if not key.startswith("citations:") or not isinstance(report, dict):
@@ -168,13 +186,17 @@ def from_graph_state(state: dict) -> MemoInput:
     bundles.sort(key=lambda b: b.rank)
     ids = {b.id for b in bundles}
     signals = state.get("signals") or {}
-    ledger = _ledger(signals)
+    ledger = _ledger(state)
+    pitch = _load(PitchIntake, state.get("intake"), "A0 pitch intake", gaps)
+    if pitch and not pitch.accepted:
+        gaps.append("A0 pitch intake: pitch rejected (" + "; ".join(pitch.reasons) + ")")
     if not ledger:
         gaps.append("Citation Checker: no ledger in this run; no claim counts as verified")
 
     return MemoInput(
         run_id=str(state.get("run_id") or ""),
         config=config,
+        pitch=pitch,
         why_now=why_now,
         hypotheses=bundles,
         killed=killed,

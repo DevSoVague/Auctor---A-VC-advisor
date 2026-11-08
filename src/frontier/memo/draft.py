@@ -255,7 +255,17 @@ def draft_from_numbers(inp: MemoInput) -> MemoDraft:
     caution = caution_for(inp, picks)
 
     forms = ", ".join(f"{p.form} in {p.name}" for p in writeups) or "no pursuit"
-    bottom = [
+    pitch = inp.pitch.profile if inp.pitch and inp.pitch.accepted else None
+    bottom = []
+    if pitch:
+        bottom.append(
+            Statement(
+                kind="reasoning",
+                text=f"We tested {pitch.company}'s pitch: {pitch.mechanism} for "
+                f"{pitch.indication or inp.config.disease}.",
+            )
+        )
+    bottom += [
         Statement(
             kind="reasoning",
             text=f"{len(inp.survivors)} of {len(inp.hypotheses)} {inp.config.disease} "

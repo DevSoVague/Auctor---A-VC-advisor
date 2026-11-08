@@ -48,7 +48,10 @@ ingest:
 
 test:
 	$(UV) run --locked ruff check .
-	LLM_MODE=stub $(UV) run --locked pytest
+	LLM_MODE=stub $(UV) run --locked pytest --ignore=tests/test_p3_citation_steps.py
+	# Separate process: this test loads the older person3/1to6merged pipeline, and both
+	# copies of Person 3's pipeline share the package name p3graph.
+	LLM_MODE=stub $(UV) run --locked pytest tests/test_p3_citation_steps.py
 
 lint:
 	$(UV) run --locked ruff check --fix .

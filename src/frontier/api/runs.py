@@ -32,7 +32,11 @@ from pydantic import BaseModel, Field
 
 from frontier.core.costs import load_prices
 
-P3_ROOT = Path(__file__).resolve().parents[3] / "person3" / "1to6merged" / "langgraph-person3"
+# Which copy of Person 3's pipeline to run: person3/<P3_PIPELINE>/langgraph-person3.
+# grounded1to8 (default) adds A0 pitch intake and the A7 citation gate after every node;
+# 1to6merged is the earlier copy that Person 2's p3_node citation hook is spliced into.
+P3_PIPELINE = os.environ.get("P3_PIPELINE", "grounded1to8")
+P3_ROOT = Path(__file__).resolve().parents[3] / "person3" / P3_PIPELINE / "langgraph-person3"
 if str(P3_ROOT) not in sys.path:
     sys.path.insert(0, str(P3_ROOT))
 
@@ -62,6 +66,9 @@ class RunRequest(BaseModel):
     tools: bool = False
     judge: bool = True
     max_cards: int = Field(0, ge=0, description="only the top N hypotheses (0 = all)")
+    pitch: str | None = Field(None, description="A0 intake: path or URL of a startup's pitch")
+    store_pitch: bool = False  # also write the pitch to the shared evidence store
+    cite_mode: Literal["node", "end", "off"] = "node"  # A7: after every agent, once, or off
 
 
 class Decision(BaseModel):
@@ -80,8 +87,13 @@ class Runner:
         self.tasks: dict[str, asyncio.Task] = {}
 
     async def start(self, db: Path | None = None, checkpointer=None) -> None:
+        import p3graph
         from p3graph import engine as _E  # noqa: F401  (sets up Person 3's import path)
         from p3graph.graph import build
+
+        loaded = Path(p3graph.__file__).resolve().parents[1]
+        if loaded != P3_ROOT.resolve():  # both copies are named p3graph; never run the wrong one
+            raise RuntimeError(f"p3graph was imported from {loaded}, expected {P3_ROOT}")
 
         if checkpointer is None:
             from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -177,11 +189,30 @@ def _cost(usage: dict) -> dict:
 
 
 def _citations(values: dict) -> dict:
-    return {
+    """'agent[:hypothesis]' -> citation report, from either pipeline copy.
+
+    1to6merged + Person 2's hook: signals['citations:...'] (already in this shape).
+    grounded1to8: 'citation_check' events; after a restart the last check is the one that counts.
+    """
+    out = {
         k.removeprefix("citations:"): v
         for k, v in (values.get("signals") or {}).items()
         if k.startswith("citations:")
     }
+    for event, p in values.get("events") or []:
+        if event != "citation_check":
+            continue
+        entries = p.get("entries") or []
+        actions = [e.get("action") for e in entries]
+        key = p.get("agent", "") + (f":{p['hypothesis_id']}" if p.get("hypothesis_id") else "")
+        out[key] = {
+            "checked_pairs": len(entries),
+            "kept": actions.count("keep"),
+            "downgraded": actions.count("downgrade"),
+            "flagged": actions.count("remove"),
+            "entries": entries,
+        }
+    return out
 
 
 def _run_dir(values: dict) -> Path | None:
@@ -210,6 +241,9 @@ async def start_run(req: RunRequest) -> dict:
         "tools": req.tools,
         "judge": req.judge,
         "max_cards": req.max_cards,
+        "pitch": req.pitch,
+        "store_pitch": req.store_pitch,
+        "cite_mode": req.cite_mode,
     }
     runner.runs[run_id] = {
         "started": datetime.now(UTC).isoformat(timespec="seconds"),
