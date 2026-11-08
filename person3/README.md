@@ -8,6 +8,7 @@ This folder is self-contained and **does not touch** the team's `src/`, `tests/`
 |---|---|
 | [`frontier-engine/`](frontier-engine/) | The tested agent code: prompts, retrieval, grading, citation post-check, schemas, workbook export, hook docs ([`docs/PERSON3_HOOKS.md`](frontier-engine/docs/PERSON3_HOOKS.md), [`docs/ADAM_A4_A5_WORKFLOW.md`](frontier-engine/docs/ADAM_A4_A5_WORKFLOW.md)) |
 | [`langgraph-person3/`](langgraph-person3/) | The same agents as a LangGraph state machine, one graph node per real step (retrieve, prompt, llm, parse, postcheck, validate, commit), plus Langflow components and docs ([README](langgraph-person3/README.md), [how to run](langgraph-person3/docs/HOW_TO_RUN.md)) |
+| [`1to6merged/`](1to6merged/) | The **updated, merged** version (agents A1–A7 in one tree). The evidence store is wired to every agent as LLM tool calls, plus an A7 judge. Self-contained: it has its own `agents/` and `langgraph-person3/`, so it does not need the two folders above ([setup](1to6merged/README.md)) |
 
 `langgraph-person3` imports `../frontier-engine`, so keep the two folders side by side.
 
