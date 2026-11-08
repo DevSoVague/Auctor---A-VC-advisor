@@ -155,7 +155,9 @@ def test_a5_landscape_feeds_red_team(stub):
 def test_every_step_runs_in_order_and_is_logged(stub):
     g, c = build(InMemorySaver()), cfg()
     s = run(drive(g, inp(), c)).values
-    nodes = [x["node"] for x in s["steps"]]
+    # Person 2's citation checks (a7c_*, spliced in by workflow.yaml) run after each commit;
+    # this test checks the stock agent steps, so it skips them.
+    nodes = [x["node"] for x in s["steps"] if not x["node"].startswith("a7c_")]
     assert nodes[:10] == ["setup", "a1_retrieve", "a1_prompt", "a1_toolloop", "a1_llm", "a1_parse", "a1_postcheck",
                           "a1_validate", "a1_commit", "a2_retrieve"]
     # A2 has a grade step, A3/A6 validate before postcheck
