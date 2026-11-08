@@ -46,9 +46,9 @@ async function api(method, path, body) {
 }
 
 const AGENTS = {
-  a1_disease: "Why now", a2_mechanism: "Mechanisms", a3_profile: "Product profile",
+  a0_intake: "Pitch intake", a1_disease: "Why now", a2_mechanism: "Mechanisms", a3_profile: "Product profile",
   a4_inactive: "Shelved & repurposable assets", a5_active: "Competitor landscape",
-  a6_redteam: "Red team", a7_judge: "Judge", a7_citations: "Citation check",
+  a6_redteam: "Red team", a6b_judge: "Judge", a7_judge: "Judge", a7_citations: "Citation check",
 };
 const agentName = (a) => AGENTS[a] || a;
 
@@ -125,26 +125,31 @@ function StackedBar({ parts, total }) {
 }
 
 // ---------------------------------------------------------------- pipeline tracker
+// Person 3's graph (grounded1to8): each agent runs retrieve → prompt → toolloop → llm → parse →
+// postcheck/validate → cite (the A7 citation check) → commit. Stages match on node-name prefixes.
 const STAGES = [
-  { key: "a1", label: "Why now", done: ["a1_commit"] },
-  { key: "a2", label: "Mechanisms", done: ["a2_commit"] },
-  { key: "a3", label: "Product profile", done: ["a3_commit"] },
-  { key: "a45", label: "Competitors", done: ["a4_commit", "a5_commit"], prefixes: ["a4", "a5"] },
-  { key: "a6", label: "Red team", done: ["a6_commit"] },
-  { key: "a7", label: "Judge", done: ["a7_judge", "a6_route"], prefixes: ["a7_judge", "a6_route"] },
-  { key: "report", label: "Report", done: ["report"] },
+  { key: "intake", label: "Intake", prefixes: ["setup", "intake"] },
+  { key: "a1", label: "Why now", prefixes: ["a1_", "review_a1"] },
+  { key: "a2", label: "Mechanisms", prefixes: ["a2_", "review_a2"] },
+  { key: "a3", label: "Product profile", prefixes: ["a3_", "review_a3", "next_card"] },
+  { key: "a45", label: "Competitors", prefixes: ["a4_", "a5_"] },
+  { key: "a6", label: "Red team", prefixes: ["a6_retrieve", "a6_prompt", "a6_toolloop", "a6_llm", "a6_parse", "a6_fix", "a6_postcheck", "a6_validate", "a6_cite", "a6_commit"] },
+  { key: "judge", label: "Judge", prefixes: ["a6b_judge", "a6_route", "review_a6"] },
+  { key: "report", label: "Report", prefixes: ["a7_final", "report"] },
 ];
+const stageOf = (node = "") => STAGES.findIndex((st) => st.prefixes.some((p) => node.startsWith(p)));
 
 function Pipeline({ run }) {
-  const nodes = new Set((run.steps || []).map((s) => s.node));
-  const last = (run.steps || [])[ (run.steps || []).length - 1 ]?.node || "";
+  // The API returns the latest 60 steps, so a stage counts as done once any later stage has run.
+  const steps = run.steps || [];
+  const reached = Math.max(-1, ...steps.map((s) => stageOf(s.node)));
+  const last = steps[steps.length - 1]?.node || "";
   const active = run.status === "running" || run.status === "paused";
-  const currentIdx = STAGES.findIndex((st) =>
-    (st.prefixes || [st.key]).some((p) => last.startsWith(p)) || (st.key === "a1" && last === "setup"));
+  const currentIdx = stageOf(last);
   return (
     <ol className="flex flex-wrap items-center gap-y-3">
       {STAGES.map((st, i) => {
-        const done = run.status === "done" || st.done.some((n) => nodes.has(n));
+        const done = run.status === "done" || i < reached || (i === reached && !active);
         const current = active && i === currentIdx;
         const dot = current ? "bg-teal-400 text-slate-950 ring-4 ring-teal-400/25"
           : done ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-400";
@@ -171,13 +176,20 @@ function NewRun({ onStarted }) {
     // Test mode by default: it costs nothing, and live runs need the engine's model key.
     disease: "COPD", as_of: "2021-01-01", mode: "guided", audience: "generalist",
     llm: "stub", profile: "dev", search: "corpus", max_cards: 0,
+    pitch: "", cite_mode: "node", tools: false,
   });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const set = (k) => (e) => {
-    const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
-    // Test mode's sample evidence stops in 2020, so it only works with a 2021 cutoff.
-    if (k === "llm") return setF({ ...f, llm: value, as_of: value === "stub" ? "2021-01-01" : today });
+    const value = e.target.type === "number" ? Number(e.target.value)
+      : e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    // Test mode's canned answers cite the sample corpus up to 2020: fixed cutoff, corpus only, no tools.
+    // Live runs default to the COPD evidence store plus web search.
+    if (k === "llm") {
+      return setF(value === "stub"
+        ? { ...f, llm: value, as_of: "2021-01-01", search: "corpus", tools: false }
+        : { ...f, llm: value, as_of: today, search: "evstore+web" });
+    }
     setF({ ...f, [k]: value });
   };
 
@@ -185,7 +197,8 @@ function NewRun({ onStarted }) {
     e.preventDefault();
     setBusy(true); setErr("");
     try {
-      const out = await api("POST", "/runs", f);
+      const body = { ...f, pitch: f.pitch.trim() || null };
+      const out = await api("POST", "/runs", body);
       onStarted(out.data.run_id);
     } catch (x) { setErr(String(x.message || x)); } finally { setBusy(false); }
   };
@@ -237,11 +250,14 @@ function NewRun({ onStarted }) {
               </select>
             </label>
             <label className={label}>Evidence source
-              <select className={field} value={f.search} onChange={set("search")}>
-                <option value="corpus">Curated COPD corpus</option>
-                <option value="database">Evidence database</option>
-                <option value="both">Corpus + web</option>
+              <select className={field} value={f.search} onChange={set("search")} disabled={f.llm === "stub"}>
+                <option value="evstore+web">COPD evidence store + web search</option>
+                <option value="evstore">COPD evidence store only</option>
+                <option value="corpus">Sample corpus (test mode)</option>
               </select>
+              <span className="mt-1 block text-xs text-slate-400">
+                {f.llm === "stub" ? "Test mode always uses the sample corpus." : "120 dated papers, trials, labels and market data, embedded for search."}
+              </span>
             </label>
             <label className={label}>Hypotheses to analyse in depth
               <input type="number" min={0} max={5} className={field} value={f.max_cards} onChange={set("max_cards")} />
@@ -258,6 +274,22 @@ function NewRun({ onStarted }) {
                 <option value="dev">Fast</option>
                 <option value="final">Final (strongest models)</option>
               </select>
+            </label>
+            <label className={label}>Citation checks
+              <select className={field} value={f.cite_mode} onChange={set("cite_mode")}>
+                <option value="node">After every agent (reruns an agent that cites badly)</option>
+                <option value="end">Once, before the report</option>
+                <option value="off">Off</option>
+              </select>
+            </label>
+            <label className={`${label} sm:col-span-2`}>Startup pitch (optional)
+              <input className={field} value={f.pitch} onChange={set("pitch")} placeholder="https://… link to a pitch deck or page" />
+              <span className="mt-1 block text-xs text-slate-400">The intake agent screens it first, then the analysis checks its claims against the evidence.</span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-slate-300 sm:col-span-2">
+              <input type="checkbox" className="mt-1 accent-teal-400" checked={f.tools} onChange={set("tools")} disabled={f.llm === "stub"} />
+              <span>Let agents search the evidence store and the web as they work
+                <span className="block text-xs text-slate-400">Live runs only. Why now can also add newly found papers and trials to the store.</span></span>
             </label>
           </div>
           {err && <p className="mt-4 rounded-lg bg-rose-500/10 p-3 text-sm text-rose-300">{err}</p>}
@@ -346,8 +378,95 @@ const verdictTone = (v, killed) => (killed || v === "kill" ? "bad" : v === "surv
 
 const pendingLabel = (status) => (status === "running" || status === "paused" ? "queued" : "not analysed");
 
-function HypothesisCard({ h, killed, current, runStatus }) {
+const JUDGE_TONE = { advance: "good", revise: "warn", kill: "bad" };
+const SEVERITY_TONE = { fatal: "bad", major: "warn", minor: "muted" };
+const list = (x) => (Array.isArray(x) ? x : []);
+
+function Sub({ title, children }) {
+  return (
+    <div className="mt-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{title}</p>
+      <div className="mt-1.5 text-sm text-slate-300">{children}</div>
+    </div>
+  );
+}
+
+// Everything the run's result.json holds for one hypothesis: product profile (A3), shelved and
+// repurposable assets (A4), the competitor landscape (A5), the red team's risks (A6), the judge (A6b).
+function HypothesisDetails({ hid, result }) {
+  const profile = result.profiles?.[hid];
+  const inactive = result.assets?.[`${hid}:inactive`];
+  const land = result.assets?.[`${hid}:landscape`];
+  const verdict = result.verdicts?.[hid];
+  const judge = result.judgments?.[hid];
+  const revised = result.revise_used?.[hid];
+  const programs = [...list(land?.programs), ...list(land?.orthogonal)];
+  const shelved = [...list(inactive?.shelved), ...list(inactive?.repurposing)];
+  if (!profile && !land && !inactive && !verdict && !judge) return null;
+  return (
+    <div className="mt-4 border-t border-white/10 pt-1">
+      {judge && (
+        <Sub title="Judge">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Pill tone={JUDGE_TONE[judge.decision] || "muted"}>{judge.decision}</Pill>
+            {judge.red_team_is && <Pill>red team {judge.red_team_is.replace("_", " ")}</Pill>}
+            {revised && <Pill tone="info">revised once</Pill>}
+          </div>
+          <ul className="mt-2 space-y-1">
+            {list(judge.rulings).map((r, i) => (
+              <li key={i} className="flex gap-2"><Pill tone={r.holds ? SEVERITY_TONE[r.severity] || "warn" : "good"}>{r.holds ? r.severity : "rejected"}</Pill><span>{r.risk}</span></li>
+            ))}
+          </ul>
+        </Sub>
+      )}
+      {profile && (
+        <Sub title="Winning product">
+          {profile.soc_gap_at_launch && <p><span className="text-slate-400">Gap at launch: </span>{profile.soc_gap_at_launch}</p>}
+          {list(profile.must_haves).length > 0 && <ul className="mt-1 list-disc pl-5">{profile.must_haves.map((m, i) => <li key={i}>{m}</li>)}</ul>}
+        </Sub>
+      )}
+      {land && (
+        <Sub title={`Competitor landscape · ${programs.length} programs`}>
+          {land.crowding_score != null && (
+            <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">Crowding
+              <div className="h-1.5 w-28 overflow-hidden rounded-full bg-slate-800"><div className="h-full bg-amber-400" style={{ width: `${Math.round(Number(land.crowding_score) * 100)}%` }} /></div>
+              {Math.round(Number(land.crowding_score) * 100)}%
+            </div>
+          )}
+          <ul className="space-y-1">
+            {programs.slice(0, 6).map((p, i) => (
+              <li key={i} className="flex flex-wrap gap-x-2"><span className="font-medium text-slate-100">{p.asset}</span><span className="text-slate-400">{p.owner} · {p.stage}{p.deprioritized ? " · deprioritized" : ""}</span></li>
+            ))}
+          </ul>
+          {list(land.catalysts).length > 0 && (
+            <p className="mt-2 text-xs text-slate-400">Next catalysts: {land.catalysts.slice(0, 3).map((c) => `${c.what} (${c.on})`).join(" · ")}</p>
+          )}
+        </Sub>
+      )}
+      {shelved.length > 0 && (
+        <Sub title={`Shelved & repurposable assets · ${shelved.length}`}>
+          <ul className="space-y-1">
+            {shelved.slice(0, 5).map((a, i) => (
+              <li key={i}><span className="font-medium text-slate-100">{a.name}</span> <span className="text-slate-400">{a.owner} · {a.stage}{a.limitations ? ` · ${a.limitations}` : ""}</span></li>
+            ))}
+          </ul>
+        </Sub>
+      )}
+      {list(verdict?.risks).length > 0 && (
+        <Sub title="Red team risks">
+          <ul className="space-y-1.5">
+            {verdict.risks.map((r, i) => <li key={i}>{r.text}{r.kill_criterion && <span className="block text-xs text-slate-400">Kill if: {r.kill_criterion}</span>}</li>)}
+          </ul>
+        </Sub>
+      )}
+    </div>
+  );
+}
+
+function HypothesisCard({ h, killed, current, runStatus, result }) {
   const v = killed ? "killed" : h.verdict || (current ? "in progress" : pendingLabel(runStatus));
+  const [open, setOpen] = useState(false);
+  const hasDetails = !!(result && (result.profiles?.[h.id] || result.verdicts?.[h.id] || result.judgments?.[h.id]));
   return (
     <div className={`${card} flex flex-col p-5 ${current ? "ring-2 ring-teal-400/60" : ""}`}>
       <div className="flex items-start justify-between gap-3">
@@ -363,7 +482,49 @@ function HypothesisCard({ h, killed, current, runStatus }) {
       </div>
       {h.top_risk && <p className="mt-4 text-sm text-slate-300"><span className="font-medium text-rose-300">Main risk: </span>{h.top_risk}</p>}
       {h.cheapest_test && <p className="mt-2 text-sm text-slate-300"><span className="font-medium text-teal-300">Cheapest test: </span>{h.cheapest_test}</p>}
-      {h.judge_decision && <p className="mt-auto pt-3 text-xs text-slate-400">Judge: {h.judge_decision}</p>}
+      {h.judge_decision && <p className="pt-3 text-xs text-slate-400">Judge: {h.judge_decision}</p>}
+      {hasDetails && (
+        <button className="mt-auto flex items-center gap-1 pt-4 text-sm font-medium text-teal-300 hover:text-teal-200" onClick={() => setOpen(!open)}>
+          {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />} {open ? "Hide details" : "Profile, competitors, judge"}
+        </button>
+      )}
+      {open && <HypothesisDetails hid={h.id} result={result} />}
+    </div>
+  );
+}
+
+// The A0 intake gate's view of a startup pitch: shown only when the run was given one.
+function Intake({ intake }) {
+  if (!intake || typeof intake !== "object") return null;
+  const scalars = Object.entries(intake).filter(([, v]) => v != null && typeof v !== "object" && String(v).length < 200);
+  const cited = list(intake.cited);
+  return (
+    <Section title="Startup pitch intake" icon={ShieldCheck}>
+      <div className="flex flex-wrap gap-1.5">
+        {scalars.slice(0, 8).map(([k, v]) => <Pill key={k} tone={v === true ? "good" : v === false ? "bad" : "muted"}>{k.replace(/_/g, " ")}: {String(v)}</Pill>)}
+      </div>
+      {cited.length > 0 && <p className="mt-3 text-sm text-slate-300">{cited.length} item(s) the pitch cites were found in, or added to, the evidence store and can be cited by the agents.</p>}
+    </Section>
+  );
+}
+
+function MemoBanner({ run }) {
+  if (run.memo_error) return <p className="rounded-lg bg-amber-500/10 p-3 text-sm text-amber-200"><span className="font-semibold">Memo not written: </span>{run.memo_error}</p>;
+  if (!run.memo) return null;
+  const files = Object.entries(run.memo);
+  return (
+    <div className={`${card} flex flex-wrap items-center justify-between gap-3 p-4 ring-teal-400/40`}>
+      <div className="flex items-center gap-3">
+        <span className="rounded-lg bg-teal-400/10 p-2 text-teal-300"><FileText className="h-5 w-5" /></span>
+        <div><p className="text-sm font-semibold text-slate-50">Investor memo ready</p><p className="text-xs text-slate-400">Written by Agent 8 from this run's checked evidence</p></div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {files.map(([kind, name]) => (
+          <button key={name} className={secondary} onClick={() => download(run.run_id, name)}>
+            <Download className="h-4 w-4" /> {kind === "docx" ? "Word" : kind === "pdf" ? "PDF" : kind === "xlsx" ? "Programs (Excel)" : name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -448,10 +609,13 @@ async function download(runId, name) {
 }
 
 const PRIMARY_FILES = [
-  { match: (n) => /memo/i.test(n), label: "Investor memo", icon: FileText },
+  { match: (n) => n === "memo.docx", label: "Investor memo (Word)", icon: FileText },
+  { match: (n) => n === "memo.pdf", label: "Investor memo (PDF)", icon: FileText },
   { match: (n) => n === "report.md", label: "Full report", icon: FileText },
-  { match: (n) => n.endsWith(".xlsx"), label: "Analysis workbook (Excel)", icon: FileSpreadsheet },
+  { match: (n) => n === "programs.xlsx", label: "Programs sheet (Excel)", icon: FileSpreadsheet },
+  { match: (n) => n === "analysis.xlsx", label: "Analysis workbook (Excel)", icon: FileSpreadsheet },
   { match: (n) => n === "result.json", label: "Structured results (JSON)", icon: Layers },
+  { match: (n) => n === "failures.log", label: "Failures log", icon: AlertTriangle },
 ];
 
 function Downloads({ runId }) {
@@ -532,6 +696,17 @@ function RunView({ runId }) {
   const [err, setErr] = useState("");
   const [tick, setTick] = useState(0);
   const [tab, setTab] = useState("overview");
+  const [result, setResult] = useState(null);
+
+  // result.json is written when the run finishes: profiles, A4/A5 assets, verdicts, judgments, intake.
+  const finished = run?.status === "done";
+  useEffect(() => {
+    setResult(null);
+    if (!finished) return;
+    api("GET", `/runs/${runId}/files/result.json`)
+      .then((o) => setResult(o.data && typeof o.data === "object" ? o.data : JSON.parse(o.text || "null")))
+      .catch(() => {});
+  }, [runId, finished]);
 
   const load = useCallback(() => {
     api("GET", `/runs/${runId}`).then((o) => { setRun(o.data); setErr(""); }).catch((x) => setErr(String(x.message || x)));
@@ -578,6 +753,7 @@ function RunView({ runId }) {
       </div>
 
       {run.error && <p className="rounded-lg bg-rose-500/10 p-4 text-sm text-rose-300"><span className="font-semibold">The run stopped: </span>{run.error}</p>}
+      <MemoBanner run={run} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Hypotheses" value={stats.hs.length || "—"} sub={stats.hs.length ? `${stats.survived} survived · ${stats.killed.size} killed` : "Ranked after Mechanisms"} />
@@ -600,6 +776,7 @@ function RunView({ runId }) {
         })}
       </nav>
 
+      {tab === "overview" && result?.intake && <Intake intake={result.intake} />}
       {tab === "overview" && (
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
           <Section title="Hypotheses at a glance" icon={Target} className="lg:col-span-3">
@@ -622,7 +799,7 @@ function RunView({ runId }) {
       )}
       {tab === "hypotheses" && (
         stats.hs.length
-          ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{stats.hs.map((h) => <HypothesisCard key={h.id} h={h} killed={stats.killed.has(h.id)} current={run.current_hypothesis === h.id && run.status !== "done"} runStatus={run.status} />)}</div>
+          ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{stats.hs.map((h) => <HypothesisCard key={h.id} h={h} killed={stats.killed.has(h.id)} current={run.current_hypothesis === h.id && run.status !== "done"} runStatus={run.status} result={result} />)}</div>
           : <Section title="Hypotheses" icon={Target}><p className="text-sm text-slate-400">Ranked after the Mechanisms agent runs.</p></Section>
       )}
       {tab === "evidence" && <Section title="Evidence checks by agent" icon={ShieldCheck}><EvidenceChart citations={run.citations} /></Section>}
@@ -630,13 +807,16 @@ function RunView({ runId }) {
       {tab === "activity" && (
         <Section title={`Activity (${run.step_count} steps)`} icon={Activity}>
           <ol className="max-h-[32rem] space-y-1 overflow-auto text-sm">
-            {[...(run.steps || [])].reverse().map((st, i) => (
-              <li key={i} className={`flex gap-3 rounded-lg px-2 py-1.5 ${st.node?.startsWith("a7c_") ? "bg-teal-400/10" : ""}`}>
-                {st.node?.startsWith("a7c_") ? <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-400" /> : <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />}
+            {[...(run.steps || [])].reverse().map((st, i) => {
+              const cite = /_cite$/.test(st.node || "") || st.node === "a7_final"; // the A7 citation check
+              return (
+              <li key={i} className={`flex gap-3 rounded-lg px-2 py-1.5 ${cite ? "bg-teal-400/10" : ""}`}>
+                {cite ? <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-400" /> : <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />}
                 <span className="w-36 shrink-0 font-mono text-xs leading-5 text-slate-400">{st.node}{st.hid ? ` · ${st.hid}` : ""}</span>
                 <span className="text-slate-300">{st.detail}</span>
               </li>
-            ))}
+              );
+            })}
           </ol>
         </Section>
       )}
