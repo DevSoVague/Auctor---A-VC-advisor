@@ -35,3 +35,7 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Ctrl+Alt+Cure runs in dark mode: native controls (date picker, selects) follow suit. */
+:root { color-scheme: dark; }
+html, body { background-color: #020617; }
