@@ -132,44 +132,51 @@ def _upside(s: Scorecard) -> tuple[Rating, list[str]]:
     points, why = 0, []
     if s.tier == 1:
         points += 2
-        why.append("tier 1 evidence (human genetics or clinical precedent)")
+        why.append("the strongest tier of evidence (human genetics or late-stage clinical results)")
     elif s.tier == 2:
         points += 1
-        why.append("tier 2 evidence")
+        why.append("good evidence (tier 2: early clinical or genetic support)")
     if s.approved:
         why.append(f"already approved on this mechanism ({s.approved[0]}): the field is priced in")
     elif s.crowding is not None and s.crowding <= 0.4:
         points += 2
-        why.append(f"uncrowded field (crowding {s.crowding:.2f})")
+        why.append(f"few competitors (crowding {s.crowding:.2f} on a 0 to 1 scale)")
     elif s.crowding is not None and s.crowding <= 0.7:
         points += 1
-        why.append(f"moderately crowded (crowding {s.crowding:.2f})")
+        why.append(f"a moderately busy field (crowding {s.crowding:.2f} of 1)")
     if s.best_fit is not None and s.best_fit >= 0.7:
         points += 1
-        why.append(f"an existing asset already fits the profile ({s.best_fit:.1f})")
+        why.append(
+            f"an existing asset already matches the ideal product (fit {s.best_fit:.1f} of 1)"
+        )
     return ("high" if points >= 4 else "medium" if points >= 2 else "low"), why
 
 
 def _risk(s: Scorecard) -> tuple[Rating, list[str]]:
     """A fatal attack that holds is high risk outright; otherwise 1 point per concern."""
     if s.fatal_attacks_holding:
-        return "high", ["the Judge upheld a fatal red-team attack"]
+        return "high", [
+            "the judge upheld a fatal objection from the red team (an independent critic)"
+        ]
     points, why = 0, []
     if s.major_attacks_holding:
         points += s.major_attacks_holding
-        why.append(f"{s.major_attacks_holding} major red-team attack(s) upheld by the Judge")
+        why.append(
+            f"{s.major_attacks_holding} major objection(s) from the red team "
+            "(an independent critic) upheld by the judge"
+        )
     if s.revised:
         points += 1
-        why.append("needed a red-team revise round")
+        why.append("had to be revised after the red-team critique")
     if s.risks_without_cheap_test:
         points += 1
-        why.append(f"{s.risks_without_cheap_test} risk(s) with no cheap test")
+        why.append(f"{s.risks_without_cheap_test} risk(s) with no inexpensive way to test them")
     if s.claims_checked and s.supported_share < 0.8:
         points += 1
         why.append(f"only {s.supported_share:.0%} of checked claims fully supported")
     if s.level == "bronze":
         points += 1
-        why.append("bronze validation level")
+        why.append("bronze validation level (the weakest)")
     return ("high" if points >= 3 else "medium" if points >= 1 else "low"), why
 
 

@@ -47,7 +47,7 @@ class PursuitSignals:
     evidence_tier: int  # 1 (strongest) to 4
     crowding_score: float | None  # None when A5 produced no landscape
     best_profile_fit: float | None  # None for build pursuits
-    revised: bool  # survived the Red Teamer only after a revise round
+    revised: bool  # survived the red team only after being revised
     risks_without_cheap_test: int
     claims_total: int
     claims_supported: int
@@ -78,7 +78,7 @@ class PursuitSignals:
 class CautionResult:
     proceed_with_caution: bool
     reasons: list[str]  # facts for agent 8 to write up; empty when the flag is off
-    basis: str = "absolute bars (single-disease run), not a comparison with other diseases"
+    basis: str = "fixed quality bars for a single disease, not a comparison with other diseases"
 
 
 def _hard_failures(p: PursuitSignals, bars: CautionBars) -> list[str]:
@@ -114,7 +114,7 @@ def _soft_failures(p: PursuitSignals, bars: CautionBars) -> list[str]:
             "this is a follow-on play, not a new discovery"
         )
     if p.revised:
-        out.append(f"{p.name}: survived the Red Teamer only after a revise round")
+        out.append(f"{p.name}: survived the red team only after being revised")
     if p.risks_without_cheap_test:
         out.append(f"{p.name}: {p.risks_without_cheap_test} risk(s) with no cheap test")
     return out
@@ -129,7 +129,7 @@ def evaluate_caution(
 
     if survivors < bars.min_survivors:
         reasons.append(
-            f"only {survivors} hypothesis(es) survived the Red Teamer (bar: {bars.min_survivors})"
+            f"only {survivors} hypothesis(es) survived the red team (bar: {bars.min_survivors})"
         )
     for p in pursuits:
         reasons += _hard_failures(p, bars)

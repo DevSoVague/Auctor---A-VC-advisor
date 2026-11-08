@@ -149,6 +149,14 @@ def _by_id(inp: MemoInput) -> dict[str, HypothesisBundle]:
     return {h.id: h for h in inp.hypotheses}
 
 
+TIER_WORDS = {
+    1: "tier 1 of 4, the strongest (human genetics or late-stage clinical results)",
+    2: "tier 2 of 4, good (early clinical or genetic support)",
+    3: "tier 3 of 4, limited (some human data)",
+    4: "tier 4 of 4, the weakest (little human evidence)",
+}
+
+
 def _the_move(c: PursuitCandidate) -> str:
     if c.follow_on_to and c.form == "build":
         return (
@@ -169,7 +177,7 @@ def _next_step(c: PursuitCandidate, h: HypothesisBundle) -> str:
         "access": f"Approach {c.owner or 'the owner'} about licensing terms",
         "build": "Scope a proof-of-concept program",
     }[c.form]
-    return f"{first}; run the cheapest test first: {test}" if test else first + "."
+    return f"{first}; first, the fastest check: {test}" if test else first + "."
 
 
 def _write(
@@ -193,22 +201,28 @@ def _write(
         )
     why.append(
         cited(
-            f"Evidence: tier {s.tier}, {s.level} validation"
-            + (f", {s.evidence_lines} converging human lines" if s.evidence_lines else "")
-            + f". {h.card.mechanism} ({h.card.direction}).",
+            f"Evidence strength: {TIER_WORDS.get(s.tier, 'unrated')}; {s.level} validation"
+            + (
+                f", with {s.evidence_lines} independent lines of human evidence"
+                if s.evidence_lines
+                else ""
+            )
+            + f". Mechanism: {h.card.mechanism} ({h.card.direction}).",
             [x.id for x in h.card.claims[:2]],
             status,
             claims,
         )
     )
-    why.append(cited(_sentence(f"Path in: {c.why_listed}"), c.claim_ids[:2], status, claims))
+    why.append(
+        cited(_sentence(f"How we would get in: {c.why_listed}"), c.claim_ids[:2], status, claims)
+    )
 
     wrong = []
     for r in (verdict.risks if verdict else [])[:2]:
         wrong.append(
             cited(
-                f"{_sentence(r.text)} Kill if: {_sentence(r.kill_criterion)} "
-                f"Cheapest test: {_sentence(r.cheapest_test)}",
+                f"{_sentence(r.text)} We would drop it if: {_sentence(r.kill_criterion)} "
+                f"Fastest way to check: {_sentence(r.cheapest_test)}",
                 [x.id for x in r.claims],
                 status,
                 claims,
@@ -234,8 +248,8 @@ def _write(
         )
     # Agent text is quoted as written (no re-casing, which would break names like BOREAS).
     change = (
-        f"Drop it if: {_sentence(verdict.risks[0].kill_criterion)} "
-        f"Raise conviction if this test comes back positive: "
+        f"We would drop it if: {_sentence(verdict.risks[0].kill_criterion)} "
+        f"Our conviction rises if this check comes back positive: "
         f"{_sentence(verdict.risks[0].cheapest_test)}"
         if verdict and verdict.risks
         else "No red-team risks in this run."
@@ -260,8 +274,8 @@ def _write(
         return_vs_risk=Statement(
             kind="reasoning",
             text=f"Upside {s.upside}, risk {s.risk}: {s.return_vs_risk}. "
-            f"Upside: {'; '.join(s.upside_drivers) or 'none found'}. "
-            f"Risk: {'; '.join(s.risk_drivers) or 'none found'}.",
+            f"Why the upside: {'; '.join(s.upside_drivers) or 'none found'}. "
+            f"Why the risk: {'; '.join(s.risk_drivers) or 'none found'}.",
         ),
         gap_to_profile=gap,
         what_would_change_the_call=change,
@@ -302,7 +316,8 @@ def draft_from_numbers(inp: MemoInput) -> MemoDraft:
     writeups = [_write(s, c, hyp[s.hypothesis_id], status, claims) for s, c in picks]
     caution = caution_for(inp, picks)
 
-    forms = ", ".join(f"{p.form} in {p.name}" for p in writeups) or "no pursuit"
+    verbs = {"invest": "invest in", "access": "license or acquire", "build": "build"}
+    forms = ", ".join(f"{verbs[p.form]} {p.name}" for p in writeups) or "no pursuit"
     pitch = inp.pitch.profile if inp.pitch and inp.pitch.accepted else None
     bottom = []
     if pitch:
@@ -316,8 +331,9 @@ def draft_from_numbers(inp: MemoInput) -> MemoDraft:
     bottom += [
         Statement(
             kind="reasoning",
-            text=f"{len(inp.survivors)} of {len(inp.hypotheses)} {inp.config.disease} "
-            f"hypotheses survived red-teaming; we recommend: {forms}.",
+            text=f"We recommend {len(writeups)} pursuit(s) in {inp.config.disease}: {forms}. "
+            f"{len(inp.survivors)} of {len(inp.hypotheses)} hypotheses survived the red team "
+            "(an independent critic).",
         )
     ]
     if writeups:
@@ -325,15 +341,15 @@ def draft_from_numbers(inp: MemoInput) -> MemoDraft:
         bottom.append(
             Statement(
                 kind="reasoning",
-                text=f"Top pick: {top.name} on {top.mechanism}. "
-                f"Upside {top.upside}, risk {top.risk}.",
+                text=f"Top pick: {top.name}, built on {top.mechanism}. "
+                f"Upside is {top.upside} and risk is {top.risk}.",
             )
         )
     bottom.append(
         Statement(
             kind="reasoning",
             text=(
-                "Proceed with caution: " + caution.reasons[0] + "."
+                "Proceed with caution (see the box above): " + caution.reasons[0] + "."
                 if caution.proceed_with_caution
                 else "All pursuits clear our quality bars."
             ),

@@ -53,7 +53,7 @@ def test_an_approved_program_is_never_offered_as_a_pursuit(inp):
 def test_the_approved_field_is_not_credited_as_open(inp):
     card = next(s for s in scorecards(inp) if s.hypothesis_id == "h1")
     assert any("priced in" in d for d in card.upside_drivers)
-    assert not any("uncrowded" in d for d in card.upside_drivers)
+    assert not any("few competitors" in d for d in card.upside_drivers)
 
 
 def test_the_memo_says_so_when_it_recommends_a_follow_on(inp):

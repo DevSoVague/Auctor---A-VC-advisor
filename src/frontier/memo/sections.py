@@ -96,7 +96,7 @@ class Sources:
 
 def _stmt(s: Statement, src: Sources) -> list[Run]:
     tag = src.cite(s.claim_ids) if s.kind == "evidence" else ""
-    return [("", s.text + tag)] + ([("i", " (analysis)")] if s.kind == "reasoning" else [])
+    return [("", s.text + tag)] + ([("i", " (our analysis)")] if s.kind == "reasoning" else [])
 
 
 def _front(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Sources) -> list[Block]:
@@ -122,6 +122,27 @@ def _front(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Sources) 
         )
     b.append(Heading("Bottom line", 2))
     b.append(Bullets([_stmt(s, src) for s in d.bottom_line]))
+    b.append(
+        Callout(
+            "How to read this memo",
+            [
+                "Routes in: Invest = back a startup's program. Access = license, option or "
+                "acquire a shelved or deprioritized asset. Build = create a new asset to the "
+                "ideal product profile.",
+                "Upside and risk are low, medium or high ratings computed by code from the "
+                "evidence, the competitor field and the red team's objections.",
+                "Evidence tier runs from 1 (human genetics or late-stage clinical results) to 4 "
+                "(little human evidence). Validation is gold, silver or bronze: how many "
+                "independent lines of human evidence agree.",
+                "Crowding runs from 0 (open field) to 1 (many competitors). Fit, from 0 to 1, is "
+                "how closely an asset matches the ideal product profile.",
+                "The red team is an independent critic whose objections a judge rules on. [n] is "
+                "a source listed at the end; (our analysis) is our own judgement, not tied to one "
+                "source.",
+            ],
+            tone="note",
+        )
+    )
 
     pitch = inp.pitch
     if pitch and pitch.accepted and pitch.profile:
@@ -154,7 +175,7 @@ def _front(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Sources) 
     b.append(Heading("Recommended pursuits", 2))
     b.append(
         Table(
-            ["#", "Move", "Name", "Mechanism", "Upside / risk", "Next step"],
+            ["#", "Route in", "Name", "Mechanism", "Upside / risk", "Next step"],
             [
                 [str(i), p.form.title(), p.name, p.mechanism, f"{p.upside} / {p.risk}", p.next_step]
                 for i, p in enumerate(d.pursuits, 1)
@@ -344,7 +365,7 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
                     [
                         (
                             "",
-                            f"{r.text} Kill if: {r.kill_criterion}"
+                            f"{r.text} We would drop it if: {r.kill_criterion}"
                             + src.cite([c.id for c in r.claims]),
                         )
                     ]

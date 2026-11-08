@@ -51,13 +51,13 @@ def test_ratings_follow_the_written_rules(inp):
     assert h1.upside == "medium"
     # Risk: 1 major attack, revised, low verification = 3 points -> high.
     assert h1.risk == "high" and h1.return_vs_risk == "risk outweighs return"
-    assert any("major red-team attack" in d for d in h1.risk_drivers)
+    assert any("major objection" in d for d in h1.risk_drivers)
 
 
 def test_uncrowded_hypothesis_scores_higher_upside(inp):
     cards = by_id(scorecards(inp))
     assert cards["h4"].crowding < 0.4
-    assert any("uncrowded" in d for d in cards["h4"].upside_drivers)
+    assert any("few competitors" in d for d in cards["h4"].upside_drivers)
 
 
 def test_ranking_is_by_conviction_then_a2_rank(inp):
