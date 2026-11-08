@@ -134,3 +134,13 @@ evstore/extract.py             deterministic tables + LLM extraction with verifi
 evstore/retrieval.py           StoreClient
 tests/test_store.py            as-of leakage, versioning, lookups, embeddings, live RAG
 ```
+
+## Restore the full database from the snapshot (fastest)
+
+`data/dump/frontier.sql.gz` is a `pg_dump` of the live store taken 2026-11-08, including evidence A1 ingested
+during runs (not reproducible from the caches). Needs `git lfs pull` after cloning.
+
+```bash
+make db-up
+gunzip -c data/dump/frontier.sql.gz | docker exec -i evidence-store-db psql -U frontier -d frontier
+```

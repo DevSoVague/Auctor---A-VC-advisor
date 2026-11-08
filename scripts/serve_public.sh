@@ -28,15 +28,29 @@ echo "API up on http://localhost:$PORT"
 # subdomain keeps the address the same across restarts, so the Base44 app's API_BASE_URL
 # secret (https://frontier-ctrlaltcure-api.loca.lt) never needs changing.
 SUBDOMAIN="${SUBDOMAIN:-frontier-ctrlaltcure-api}"
-# localtunnel drops idle connections now and then (it exits quietly), so reconnect in a loop.
+# localtunnel drops connections now and then (it exits quietly), so reconnect in a loop. Right
+# after a drop the server can still hold our name and hand out a random one instead; that
+# address would break the app, so it is refused and we retry until the fixed name is back.
 (
+  LOG="$(mktemp -t lt)"
   while true; do
-    npx --yes localtunnel@2 --port "$PORT" --subdomain "$SUBDOMAIN"
+    : > "$LOG"
+    npx --yes localtunnel@2 --port "$PORT" --subdomain "$SUBDOMAIN" > "$LOG" 2>&1 &
+    pid=$!
+    for _ in $(seq 1 30); do grep -q "your url is" "$LOG" && break; sleep 1; done
+    url=$(grep -o 'https://[^ ]*' "$LOG" | head -1)
+    if [ "$url" != "https://$SUBDOMAIN.loca.lt" ]; then
+      echo "[$(date +%H:%M:%S)] got '${url:-nothing}', not our address; retrying in 10s" >&2
+      kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
+      sleep 10
+      continue
+    fi
+    echo "[$(date +%H:%M:%S)] tunnel up: $url"
+    wait "$pid"
     echo "[$(date +%H:%M:%S)] tunnel dropped, reconnecting" >&2
     sleep 2
   done
 ) &
 LT_PID=$!
-echo "Public address: https://$SUBDOMAIN.loca.lt (if it prints a different one, the name was"
-echo "taken: put the printed address in the Base44 app's API_BASE_URL secret)."
+echo "Public address: https://$SUBDOMAIN.loca.lt (the Base44 app's API_BASE_URL secret)"
 wait $API_PID

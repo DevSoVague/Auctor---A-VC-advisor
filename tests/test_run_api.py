@@ -1,5 +1,6 @@
 """Run API over Person 3's pipeline, end to end in stub mode (0 tokens)."""
 
+import os
 import time
 from contextlib import asynccontextmanager
 
@@ -12,8 +13,13 @@ from frontier.api import runs as R
 STUB = {"llm": "stub", "as_of": "2021-01-01", "max_cards": 1}
 
 
+TOKEN = "test-token"
+
+
 @pytest.fixture(scope="module")
 def client():
+    """A test token of our own: Person 3's engine loads the repo's .env (never overriding), so a
+    developer's real APP_API_TOKEN would otherwise switch the token check on mid-test."""
     from langgraph.checkpoint.memory import InMemorySaver
 
     @asynccontextmanager
@@ -24,8 +30,16 @@ def client():
 
     app = FastAPI(lifespan=lifespan)
     app.include_router(R.router)
-    with TestClient(app) as c:
-        yield c
+    old = os.environ.get("APP_API_TOKEN")
+    os.environ["APP_API_TOKEN"] = TOKEN
+    try:
+        with TestClient(app, headers={"X-API-Key": TOKEN}) as c:
+            yield c
+    finally:
+        if old is None:
+            os.environ.pop("APP_API_TOKEN", None)
+        else:
+            os.environ["APP_API_TOKEN"] = old
 
 
 def wait(client, run_id, timeout=90):
@@ -80,9 +94,10 @@ def test_single_shot_run_goes_straight_to_done(client):
 
 def test_token_is_required_once_set(client, monkeypatch):
     monkeypatch.setenv("APP_API_TOKEN", "s3cret")
-    assert client.get("/runs").status_code == 401
-    assert client.get("/runs", headers={"Authorization": "Bearer wrong"}).status_code == 401
-    assert client.get("/runs", headers={"Authorization": "Bearer s3cret"}).status_code == 200
+    assert client.get("/runs").status_code == 401  # the client's default test key is now wrong
+    bearer = lambda t: {"X-API-Key": "", "Authorization": f"Bearer {t}"}  # noqa: E731
+    assert client.get("/runs", headers=bearer("wrong")).status_code == 401
+    assert client.get("/runs", headers=bearer("s3cret")).status_code == 200
     assert client.get("/runs", headers={"X-API-Key": "s3cret"}).status_code == 200
 
 
