@@ -28,7 +28,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Callable
 
-EVSTORE = Path(os.getenv("EVSTORE_PATH", Path(__file__).resolve().parents[3] / "evidence-store")).resolve()
+_IN_REPO = Path(__file__).resolve().parents[2] / "evidence-store"   # vendored copy in this repo
+_SIBLING = Path(__file__).resolve().parents[3] / "evidence-store"   # old layout: next to the repo
+EVSTORE = Path(os.getenv("EVSTORE_PATH", _IN_REPO if (_IN_REPO / "evstore").is_dir() else _SIBLING)).resolve()
 if str(EVSTORE) not in sys.path:
     sys.path.insert(0, str(EVSTORE))
 
