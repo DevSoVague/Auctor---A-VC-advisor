@@ -1,6 +1,6 @@
 {
   "name": "copd-shelved-drugs",
-  "note": "COPD drug programs that failed a primary endpoint or were judged not worth pursuing in COPD. Every fact is from the cited source; 'not stated in sources' marks gaps. Company is given only where a cited source names it. No source after 2025. phase_reached is null where the source doesn't state a phase. Each source has a type: academic, company, regulatory_filing or news.",
+  "note": "COPD drug programs that failed a primary endpoint or were judged not worth pursuing in COPD. Every fact is from the cited source; 'not stated in sources' marks gaps. Company is given only where a cited source names it. No source after 2025. phase_reached is null where the source doesn't state a phase. Each source has a type: academic, company, regulatory_filing or news. Each source has a 'fact': what that source alone reports, so older versions only show what was public then.",
   "drugs": [
     {
       "drug": "danirixin",
@@ -17,7 +17,8 @@
           "date": "2020-06-12",
           "title": "CXCR2 antagonist for patients with COPD with chronic mucus hypersecretion: a phase 2b trial (Respiratory Research)",
           "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7291447/",
-          "type": "academic"
+          "type": "academic",
+          "fact": "Phase 2b (n=614): no dose improved E-RS:COPD symptom scores vs placebo at month 6; more exacerbations on danirixin; pneumonia more frequent at 50 mg (5% vs <1%); authors judged benefit-risk unfavorable."
         }
       ],
       "phase_reached": "phase2",
@@ -39,13 +40,15 @@
           "id": "pmid:29206629",
           "date": "2017-07-04",
           "title": "Biological effects of p38 MAPK inhibitor losmapimod does not translate to clinical benefits in COPD",
-          "type": "academic"
+          "type": "academic",
+          "fact": "Exacerbation study (n=184) terminated early at interim analysis for low probability of success; rate ratio vs placebo 1.04 (95% CrI 0.63-1.73); no new safety signals."
         },
         {
           "id": "pmid:29566026",
           "date": "2018-03-22",
           "title": "The p38 MAPK inhibitor losmapimod in COPD patients with systemic inflammation, stratified by fibrinogen (PLOS ONE)",
-          "type": "academic"
+          "type": "academic",
+          "fact": "EVOLUTION phase 2 (n=73): no effect on arterial inflammation or endothelial function at 16 weeks; serious adverse events more frequent on losmapimod (mostly COPD exacerbations and pneumonia)."
         }
       ],
       "phase_reached": "phase2",
@@ -66,7 +69,8 @@
           "id": "pmid:34113095",
           "date": "2021-06-03",
           "title": "Nemiralisib in Patients with an Acute Exacerbation of COPD: Placebo-Controlled, Dose-Ranging Study",
-          "type": "academic"
+          "type": "academic",
+          "fact": "Phase 2 in acute exacerbations (n=938): no FEV1 difference at week 12 and no difference in re-exacerbations; dose-related post-inhalation cough."
         }
       ],
       "phase_reached": "phase2",
@@ -87,7 +91,8 @@
           "id": "pmid:39427187",
           "date": "2024-10-19",
           "title": "CHF6523 data suggest that the PI3K delta isoform is not a suitable target for the management of COPD",
-          "type": "academic"
+          "type": "academic",
+          "fact": "Crossover study (n=44): 29.7% reduction in sputum PIP3 but no anti-inflammatory effect; cough in 95.2%; authors conclude PI3K delta is not a suitable COPD pathway."
         }
       ],
       "phase_reached": null,
@@ -110,20 +115,23 @@
           "date": "2018-05-15",
           "title": "Phase 3 trial of benralizumab for COPD misses primary endpoint (HCPLive)",
           "url": "https://hcplive.com/view/phase-3-trial-of-benralizumab-for-copd-misses-primary-endpoint",
-          "type": "news"
+          "type": "news",
+          "fact": "GALATHEA (phase 3) missed its primary endpoint; TERRANOVA still to report; AstraZeneca to await TERRANOVA before deciding next steps in COPD."
         },
         {
           "id": "pmid:31112385",
           "date": "2019-05-20",
           "title": "Benralizumab for the Prevention of COPD Exacerbations (NEJM)",
-          "type": "academic"
+          "type": "academic",
+          "fact": "GALATHEA and TERRANOVA: no dose significantly reduced annualized exacerbations vs placebo at week 56 (rate ratios 0.83-1.04); adverse events similar to placebo."
         },
         {
           "date": "2025-09-17",
           "title": "AstraZeneca: Update on the RESOLUTE Phase III trial for Fasenra in COPD",
           "url": "https://www.astrazeneca.com/media-centre/press-releases/2025/update-on-resolute-phase-iii-trial.html",
           "id": "news:4064096041e929ff",
-          "type": "company"
+          "type": "company",
+          "fact": "RESOLUTE (phase 3, n=689, eosinophils >=300/uL): numerical improvement but primary endpoint not met; safety consistent with the known profile; AstraZeneca to analyse the full data."
         }
       ],
       "phase_reached": "phase3",
@@ -145,13 +153,15 @@
           "date": "2025-07-21",
           "title": "Roche provides update on astegolimab in COPD",
           "url": "https://www.roche.com/media/releases/med-cor-2025-07-21",
-          "type": "company"
+          "type": "company",
+          "fact": "ARNASA (phase 3, n=1,375): 14.5% reduction in exacerbations, not significant; ALIENTO (phase 2b, n=1,301): 15.4%, significant; no new safety signals; Roche to discuss next steps with regulators."
         },
         {
           "date": "2025-07-21",
           "title": "Genentech (Roche)'s Astegolimab Shows Mixed Data for COPD (HCPLive)",
           "url": "https://www.hcplive.com/view/genentech-roche-s-astegolimab-shows-mixed-data-for-copd",
-          "type": "news"
+          "type": "news",
+          "fact": "ARNASA (phase 3, n=1,375): 14.5% reduction in exacerbations, not significant; ALIENTO (phase 2b, n=1,301): 15.4%, significant; no new safety signals; Roche to discuss next steps with regulators."
         }
       ],
       "phase_reached": "phase3",
@@ -173,13 +183,15 @@
           "date": "2025-05-30",
           "title": "Sanofi Form 6-K exhibit: itepekimab phase 3 COPD results",
           "url": "https://www.sec.gov/Archives/edgar/data/1121404/000119312525131697/d947351dex993.htm",
-          "type": "regulatory_filing"
+          "type": "regulatory_filing",
+          "fact": "AERIFY-1 met its primary endpoint (27% and 21% fewer exacerbations at week 52); AERIFY-2 did not (2% and 12%); adverse events comparable to placebo; companies to discuss path forward with regulators."
         },
         {
           "date": "2025-07-09",
           "title": "Itepekimab Shows Mixed Results in Phase 3 COPD Trials (AJMC)",
           "url": "https://www.ajmc.com/view/itepekimab-shows-mixed-results-in-phase-3-copd-trials",
-          "type": "news"
+          "type": "news",
+          "fact": "AJMC report repeats the AERIFY-1 and AERIFY-2 results; Sanofi said the results merit further exploration; Regeneron remains committed to the broader programme."
         }
       ],
       "phase_reached": "phase3",
@@ -200,7 +212,8 @@
           "id": "pmid:37411039",
           "date": "2023-07-06",
           "title": "Icenticaftor, a CFTR Potentiator, in COPD: A Multicenter, Parallel-Group, Double-Blind Clinical Trial",
-          "type": "academic"
+          "type": "academic",
+          "fact": "Phase 2b (n=974): no dose-response for trough FEV1 at week 12 (primary endpoint negative); some week-24 improvements to be interpreted with caution; well tolerated."
         }
       ],
       "phase_reached": "phase2",
@@ -221,7 +234,8 @@
           "id": "pmid:39316773",
           "date": "2024-09-24",
           "title": "Ivacaftor for COPD: Results from a Phase 2, Randomized Controlled Trial",
-          "type": "academic"
+          "type": "academic",
+          "fact": "Phase 2 (n=40): no improvement in sweat chloride, mucociliary clearance, lung function or symptoms; diarrhea most common adverse event; exposure lower than in cystic fibrosis."
         }
       ],
       "phase_reached": "phase2",
