@@ -1,0 +1,7 @@
+{"metadata": {"total_elements": 4, "total_pages": 1, "current_page": 1},
+ "data": {"spl": {"setid": "fixture-set-0401", "title": "FIXTUREBRAND A"},
+          "history": [
+            {"spl_version": "7", "published_date": "Nov 03, 2025"},
+            {"spl_version": "5", "published_date": "Mar 15, 2024"},
+            {"spl_version": "4", "published_date": "Jun 02, 2023"},
+            {"spl_version": "2", "published_date": "Sep 26, 2021"}]}}

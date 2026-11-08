@@ -14,7 +14,8 @@ For each drug in ingest/curated/copd_market_drugs.json:
 Each drug is stored as one row, id fda:<application number>: the label plus Part D stats
 and industry sources dated 2023-2025 (fda-label+cms, or fda-label+market without a Part D
 row), dated by the latest of the label, the CMS release and those sources. A drug whose
-row would fall outside 2023-2025 is skipped.
+row would fall outside 2023-2025 is skipped. Earlier label versions are added by
+dailymed.py.
 
     uv run python -m frontier.ingest.fda
 """
@@ -296,10 +297,11 @@ def upsert(conn, rows: list[dict]) -> int:
 
 
 def remove_stale(conn, rows: list[dict]) -> int:
-    """Drop fda rows this run did not produce, so each drug keeps one row."""
+    """Drop fda rows from earlier runs of this loader that this run did not produce, so each
+    drug keeps one fda-label row. Earlier label versions from dailymed.py are kept."""
     with conn.cursor() as cur:
         cur.execute(
-            "DELETE FROM documents WHERE source = 'fda'"
+            "DELETE FROM documents WHERE source = 'fda' AND version_label LIKE 'fda-label%%'"
             " AND (id, source_date) NOT IN (SELECT * FROM unnest(%s::text[], %s::date[]))",
             ([r["id"] for r in rows], [r["source_date"] for r in rows]),
         )

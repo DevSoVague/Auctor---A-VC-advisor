@@ -166,8 +166,17 @@ def build(fda_docs: list[dict], shelved_docs: list[dict], ctgov_docs: list[dict]
         drug, program = from_shelved(doc)
         drugs[drug["drug_id"]] = drug
         programs.append(program)
-    for doc in latest(fda_docs):
+    # fda.py rows carry the market data; dailymed.py adds earlier label versions of the same
+    # ids. The drug is dated by its earliest version, so a backtest sees it from then on.
+    first_seen: dict[str, date] = {}
+    for doc in fda_docs:
+        first_seen[doc["id"]] = min(
+            first_seen.get(doc["id"], doc["source_date"]), doc["source_date"]
+        )
+    market = [d for d in fda_docs if not d["version_label"].startswith("dailymed-")]
+    for doc in latest(market or fda_docs):
         drug, stat = from_fda(doc)
+        drug["as_of_date"] = first_seen[doc["id"]]
         drugs[drug["drug_id"]] = drug  # marketed label wins if a drug is in both lists
         stats.append(stat)
     index = drug_index(list(drugs.values()))
