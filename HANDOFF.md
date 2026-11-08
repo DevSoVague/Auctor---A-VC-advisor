@@ -136,3 +136,36 @@ conda run -n hack python -m pytest -q          # also in the repo root
 6. **`--profile final`:** Qwen3.5 truncates A3's JSON. Raise `max_tokens`, switch A3 to DeepSeek or GLM, or keep `dev`.
 7. **Checkers stop at 6 calls** (`CHECKER_CALLS`) without writing a summary note. Consider one forced summary round.
 8. **Cost per card is about 225k tokens** (A3 + A6 + A7), and A1 + A2 is about 300k. Decide on budgets (`MAX_TOTAL_TOKENS_PER_RUN`) before running all cards.
+
+## Update from the parallel session: Node Monitor and date defaults
+
+### Node Monitor
+- **Name:** the UI is now **Node Monitor** (it was "Person 3 / Live nodes").
+- **Per-idea panels:** each idea gets its own workflow panel with a clickable focus mode, showing:
+  - step names and model names
+  - full system and user prompts
+  - streamed output and exposed reasoning
+  - results and errors
+- **Timers:** each step has its own timer, which ticks during execution and freezes on completion or failure.
+- **A4 and A5** are wired into the monitor's events and progress display.
+- **Focus mode** has **Readable view** and **Step details**.
+- **Readable explanations:** `narrative_markdown` was added to the agent output schemas and system prompts, so the readable explanation streams inside the required JSON. Older recordings show formatted structured results instead.
+- **How it works:** the monitor reads `runs/<run_id>/live.jsonl` and polls every 250 ms. It only displays activity; it does not control concurrency or discover the whole graph by itself.
+
+### The fixed 2021-01-01 cutoff is gone
+- **Default `as_of` is now `today`,** resolved when the run starts.
+- **Where:** active defaults, examples, help text, generated components and exported Langflow flows, in `langgraph-person3`/`frontier-engine`, `1to6merged` and `db1to6merged`.
+- **Stub mode no longer resolves `backtest` differently.** Before, stub silently switched to the old 2021 fixture date; dates now behave the same in live and stub modes.
+- **Still supported:** explicit ISO dates, and the `backtest` alias (which uses `BACKTEST_AS_OF`) in the merged copies.
+- **Langflow:** four saved flows had their old Setup date defaults removed; their other settings are unchanged.
+- **Kept as they were:** historical logs, evidence publication dates, test fixtures and fixture-generation data. Only the active defaults changed.
+- **Side effect:** fixed stub answers may fail citation or quality checks at a different cutoff.
+
+### Docs and checks
+- FSD and HOW_TO_RUN were updated for monitor operation, readable focus mode and date behaviour.
+- Workflow tests and targeted browser checks passed.
+
+### After pulling
+- Refresh open Langflow canvases to load the saved-setting changes.
+- Restart running workflow servers to load the Python and schema changes before a new run.
+- Older recordings won't gain events or narratives that were never captured.
