@@ -11,15 +11,21 @@ graph checkpointer cannot store. It is kept in memory per (run, agent, card) bet
 nodes; graph state gets the JSON outputs, a step row, a chat line and a debug file per step.
 A4/A5 never span a review pause (they sit between review_a3 and review_a6), so one process
 always runs them start to finish. If the memory is missing anyway, the earlier steps are replayed.
+
+A4/A5 need only A2's card until their prompt step; A3's profile enters there. In Langflow they
+start right after A2, beside A3 (gather .. establish), and wait for A3 before the prompt.
+Every Nebius call they make goes to NEBIUS_API_KEY_A4_A5 when it is set.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import time
 from typing import Any
 
 from agents.analysis._common import emit_claims
+from agents.analysis.context import ACCOUNT_KEY
 from agents.analysis.schemas import A4Input, A5Input
 from agents.competitor import a4_inactive, a5_active
 from agents.competitor.context import for_agents
@@ -108,10 +114,54 @@ def _detail(short: str, step: str, s: dict, usage: dict) -> str:
 
 
 # ---------------------------------------------------------------------------- the node factory
-def _fresh(short: str, state: P3State, run: N.AgentRun, hid: str) -> dict:
+def _input(short: str, state: P3State, hid: str):
+    """The agent's input: A2's card + A3's profile. A4/A5 start right after A2 (beside A3), so at gather the
+    profile may not exist yet: a placeholder stands in. gather/triage/shortlist/establish never read it; the
+    prompt step swaps in A3's real profile (see `_with_profile`)."""
     cfg = AGENTS[short]
-    inp = cfg["input"](card=N._card(state, hid), profile=E.ProductProfile.model_validate(state["profiles"][hid]))
-    return cfg["module"].inputs(inp, for_agents(run.ctx))
+    card = N._card(state, hid)
+    raw = (state.get("profiles") or {}).get(hid)
+    if raw is not None:
+        return cfg["input"](card=card, profile=E.ProductProfile.model_validate(raw))
+    return cfg["input"].model_construct(card=card, profile=E.ProductProfile.model_construct())
+
+
+def _with_profile(short: str, state: P3State, hid: str, s: dict) -> None:
+    if (state.get("profiles") or {}).get(hid) is None:
+        raise RuntimeError(f"{short}.prompt needs A3's profile for {hid}: A3 has not committed it "
+                           "(in Langflow, wire A3's last step into this node's 'A3 profile' input)")
+    s["inp"] = _input(short, state, hid)
+
+
+def _fresh(short: str, state: P3State, run: N.AgentRun, hid: str) -> dict:
+    return AGENTS[short]["module"].inputs(_input(short, state, hid), for_agents(run.ctx))
+
+
+def account_key() -> str:
+    """A4 and A5 share one Nebius account (LLM, embeddings, their A7 checks): NEBIUS_API_KEY_A4_A5, else default."""
+    return (os.getenv("NEBIUS_API_KEY_A4_A5") or "").strip()
+
+
+class _Account:
+    """Route every Nebius call made inside the block (any agent label, evidence-store embeddings) to `key`."""
+
+    def __init__(self, key: str):
+        self.key, self.tokens = key, []
+
+    def __enter__(self):
+        if self.key:
+            self.tokens.append((ACCOUNT_KEY, ACCOUNT_KEY.set(self.key)))
+            try:
+                from evstore.embed import KEY_OVERRIDE  # on sys.path once db_tools is imported
+                self.tokens.append((KEY_OVERRIDE, KEY_OVERRIDE.set(self.key)))
+            except ImportError:
+                pass
+        return self
+
+    def __exit__(self, *exc):
+        for var, tok in reversed(self.tokens):
+            var.reset(tok)
+        return False
 
 
 async def _replay(short: str, state: P3State, run: N.AgentRun, hid: str, upto: str) -> dict:
@@ -135,6 +185,10 @@ def make_node(short: str, step: str):
     name = node_name(short, step)
 
     async def node(state: P3State) -> dict:
+        with _Account(account_key()):
+            return await _node(state)
+
+    async def _node(state: P3State) -> dict:
         hid = state["current"]
         key = (state["run_id"], agent, hid)
         run = N.AgentRun(state, agent, hid)
@@ -152,6 +206,8 @@ def make_node(short: str, step: str):
                 s = _fresh(short, state, run, hid)
             else:
                 s = _MEMORY.get(key) or await _replay(short, state, run, hid, step)
+            if step == "prompt":
+                _with_profile(short, state, hid, s)
             if step in ("prompt", "llm") and s.get("messages"):
                 send("messages", {"messages": s["messages"]})
             if step == "gather":

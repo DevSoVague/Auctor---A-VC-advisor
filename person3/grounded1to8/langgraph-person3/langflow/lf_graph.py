@@ -40,7 +40,9 @@ from p3graph.state import P3State, merge, merge_usage  # noqa: E402
 SPECS = {"a1": S.A1, "a2": S.A2, "a3": S.A3, "a6": S.A6}
 from p3graph import competitor as C  # noqa: E402
 
-COMPETITOR = {"a4": "a4_inactive", "a5": "a5_active"}  # Adam's agents, one node per step, A4 then A5
+COMPETITOR = {"a4": "a4_inactive", "a5": "a5_active"}  # Adam's agents, one node per step
+# Flow shape: A2 → fork → { A3 | A4 gather..establish | A5 gather..establish } ; A4/A5 prompt also wait for A3's
+# commit (its profile) ; join (A3 + A4 + A5) → A6. Langflow runs the branches concurrently.
 ORDER = {
     "a1": ["retrieve", "prompt", "toolloop", "llm", "parse", "postcheck", "validate", "cite", "commit"],
     "a2": ["retrieve", "prompt", "toolloop", "llm", "parse", "grade", "postcheck", "cite", "commit"],
@@ -193,10 +195,22 @@ def chat_text(before: dict, after: dict) -> str:
     return NR.transcript((after.get("chat") or [])[len(before.get("chat") or []):])
 
 
+def take_profiles(st: dict, a3_state: dict | None) -> None:
+    """A4/A5 prompt: bring in A3's profiles (and A3's failed cards) from the A3 branch."""
+    if not a3_state:
+        return
+    st["profiles"] = {**(st.get("profiles") or {}), **(a3_state.get("profiles") or {})}
+    failed = {**(a3_state.get("failed_cards") or {}), **(st.get("failed_cards") or {})}
+    if failed:
+        st["failed_cards"] = failed
+
+
 async def execute(st: dict, agent: str, step: str, *, feedback: str | None = None, system_prompt: str | None = None,
-                  model: str | None = None) -> tuple[dict, str]:
+                  model: str | None = None, a3_state: dict | None = None) -> tuple[dict, str]:
     st = copy.deepcopy(st)
     start = len(st.get("steps") or [])
+    if agent in COMPETITOR and step == "prompt":
+        take_profiles(st, a3_state)
     if feedback and step == "prompt":  # one key per card for A3/A6 so each card consumes it once
         keys = [N.fb_key(_name(agent), h) for h in _hids(st, agent)]
         st["feedback"] = {**(st.get("feedback") or {}), **{k: feedback for k in keys}}
@@ -251,6 +265,8 @@ def _merge_back(st: dict, sub: dict, base: dict) -> None:
             st[k] = merge_usage(st.get(k), _usage_delta(v, b0))
         elif k == "signals":
             st[k] = _deep_changes(st.get(k) or {}, v, b0 or {})
+        elif k in ("failed_cards", "prompts"):  # per key: a card failed / a prompt edited in any branch is kept
+            st[k] = {**(st.get(k) or {}), **{kk: vv for kk, vv in (v or {}).items() if (b0 or {}).get(kk) != vv}}
         elif r is merge:
             st[k] = {**(st.get(k) or {}), **{kk: vv for kk, vv in v.items() if (b0 or {}).get(kk) != vv}}
         elif v != b0:
@@ -324,6 +340,22 @@ async def _run_cards(st: dict, agent: str, step: str) -> None:
             _merge_back(st, sub, base)
     if len(st.get("failed_cards") or {}) and all(h in st["failed_cards"] for h in _hids(st, agent)):
         raise RuntimeError(f"every card failed at {agent}.{step}; see runs/{st['run_id']}/failures.log")
+
+
+def join(base: dict, branches: list[dict]) -> tuple[dict, str]:
+    """Merge the parallel branches (A3, A4, A5) back into one state for A6. `base` is the state they all forked
+    from (A2's last step); each branch's additions (steps, events, claims, usage, outputs) are folded in, in order."""
+    st = copy.deepcopy(base)
+    for b in branches:
+        if b:
+            _merge_back(st, b, base)
+    st["current"] = None
+    if st.get("cards"):
+        N.write_workbook(st)  # the branches each wrote a partial workbook; this one has everything
+    got = {k: len(st.get(k) or {}) for k in ("profiles", "assets")}
+    failed = st.get("failed_cards") or {}
+    return st, (f"joined {len([b for b in branches if b])} branches · {got['profiles']} profiles · "
+                f"{got['assets']} A4/A5 outputs" + (f" · failed cards: {', '.join(failed)}" if failed else ""))
 
 
 async def setup(config: dict, llm: dict, retrieval: str, message: str = "", search: str = "corpus",

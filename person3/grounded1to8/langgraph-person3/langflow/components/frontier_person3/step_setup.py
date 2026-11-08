@@ -50,7 +50,7 @@ class P3StepSetup(Component):
         DropdownInput(name="store_pitch", display_name="Store pitch in shared DB", options=["off", "on"], value="off"),
         DropdownInput(name="tools", display_name="Agent tools (DB/web)", options=["on", "off"], value="on"),
         DropdownInput(name="cite_mode", display_name="A7 citation check", options=["every node", "end only", "off"],
-                      value="every node", info="every node = check after each agent, restart on hallucination (max 2); "
+                      value="off", info="every node = check after each agent, restart on hallucination (max 2); "
                       "end only = agents are not blocked, one check over everything before the report; off = none."),
         DropdownInput(name="judge", display_name="A6b judge decides", options=["on", "off"], value="on"),
         MessageTextInput(name="max_cards", display_name="Max cards (0 = all)", value="1"),

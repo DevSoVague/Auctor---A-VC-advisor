@@ -12,6 +12,7 @@ LLM modes (env LLM_MODE):
 
 from __future__ import annotations
 
+import contextvars
 import json
 import os
 import time
@@ -152,6 +153,11 @@ class Budget:
                 "total_tokens": f"{self.total_tokens}/{self.max_total_tokens}"}
 
 
+# The Nebius account for whatever runs in this async context (set by the A4/A5 nodes from NEBIUS_API_KEY_A4_A5).
+# Every LLM call made inside it, whatever the agent label (A7 citation checks too), goes to that account.
+ACCOUNT_KEY: contextvars.ContextVar[str | None] = contextvars.ContextVar("nebius_account_key", default=None)
+
+
 class NebiusLLM:
     """Live shim: OpenAI SDK pointed at Nebius Token Factory, with a spend cap and a trace."""
 
@@ -165,6 +171,8 @@ class NebiusLLM:
         if not key:
             raise LLMError("NEBIUS_API_KEY is not set (put it in frontier-engine/.env)")
         self.client = AsyncOpenAI(api_key=key.strip(), base_url=base, timeout=300, max_retries=1)
+        self._base, self._local = base, bool(local)
+        self._agent_clients: dict[str, Any] = {}
         self.profile = profile
         self.budget = budget or Budget()
         self.model_override = model_override  # force one model for every agent (model comparison)
@@ -208,7 +216,7 @@ class NebiusLLM:
             resp = None
             if model not in self._json_object_only:
                 try:
-                    resp = await self._request(
+                    resp = await self._request(agent,
                         **kw, response_format=_schema_for(schema))
                 except Exception as e:  # noqa: BLE001 - provider-specific 400s
                     if "response_format" not in str(e) and "json_schema" not in str(e):
@@ -219,7 +227,7 @@ class NebiusLLM:
                 kw["messages"] = msgs + [{"role": "user", "content":
                     "Return only a JSON object matching this JSON schema:\n"
                     + json.dumps(schema.model_json_schema())}]
-                resp = await self._request(
+                resp = await self._request(agent,
                     **kw, response_format={"type": "json_object"})
             else:
                 rec["mode"] = "json_schema"
@@ -248,15 +256,28 @@ class NebiusLLM:
         u.cached_tokens += cached
         return text
 
-    async def _request(self, **kw):
+    def client_for(self, agent: str):
+        """Nebius account for this call: NEBIUS_API_KEY_<AGENT> if set, else the account of the current context
+        (ACCOUNT_KEY, e.g. A4/A5), else the default client. Agents running side by side keep separate limits."""
+        key = "" if self._local else ((os.getenv(f"NEBIUS_API_KEY_{agent.upper()}") or "").strip()
+                                      or (ACCOUNT_KEY.get() or "").strip())
+        if not key:
+            return self.client
+        if key not in self._agent_clients:
+            from openai import AsyncOpenAI
+            self._agent_clients[key] = AsyncOpenAI(api_key=key, base_url=self._base, timeout=300, max_retries=1)
+        return self._agent_clients[key]
+
+    async def _request(self, agent: str = "", **kw):
         """Keep ordinary callers unchanged; observed runs consume real SDK deltas."""
+        client = self.client_for(agent)
         if self.on_stream is None:
-            return await self.client.chat.completions.create(**kw)
+            return await client.chat.completions.create(**kw)
         from types import SimpleNamespace
 
         self.on_stream("request", {"messages": kw["messages"], "model": kw["model"],
                                     "response_format": kw["response_format"]})
-        stream = await self.client.chat.completions.create(
+        stream = await client.chat.completions.create(
             **kw, stream=True, stream_options={"include_usage": True})
         text, reasoning, usage, finish = [], [], None, None
         try:

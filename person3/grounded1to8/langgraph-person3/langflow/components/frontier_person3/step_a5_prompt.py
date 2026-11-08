@@ -41,13 +41,15 @@ class P3A5Prompt(Component):
                        value=_default_prompt(), info="Edit to change this agent's prompt for the run."),
         MessageTextInput(name="feedback", display_name="Feedback", advanced=True,
                          info="Optional comment appended to the prompt."),
+        HandleInput(name="a3_state", display_name="A3 profile", input_types=["Data"], required=False,
+                    info="Connect A3's last step: A5 waits for A3's target product profile here."),
     ]
     outputs = [Output(display_name="Run state", name="state_out", method="run_step")]
 
     async def run_step(self) -> Data:
         lf_graph = _load_lf()
 
-        st, status = await lf_graph.execute(self.state.data, "a5", "prompt", feedback=self.feedback, system_prompt=self.system_prompt)
+        st, status = await lf_graph.execute(self.state.data, "a5", "prompt", feedback=self.feedback, system_prompt=self.system_prompt, a3_state=self.a3_state.data if self.a3_state else None)
         # click the node: its status is what happened here, in plain language (full log: runs/<run_id>/log.md)
         self.status = lf_graph.chat_text(self.state.data, st) or status
         return Data(data=st)
