@@ -58,6 +58,14 @@ class RetrievalClient(Protocol):
     async def approvals(self, indication: str) -> list[Record]: ...
     async def filings(self, company: str, form: str | None = None) -> list[Record]: ...
     async def retractions(self, doi: str) -> list[Record]: ...
+    async def source_date(self, id: str) -> date | None:
+        """Earliest date a record with this ID became public, even on or after as_of.
+
+        The one exception to the as-of rule, for the Citation Checker only: it
+        returns a date, never content, so agent 7 can tell a source from after the
+        cutoff ('after_cutoff') from one that doesn't exist ('not_found').
+        """
+        ...
 
 
 def _contains(haystack: Any, needle: str) -> bool:
@@ -74,6 +82,9 @@ class StubRetrievalClient:
         if records is None:
             path = fixtures_dir() / "retrieval" / "records.json"
             records = [Record.model_validate(r) for r in json.loads(path.read_text())]
+        self._dates: dict[str, date] = {}
+        for r in records:  # every record, for source_date() only
+            self._dates[r.id] = min(r.source_date, self._dates.get(r.id, r.source_date))
         self._records = [r for r in records if r.source_date < as_of]
 
     def _from(self, source: Source) -> list[Record]:
@@ -131,3 +142,6 @@ class StubRetrievalClient:
 
     async def retractions(self, doi: str) -> list[Record]:
         return [r for r in self._from("retraction") if r.fields.get("doi") == doi]
+
+    async def source_date(self, id: str) -> date | None:
+        return self._dates.get(id)

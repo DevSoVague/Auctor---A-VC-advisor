@@ -36,3 +36,13 @@ insert:
     enabled: false
     may_goto: [a6_prompt]
     params: {on_fail: review, max_confidence: 0.9}
+
+  # Person 2's A7 Citation Checker after every agent: checks that each claim's source exists
+  # before the cutoff and supports the claim. Flags failures in signals["citations:<agent>[:<hid>]"];
+  # never edits the agent's output. (Not Person 3's A7 Judge.) Code: src/frontier/agents/citations/p3_node.py
+  - {name: a7c_after_a1, after: a1_commit, node: "frontier.agents.citations.p3_node:check_citations", params: {agent: a1_disease}}
+  - {name: a7c_after_a2, after: a2_commit, node: "frontier.agents.citations.p3_node:check_citations", params: {agent: a2_mechanism}}
+  - {name: a7c_after_a3, after: a3_commit, node: "frontier.agents.citations.p3_node:check_citations", params: {agent: a3_profile}}
+  - {name: a7c_after_a4, after: a4_commit, node: "frontier.agents.citations.p3_node:check_citations", params: {agent: a4_inactive}}
+  - {name: a7c_after_a5, after: a5_commit, node: "frontier.agents.citations.p3_node:check_citations", params: {agent: a5_active}}
+  - {name: a7c_after_a6, after: a6_commit, node: "frontier.agents.citations.p3_node:check_citations", params: {agent: a6_redteam}}

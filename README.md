@@ -60,7 +60,7 @@ You need [uv](https://docs.astral.sh/uv/) and Docker. uv installs the pinned Pyt
 make setup             # install the exact locked environment
 cp .env.example .env   # add API keys
 make up                # Postgres 16 with pgvector
-make schema            # create tables (fresh database)
+make schema            # create tables (safe to rerun)
 make test              # lint + tests, no model calls
 make api               # FastAPI on :8000, try /health
 ```

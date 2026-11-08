@@ -1,0 +1,28 @@
+{
+  "OHTUVAYRE": {
+    "set_id": "fixture-set-0401",
+    "effective_time": "20240626",
+    "openfda": {"brand_name": ["FIXTUREBRAND A"], "generic_name": ["FIXTURE-GENERIC-A"],
+                "manufacturer_name": ["Fixture Pharma"], "application_number": ["NDAFIXTURE0401"],
+                "pharm_class_moa": ["Fixture Inhibitors [MoA]"]},
+    "indications_and_usage": ["1 INDICATIONS AND USAGE Made-up: maintenance treatment of chronic obstructive pulmonary disease (COPD) in adults."],
+    "mechanism_of_action": ["12.1 Mechanism of Action Made-up: inhibits fixture enzymes."],
+    "contraindications": ["4 CONTRAINDICATIONS Made-up: hypersensitivity."],
+    "adverse_reactions": ["6 ADVERSE REACTIONS Made-up: back pain, hypertension."]
+  },
+  "DUPIXENT": {
+    "set_id": "fixture-set-0402",
+    "effective_time": "20200115",
+    "openfda": {"brand_name": ["FIXTUREBRAND B"], "generic_name": ["FIXTURE-GENERIC-B"],
+                "manufacturer_name": ["Fixture Bio"], "application_number": ["BLAFIXTURE0402"]},
+    "indications_and_usage": ["Made-up: atopic dermatitis only."]
+  },
+  "DALIRESP": {
+    "set_id": "fixture-set-0403",
+    "effective_time": "20200301",
+    "openfda": {"brand_name": ["FIXTUREBRAND C"], "generic_name": ["FIXTURE-GENERIC-C"],
+                "manufacturer_name": ["Fixture Pharma"], "application_number": ["NDAFIXTURE0403"]},
+    "indications_and_usage": ["Made-up: reduce the risk of COPD exacerbations."],
+    "adverse_reactions": ["Made-up: diarrhea, weight decrease."]
+  }
+}
