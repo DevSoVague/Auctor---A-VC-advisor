@@ -169,3 +169,37 @@ conda run -n hack python -m pytest -q          # also in the repo root
 - Refresh open Langflow canvases to load the saved-setting changes.
 - Restart running workflow servers to load the Python and schema changes before a new run.
 - Older recordings won't gain events or narratives that were never captured.
+
+## Database suggestions and input sources
+
+### Ask person 1 to ingest (gaps today)
+1. **Open Targets** into the empty `targets` table, with tractability, genetic score and max phase. Until then, A2 uses the fixture's 2020-11 release (13 targets), which is allowed under the "anything before 2025" rule for reference data.
+2. **Google News**: the `news` source exists in the schema but has no records.
+3. **Market and label data dated before 2025**: all FDA, label and market rows are dated 2025, so a backtest earlier than 2025 sees no market data.
+4. **More 2023–25 papers** than the current 50.
+5. **Trial version history**: the store keeps only the current ClinicalTrials.gov record. A trial updated in 2026 (for example NCT05166889) is out of window and gets rejected. Its older versions need the ClinicalTrials.gov history API.
+6. **ChEMBL, or a mapping from the store's `drugs` and `trials` into A4/A5's Records**: A4/A5 found 0 assets because they rely on ChEMBL naming. This one is for person 4.
+
+### Input sources A1 uses now (official, free)
+
+| Source | Gives | Key |
+|---|---|---|
+| PubMed E-utilities | search, abstracts, `ArticleDate`/`PubDate` | `NCBI_API_KEY` optional, for 10 requests/s |
+| PubMed Central | full text when open access | — |
+| ClinicalTrials.gov v2 API | trial records, `last_update_posted` as the version date, plus first-posted, start and completion dates | — |
+| Crossref | DOIs that aren't in PubMed | — |
+| Tavily | web search, and extracting text from ordinary web pages (dates from the page's metadata) | `TAVILY_API_KEY`, still needed |
+
+### Rules for writing to the database
+- The date comes from the official record. Undated, year-only and out-of-window items are rejected.
+- The text is stored verbatim; the model never writes record text.
+- Duplicates are discarded when they match by id+version, DOI, URL, text hash, or title+year.
+- Each write is chunked and embedded immediately, and logged in `ingest_log` with `origin='a1'`.
+- Snapshot the database with `pg_dump` before anything writes to it.
+
+### Next input: the startup's pitch document
+See open question 1 above.
+- A1 takes a PDF, DOCX or URL, extracts its text verbatim, and finds the papers, trials and drugs it cites.
+- Each cited item is checked against the database; missing ones are fetched and ingested, and contradictions are flagged.
+- The pitch itself is stored as a `startup_doc` with `date_kind=submitted`.
+- Open questions: should the pitch stay private, outside the shared store? How should unpublished data be handled?
