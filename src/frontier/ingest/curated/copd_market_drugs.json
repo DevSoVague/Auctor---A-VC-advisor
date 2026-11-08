@@ -1,0 +1,120 @@
+{
+  "name": "copd-market-drugs",
+  "note": "Marketed COPD maintenance drugs, one or two per drug class. label_query is the openFDA brand name; cms_brand is the start of the brand name in Medicare Part D data. industry_sources: company reports, filings and news (no 2026 sources); 'fact' is copied from the source, or says it is a headline only.",
+  "drugs": [
+    {
+      "label_query": "OHTUVAYRE",
+      "cms_brand": "Ohtuvayre",
+      "class": "PDE3/PDE4 inhibitor",
+      "industry_sources": []
+    },
+    {
+      "label_query": "DUPIXENT",
+      "cms_brand": "Dupixent",
+      "class": "anti-IL-4R alpha antibody",
+      "industry_sources": []
+    },
+    {
+      "label_query": "NUCALA",
+      "cms_brand": "Nucala",
+      "class": "anti-IL-5 antibody",
+      "industry_sources": []
+    },
+    {
+      "label_query": "DALIRESP",
+      "cms_brand": "Daliresp",
+      "class": "PDE4 inhibitor",
+      "industry_sources": [
+        {
+          "type": "news",
+          "date": "2017-06-27",
+          "title": "COPD treatment roflumilast approved for routine NHS use (Nursing Times)",
+          "id": "news:eac662c4fb4f51e7",
+          "fact": "Headline from the news store; article not read."
+        }
+      ]
+    },
+    {
+      "label_query": "SPIRIVA HANDIHALER",
+      "cms_brand": "Spiriva Handihaler",
+      "class": "LAMA",
+      "industry_sources": []
+    },
+    {
+      "label_query": "YUPELRI",
+      "cms_brand": "Yupelri",
+      "class": "LAMA, nebulized",
+      "industry_sources": [
+        {
+          "type": "regulatory_filing",
+          "date": "2025-02-26",
+          "title": "Theravance Biopharma Form 8-K exhibit 99.1: fourth quarter and full year 2024 results",
+          "url": "https://www.sec.gov/Archives/edgar/data/1583107/000110465925017438/tm257513d1_ex99-1.htm",
+          "fact": "YUPELRI 2024 US net sales USD 238.6m (reported by Viatris), +8%; Q4 2024 hospital-channel doses +49% year on year."
+        },
+        {
+          "type": "news",
+          "date": "2018-11-09",
+          "title": "FDA Approves Revefenacin (YUPELRI) for COPD (HCPLive)",
+          "id": "news:65ce6d20eef3fb99",
+          "fact": "Headline from the news store; article not read."
+        }
+      ]
+    },
+    {
+      "label_query": "ANORO ELLIPTA",
+      "cms_brand": "Anoro Ellipta",
+      "class": "LAMA/LABA",
+      "industry_sources": [
+        {
+          "type": "company",
+          "date": "2025-02-05",
+          "title": "GSK full-year and fourth quarter 2024 results",
+          "url": "https://www.gsk.com/media/11776/fy-2024-results-announcement.pdf",
+          "fact": "Europe commentary: strong double-digit growth for Trelegy and Anoro in 2024. No Anoro figure found in the parts read."
+        }
+      ]
+    },
+    {
+      "label_query": "STIOLTO RESPIMAT",
+      "cms_brand": "Stiolto Respimat",
+      "class": "LAMA/LABA",
+      "industry_sources": [
+        {
+          "type": "news",
+          "date": "2020-08-28",
+          "title": "Tiotropium/Olodaterol vs Tiotropium Alone Linked to Fewer COPD Exacerbations (Pulmonology Advisor)",
+          "id": "news:ced97d506fa111da",
+          "fact": "Headline from the news store; article not read."
+        }
+      ]
+    },
+    {
+      "label_query": "TRELEGY ELLIPTA",
+      "cms_brand": "Trelegy Ellipta",
+      "class": "ICS/LAMA/LABA",
+      "industry_sources": [
+        {
+          "type": "company",
+          "date": "2025-02-05",
+          "title": "GSK full-year and fourth quarter 2024 results",
+          "url": "https://www.gsk.com/media/11776/fy-2024-results-announcement.pdf",
+          "fact": "Trelegy 2024 turnover GBP 2,702m, +23% at actual rates (AER), +27% at constant rates (CER) (all indications)."
+        },
+        {
+          "type": "news",
+          "date": "2017-09-19",
+          "title": "FDA Approves Trelegy Ellipta for COPD (Medscape)",
+          "id": "news:7158dcbdf421623d",
+          "fact": "Headline from the news store; article not read."
+        }
+      ]
+    },
+    {
+      "label_query": "BREZTRI AEROSPHERE",
+      "cms_brand": "Breztri Aerosphere",
+      "class": "ICS/LAMA/LABA",
+      "industry_sources": []
+    }
+  ]
+}

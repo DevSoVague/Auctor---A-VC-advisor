@@ -1,0 +1,242 @@
+{
+  "name": "copd-shelved-drugs",
+  "note": "COPD drug programs that failed a primary endpoint or were judged not worth pursuing in COPD. Only sources dated 2023-2025 are loaded (team whiteboard); older sources stay in the file with their facts but are skipped. Summary fields (status, reason, side_effects, trials) describe what the 2023-2025 sources report. Every fact is from the cited source; 'not stated in sources' marks gaps. Company is given only where a cited source names it. phase_reached is null where the source doesn't state a phase. Each source has a type and a 'fact'.",
+  "drugs": [
+    {
+      "drug": "danirixin",
+      "company": "GSK",
+      "pathway": "CXCR2 antagonist (oral): blocks neutrophil recruitment to the lung",
+      "status": "Phase 2b: no benefit on symptoms; authors judged benefit-risk unfavorable",
+      "reason": "No dose improved E-RS:COPD symptom scores vs placebo at month 6 (large placebo effect); more exacerbations on danirixin (56-75 per arm vs 44 on placebo).",
+      "side_effects": "Pneumonia more frequent at 50 mg (5%) than placebo (<1%); all serious pneumonia events were in danirixin arms.",
+      "trials": [
+        "NCT03034967 (phase 2b, n=614)"
+      ],
+      "sources": [
+        {
+          "date": "2020-06-12",
+          "title": "CXCR2 antagonist for patients with COPD with chronic mucus hypersecretion: a phase 2b trial (Respiratory Research)",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7291447/",
+          "type": "academic",
+          "fact": "Phase 2b (n=614): no dose improved E-RS:COPD symptom scores vs placebo at month 6; more exacerbations on danirixin; pneumonia more frequent at 50 mg (5% vs <1%); authors judged benefit-risk unfavorable."
+        }
+      ],
+      "phase_reached": "phase2",
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "losmapimod",
+      "company": null,
+      "pathway": "p38 MAPK inhibitor (p38 alpha/beta): anti-inflammatory",
+      "status": "Exacerbation study stopped early at interim analysis; phase 2 cardiovascular study negative",
+      "reason": "Exacerbation rate ratio vs placebo 1.04 (95% CrI 0.63-1.73); study terminated for low probability of success. Separate 16-week trial: no effect on arterial inflammation or endothelial function.",
+      "side_effects": "No new safety signals in the exacerbation study; in the 16-week trial serious adverse events were more frequent on losmapimod (mostly COPD exacerbations and pneumonia).",
+      "trials": [
+        "exacerbation study (n=184)",
+        "EVOLUTION phase 2 (n=73)"
+      ],
+      "sources": [
+        {
+          "id": "pmid:29206629",
+          "date": "2017-07-04",
+          "title": "Biological effects of p38 MAPK inhibitor losmapimod does not translate to clinical benefits in COPD",
+          "type": "academic",
+          "fact": "Exacerbation study (n=184) terminated early at interim analysis for low probability of success; rate ratio vs placebo 1.04 (95% CrI 0.63-1.73); no new safety signals."
+        },
+        {
+          "id": "pmid:29566026",
+          "date": "2018-03-22",
+          "title": "The p38 MAPK inhibitor losmapimod in COPD patients with systemic inflammation, stratified by fibrinogen (PLOS ONE)",
+          "type": "academic",
+          "fact": "EVOLUTION phase 2 (n=73): no effect on arterial inflammation or endothelial function at 16 weeks; serious adverse events more frequent on losmapimod (mostly COPD exacerbations and pneumonia)."
+        }
+      ],
+      "phase_reached": "phase2",
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "nemiralisib",
+      "company": null,
+      "pathway": "PI3K delta inhibitor (inhaled)",
+      "status": "Phase 2 in acute exacerbations: negative",
+      "reason": "No difference in FEV1 change at week 12 vs placebo (750 ug vs placebo -0.004 L) and no difference in re-exacerbations (n=938).",
+      "side_effects": "Post-inhalation cough, apparently dose-related.",
+      "trials": [
+        "dose-ranging study in acute exacerbation (n=938)"
+      ],
+      "sources": [
+        {
+          "id": "pmid:34113095",
+          "date": "2021-06-03",
+          "title": "Nemiralisib in Patients with an Acute Exacerbation of COPD: Placebo-Controlled, Dose-Ranging Study",
+          "type": "academic",
+          "fact": "Phase 2 in acute exacerbations (n=938): no FEV1 difference at week 12 and no difference in re-exacerbations; dose-related post-inhalation cough."
+        }
+      ],
+      "phase_reached": "phase2",
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "CHF6523",
+      "company": null,
+      "pathway": "PI3K delta inhibitor (inhaled)",
+      "status": "Early study: target engaged but no anti-inflammatory effect; authors conclude PI3K delta is not a suitable COPD pathway",
+      "reason": "29.7% reduction in sputum PIP3 (target engagement) did not translate into any anti-inflammatory pharmacodynamic effect.",
+      "side_effects": "Cough in 95.2% of patients, mostly mild to moderate, resolving within an hour of dosing.",
+      "trials": [
+        "NCT04032535 (crossover, n=44)"
+      ],
+      "sources": [
+        {
+          "id": "pmid:39427187",
+          "date": "2024-10-19",
+          "title": "CHF6523 data suggest that the PI3K delta isoform is not a suitable target for the management of COPD",
+          "type": "academic",
+          "fact": "Crossover study (n=44): 29.7% reduction in sputum PIP3 but no anti-inflammatory effect; cough in 95.2%; authors conclude PI3K delta is not a suitable COPD pathway."
+        }
+      ],
+      "phase_reached": null,
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "benralizumab (in COPD)",
+      "company": "AstraZeneca",
+      "pathway": "IL-5 receptor alpha-directed cytolytic antibody: depletes eosinophils",
+      "status": "Phase 3 RESOLUTE (2025) missed its primary endpoint; AstraZeneca to analyse the full data",
+      "reason": "RESOLUTE (n=689, eosinophils >=300/uL, 3 or more exacerbations in the prior year): numerical improvement but no statistically significant reduction in exacerbations.",
+      "side_effects": "Safety and tolerability consistent with the known profile.",
+      "trials": [
+        "RESOLUTE (phase 3)"
+      ],
+      "sources": [
+        {
+          "date": "2018-05-15",
+          "title": "Phase 3 trial of benralizumab for COPD misses primary endpoint (HCPLive)",
+          "url": "https://hcplive.com/view/phase-3-trial-of-benralizumab-for-copd-misses-primary-endpoint",
+          "type": "news",
+          "fact": "GALATHEA (phase 3) missed its primary endpoint; TERRANOVA still to report; AstraZeneca to await TERRANOVA before deciding next steps in COPD."
+        },
+        {
+          "id": "pmid:31112385",
+          "date": "2019-05-20",
+          "title": "Benralizumab for the Prevention of COPD Exacerbations (NEJM)",
+          "type": "academic",
+          "fact": "GALATHEA and TERRANOVA: no dose significantly reduced annualized exacerbations vs placebo at week 56 (rate ratios 0.83-1.04); adverse events similar to placebo."
+        },
+        {
+          "date": "2025-09-17",
+          "title": "AstraZeneca: Update on the RESOLUTE Phase III trial for Fasenra in COPD",
+          "url": "https://www.astrazeneca.com/media-centre/press-releases/2025/update-on-resolute-phase-iii-trial.html",
+          "type": "company",
+          "fact": "RESOLUTE (phase 3, n=689, eosinophils >=300/uL): numerical improvement but primary endpoint not met; safety consistent with the known profile; AstraZeneca to analyse the full data."
+        }
+      ],
+      "phase_reached": "phase3",
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "astegolimab",
+      "company": "Roche (Genentech)",
+      "pathway": "Anti-ST2 antibody: blocks IL-33 signalling",
+      "status": "Phase 3 ARNASA missed primary endpoint (phase 2b ALIENTO met it); Roche to discuss next steps with regulators",
+      "reason": "ARNASA (n=1,375): 14.5% numerical reduction in annualized exacerbations, not significant; ALIENTO (n=1,301): 15.4%, significant. Exacerbations lower than anticipated in both.",
+      "side_effects": "No new safety signals.",
+      "trials": [
+        "ARNASA (phase 3)",
+        "ALIENTO (phase 2b)"
+      ],
+      "sources": [
+        {
+          "date": "2025-07-21",
+          "title": "Roche provides update on astegolimab in COPD",
+          "url": "https://www.roche.com/media/releases/med-cor-2025-07-21",
+          "type": "company",
+          "fact": "ARNASA (phase 3, n=1,375): 14.5% reduction in exacerbations, not significant; ALIENTO (phase 2b, n=1,301): 15.4%, significant; no new safety signals; Roche to discuss next steps with regulators."
+        },
+        {
+          "date": "2025-07-21",
+          "title": "Genentech (Roche)'s Astegolimab Shows Mixed Data for COPD (HCPLive)",
+          "url": "https://www.hcplive.com/view/genentech-roche-s-astegolimab-shows-mixed-data-for-copd",
+          "type": "news",
+          "fact": "ARNASA (phase 3, n=1,375): 14.5% reduction in exacerbations, not significant; ALIENTO (phase 2b, n=1,301): 15.4%, significant; no new safety signals; Roche to discuss next steps with regulators."
+        }
+      ],
+      "phase_reached": "phase3",
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "itepekimab",
+      "company": "Sanofi and Regeneron",
+      "pathway": "Anti-IL-33 antibody",
+      "status": "Phase 3 mixed: AERIFY-1 met primary endpoint, AERIFY-2 did not; companies to discuss path forward with regulators",
+      "reason": "AERIFY-2 exacerbation reduction at week 52: 2% (every 2 weeks) and 12% (every 4 weeks), not significant; AERIFY-1: 27% and 21%, significant. Fewer exacerbations than anticipated reduced power.",
+      "side_effects": "Adverse events comparable to placebo (AERIFY-1: 67% and 68% vs 68%; AERIFY-2: 64% and 71% vs 64%).",
+      "trials": [
+        "AERIFY-1 (phase 3)",
+        "AERIFY-2 (phase 3)"
+      ],
+      "sources": [
+        {
+          "date": "2025-05-30",
+          "title": "Sanofi Form 6-K exhibit: itepekimab phase 3 COPD results",
+          "url": "https://www.sec.gov/Archives/edgar/data/1121404/000119312525131697/d947351dex993.htm",
+          "type": "regulatory_filing",
+          "fact": "AERIFY-1 met its primary endpoint (27% and 21% fewer exacerbations at week 52); AERIFY-2 did not (2% and 12%); adverse events comparable to placebo; companies to discuss path forward with regulators."
+        },
+        {
+          "date": "2025-07-09",
+          "title": "Itepekimab Shows Mixed Results in Phase 3 COPD Trials (AJMC)",
+          "url": "https://www.ajmc.com/view/itepekimab-shows-mixed-results-in-phase-3-copd-trials",
+          "type": "news",
+          "fact": "AJMC report repeats the AERIFY-1 and AERIFY-2 results; Sanofi said the results merit further exploration; Regeneron remains committed to the broader programme."
+        }
+      ],
+      "phase_reached": "phase3",
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "icenticaftor (QBW251)",
+      "company": null,
+      "pathway": "CFTR potentiator (oral): targets mucus accumulation",
+      "status": "Phase 2b: primary endpoint negative; later development: not stated in sources",
+      "reason": "No dose-response for trough FEV1 at week 12 (primary endpoint); some improvements at week 24 that the authors say must be interpreted with caution.",
+      "side_effects": "All doses well tolerated.",
+      "trials": [
+        "NCT04072887 (phase 2b, n=974)"
+      ],
+      "sources": [
+        {
+          "id": "pmid:37411039",
+          "date": "2023-07-06",
+          "title": "Icenticaftor, a CFTR Potentiator, in COPD: A Multicenter, Parallel-Group, Double-Blind Clinical Trial",
+          "type": "academic",
+          "fact": "Phase 2b (n=974): no dose-response for trough FEV1 at week 12 (primary endpoint negative); some week-24 improvements to be interpreted with caution; well tolerated."
+        }
+      ],
+      "phase_reached": "phase2",
+      "reason_category": "efficacy"
+    },
+    {
+      "drug": "ivacaftor (in COPD)",
+      "company": null,
+      "pathway": "CFTR potentiator (oral)",
+      "status": "Phase 2 in COPD: no improvement; authors call for dose-finding studies",
+      "reason": "Did not improve sweat chloride, mucociliary clearance, lung function or symptoms over 12 weeks (n=40); drug exposure was lower than in cystic fibrosis.",
+      "side_effects": "Most common adverse event on ivacaftor: diarrhea; adverse event rates similar to placebo.",
+      "trials": [
+        "NCT03085485 (phase 2, n=40)"
+      ],
+      "sources": [
+        {
+          "id": "pmid:39316773",
+          "date": "2024-09-24",
+          "title": "Ivacaftor for COPD: Results from a Phase 2, Randomized Controlled Trial",
+          "type": "academic",
+          "fact": "Phase 2 (n=40): no improvement in sweat chloride, mucociliary clearance, lung function or symptoms; diarrhea most common adverse event; exposure lower than in cystic fibrosis."
+        }
+      ],
+      "phase_reached": "phase2",
+      "reason_category": "efficacy"
+    }
+  ]
+}
