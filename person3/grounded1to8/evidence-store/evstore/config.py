@@ -17,7 +17,12 @@ def _load_env_file(path: Path) -> None:
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, _, value = line.partition("=")
-        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+        value = value.strip()
+        if value[:1] in ('"', "'") and value[0] in value[1:]:  # quoted: keep what is inside the quotes
+            value = value[1:value.index(value[0], 1)]
+        else:  # unquoted: drop an inline comment ("KEY=abc   # note")
+            value = value.split(" #", 1)[0].split("\t#", 1)[0].strip()
+        os.environ.setdefault(key.strip(), value)
 
 
 _load_env_file(ROOT / ".env")

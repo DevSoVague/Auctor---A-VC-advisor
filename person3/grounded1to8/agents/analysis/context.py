@@ -158,21 +158,39 @@ class Budget:
 ACCOUNT_KEY: contextvars.ContextVar[str | None] = contextvars.ContextVar("nebius_account_key", default=None)
 
 
+# One AsyncOpenAI client (= one connection pool) per key, base URL and event loop, shared by every node. A new client
+# per node opened fresh HTTPS connections each time; parallel branches x cards turned that into a burst of new
+# connections the network refused. Connection errors are retried with backoff by the SDK (max_retries).
+_SHARED_CLIENTS: dict[tuple, Any] = {}
+
+
+def shared_client(key: str, base: str):
+    import asyncio
+
+    from openai import AsyncOpenAI
+
+    try:
+        lid = id(asyncio.get_running_loop())
+    except RuntimeError:
+        lid = 0
+    k = (key, base, lid)
+    if k not in _SHARED_CLIENTS:
+        _SHARED_CLIENTS[k] = AsyncOpenAI(api_key=key, base_url=base, timeout=300, max_retries=4)
+    return _SHARED_CLIENTS[k]
+
+
 class NebiusLLM:
     """Live shim: OpenAI SDK pointed at Nebius Token Factory, with a spend cap and a trace."""
 
     def __init__(self, profile: str = "dev", budget: Budget | None = None,
                  model_override: str | None = None) -> None:
-        from openai import AsyncOpenAI
-
         local = os.getenv("LOCAL_LLM_BASE_URL")
         key = (os.getenv("LOCAL_LLM_API_KEY") or "local") if local else os.getenv("NEBIUS_API_KEY")
         base = local or os.getenv("NEBIUS_BASE_URL", "https://api.tokenfactory.us-central1.nebius.com/v1/")
         if not key:
             raise LLMError("NEBIUS_API_KEY is not set (put it in frontier-engine/.env)")
-        self.client = AsyncOpenAI(api_key=key.strip(), base_url=base, timeout=300, max_retries=1)
+        self.client = shared_client(key.strip(), base)
         self._base, self._local = base, bool(local)
-        self._agent_clients: dict[str, Any] = {}
         self.profile = profile
         self.budget = budget or Budget()
         self.model_override = model_override  # force one model for every agent (model comparison)
@@ -263,10 +281,7 @@ class NebiusLLM:
                                       or (ACCOUNT_KEY.get() or "").strip())
         if not key:
             return self.client
-        if key not in self._agent_clients:
-            from openai import AsyncOpenAI
-            self._agent_clients[key] = AsyncOpenAI(api_key=key, base_url=self._base, timeout=300, max_retries=1)
-        return self._agent_clients[key]
+        return shared_client(key, self._base)
 
     async def _request(self, agent: str = "", **kw):
         """Keep ordinary callers unchanged; observed runs consume real SDK deltas."""

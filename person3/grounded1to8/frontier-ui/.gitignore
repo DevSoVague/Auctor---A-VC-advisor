@@ -1,0 +1,4 @@
+uploads/
+backups/
+__pycache__/
+langflow.log

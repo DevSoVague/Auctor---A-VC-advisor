@@ -321,8 +321,8 @@ See [HANDOFF.md](../../HANDOFF.md) for the full detail.
 - **New workbook sheets:** ToolCalls, NewEvidence, Judge.
 
 
-### Agent tabs in Node Monitor
+### Agent dropdown in Node Monitor
 
-Use **All agents**, **A3 · Profile**, **A4 · Inactive assets**, **A5 · Active landscape**, or **A6 · Red team** above the idea cards. Each agent tab keeps all idea cards visible while showing that agent's own progress, step history, model name, and separate reasoning/output previews. Streams continue collecting while another tab is selected. Open a card and use the agent selector to switch views without leaving focus mode. Full captured streams remain in the individual step details; previews show the latest model call. Reasoning is displayed only when exposed by the model.
+Use the **Agent** dropdown in the header. It defaults to **A3 · Profile**, showing every idea card for A3 side by side. Select **A4 · Inactive assets**, **A5 · Active landscape**, or **A6 · Red team** to switch the entire board to that agent: its own progress, reasoning, output, timers, and step history. Streams continue collecting while a different agent is selected. The focus-mode agent selector stays synchronized with the board dropdown. Full captured streams remain in individual step details; previews show the latest model call. Reasoning appears only when exposed by the model.
 
 These controls filter monitor events; they do not change scheduling, graph dependencies, API credentials, or concurrency. Producers should use stable per-attempt event IDs, the correct `hid`, and step names such as `a4_llm` / `a5_llm`, with `delta` events labeled `reasoning` or `output`.

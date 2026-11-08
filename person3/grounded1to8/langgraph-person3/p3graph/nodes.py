@@ -311,40 +311,147 @@ def steps_md(state: P3State) -> str:
     return "\n".join(rows) + "\n"
 
 
+def _cell(text, limit: int = 0) -> str:
+    """Safe inside a markdown table cell; shortened at a word boundary, never mid-word."""
+    t = " ".join(str(text or "").split()).replace("|", "/")
+    if limit and len(t) > limit:
+        t = t[:limit].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    return t
+
+
+def _crowding(score) -> str:
+    if score is None:
+        return "not assessed"
+    level = "low" if score < 0.34 else "medium" if score < 0.67 else "high"
+    return f"{level} ({score:.2f})"
+
+
+def _verdict_line(v: dict, j: dict, revised: bool) -> str:
+    word = {"survives": "Survives", "killed": "Killed", "revise": "Needs revision"}.get(v.get("verdict"), v.get("verdict") or "not reviewed")
+    capped = "revise cap reached" in str(v.get("premortem") or "")
+    out = f"**{word}**" + (" · revision limit reached, the red team's top risk is still open" if capped
+                           else " after one revision round" if revised else "")
+    if j:
+        out += f" · judge: red team is {str(j.get('red_team_is', '')).replace('_', ' ')}"
+    return out
+
+
 def report_md(state: P3State) -> str:
+    """The run's answer, written for a reader: the hypotheses first (verdict, product bar, competition,
+    licensable assets, biggest risk), then why now, then run details. Plumbing stays in the workbook/logs."""
     cfg, u = state["config"], state.get("usage", {})
+    cards = state.get("cards") or []
+    grades, profiles = state.get("grades") or {}, state.get("profiles") or {}
+    verdicts, judgments = state.get("verdicts") or {}, state.get("judgments") or {}
+    assets, revised = state.get("assets") or {}, state.get("revise_used") or {}
+    failed = state.get("failed_cards") or {}
+    killed = {k["hypothesis_id"]: k for k in state.get("killed") or []}
+    done = [c for c in cards if c["id"] in verdicts or c["id"] in profiles or c["id"] in failed]
+    survive = sum(1 for c in done if verdicts.get(c["id"], {}).get("verdict") == "survives")
+
+    L = [f"# {cfg['disease']} · frontier hypotheses",
+         f"As of **{cfg['as_of']}** · {len(done)} of {len(cards)} hypotheses analysed · "
+         f"**{survive} survive** · {len(killed)} killed" + (f" · {len(failed)} failed" if failed else "")]
+    if state["llm"]["mode"] == "stub":
+        L += ["", "> **Stub run.** Fixture outputs, not real model judgments. Switch LLM mode to live for a real analysis."]
+
+    # ---- at a glance
+    L += ["", "## At a glance", "",
+          "| # | Hypothesis | Evidence | Red team | Competition | Licensable assets |",
+          "|---|---|---|---|---|---|"]
+    for c in done:
+        hid = c["id"]
+        v, land, ina = verdicts.get(hid, {}), assets.get(f"{hid}:landscape"), assets.get(f"{hid}:inactive")
+        verdict = ("failed" if hid in failed else
+                   {"survives": "survives", "killed": "killed"}.get(v.get("verdict"), v.get("verdict") or "-"))
+        if revised.get(hid) and verdict == "survives":
+            verdict += " (revised)"
+        comp = "-" if land is None else f"{_crowding(land.get('crowding_score'))} · {len(land.get('programs') or [])} active"
+        lic = "-" if ina is None else (f"{len(ina.get('repurposing') or [])} repurpose · {len(ina.get('shelved') or [])} shelved"
+                                       if (ina.get("repurposing") or ina.get("shelved")) else "none found")
+        L.append(f"| {grades.get(hid, {}).get('rank', '')} | **{_cell(c['mechanism'])}** | "
+                 f"tier {c['evidence_tier']} · {c['validation_level']} | {verdict} | {comp} | {lic} |")
+
+    # ---- one section per hypothesis
+    L += ["", "## The hypotheses"]
+    for c in done:
+        hid = c["id"]
+        g, p, v, j = grades.get(hid, {}), profiles.get(hid), verdicts.get(hid, {}), judgments.get(hid, {})
+        L += ["", f"### {g.get('rank', '')} · {c['mechanism']}",
+              f"*{c.get('direction', '')} {', '.join(c.get('target_ids') or [])} · {c.get('modality', '')} · "
+              f"tier {c['evidence_tier']} evidence ({c['validation_level']})*", ""]
+        if hid in failed:
+            L += [f"**Failed:** {_cell(failed[hid], 300)}"]
+            continue
+        L.append(_verdict_line(v, j, bool(revised.get(hid))))
+        if j.get("reasoning"):
+            L.append(f"> {_cell(j['reasoning'], 400)}")
+        if hid in killed:
+            L.append(f"\n**Killed:** {_cell(killed[hid].get('kill_criterion') or killed[hid].get('reason'), 300)}")
+        if c.get("biggest_uncertainty"):
+            L += ["", f"**Biggest uncertainty:** {_cell(c['biggest_uncertainty'])}"]
+        if p:
+            L += ["", "**What the product must do** (A3)"] + [f"- {_cell(m)}" for m in p.get("must_haves") or []]
+            if p.get("soc_gap_at_launch"):
+                L.append(f"- *Gap it fills at launch:* {_cell(p['soc_gap_at_launch'])}")
+        risks = v.get("risks") or []
+        if risks:
+            r0 = risks[0]
+            L += ["", "**Biggest risk** (A6 red team)", f"- {_cell(r0.get('text'))}"]
+            if r0.get("kill_criterion"):
+                L.append(f"- *Kills it if:* {_cell(r0['kill_criterion'])}")
+            if r0.get("cheapest_test"):
+                L.append(f"- *Cheapest test:* {_cell(r0['cheapest_test'])}")
+            if len(risks) > 1:
+                L.append("- *Other risks:* " + "; ".join(_cell(r.get("text"), 120) for r in risks[1:]))
+        land = assets.get(f"{hid}:landscape")
+        if land is not None:
+            progs, cats = land.get("programs") or [], land.get("catalysts") or []
+            L += ["", f"**Competition** (A5): crowding {_crowding(land.get('crowding_score'))} · "
+                      f"{len(progs)} active program(s) on this mechanism, {len(land.get('orthogonal') or [])} on others"]
+            for pr in progs[:4]:
+                L.append(f"- {_cell(pr.get('asset'))} · {_cell(pr.get('owner'))} · {_cell(pr.get('stage'))}"
+                         f" · fits the product: {pr.get('profile_fit', '-')}" + (f" · edge: {_cell(pr['novel_edge'], 90)}" if pr.get("novel_edge") else ""))
+            for ct in cats[:3]:
+                L.append(f"- *Readout {ct.get('on')}:* {_cell(ct.get('what'), 140)}")
+        ina = assets.get(f"{hid}:inactive")
+        if ina is not None:
+            items = [("repurpose", a) for a in ina.get("repurposing") or []] + [("shelved", a) for a in ina.get("shelved") or []]
+            if items:
+                L += ["", "**Assets to license or revive** (A4)"]
+                for kind, a in items[:5]:
+                    L.append(f"- {_cell(a.get('name'))} ({kind}) · {_cell(a.get('owner'))} · {_cell(a.get('stage'))}"
+                             f" · fit {float(a.get('profile_fit') or 0):.1f}" + (f" · {_cell(a['limitations'], 90)}" if a.get("limitations") else ""))
+            else:
+                L += ["", "**Assets to license or revive** (A4): none found in the evidence."]
+
+    # ---- why now
+    shifts = sorted((state.get("why_now") or {}).get("shifts", []), key=lambda s: str(s.get("on")))
+    if shifts:
+        L += ["", "## Why now (A1)", "", "| Date | Shift | What changed | Moves |", "|---|---|---|---|"]
+        L += [f"| {s.get('on')} | {str(s.get('type', '')).replace('_', ' ')} | {_cell(s.get('summary'))} | "
+              f"{', '.join(s.get('effect_on') or [])} |" for s in shifts]
+
+    # ---- run details (condensed decision log)
     calls = sum(x["calls"] for x in u.values())
     tin = sum(x["input_tokens"] for x in u.values())
     tout = sum(x["output_tokens"] for x in u.values())
-    lines = [f"# Person 3 analysis · {cfg['disease']} · as of {cfg['as_of']}",
-             f"Run `{state['run_id']}` · mode {cfg['mode']} · LLM {state['llm']['mode']} "
-             f"({state['llm'].get('model') or state['llm']['profile'] + ' profile'}) · "
-             f"{calls} calls · {tin:,} in / {tout:,} out tokens", "", "## Q1 Why now"]
-    for s in (state.get("why_now") or {}).get("shifts", []):
-        lines.append(f"- **{s['on']} · {s['type']}** ({', '.join(s['effect_on'])}): {s['summary']}")
-    lines += ["", "## Q2 Mechanisms and Q5 verdicts", "",
-              "| # | Hypothesis | Tier / level | Verdict | Top risk | Cheapest test |",
-              "|---|---|---|---|---|---|"]
-    for c in state.get("cards", []):
-        hid, g = c["id"], state.get("grades", {}).get(c["id"], {})
-        v = state.get("verdicts", {}).get(hid, {})
-        r0 = (v.get("risks") or [{}])[0]
-        rev = " (revised)" if state.get("revise_used", {}).get(hid) else ""
-        lines.append(f"| {g.get('rank', '')} | {c['mechanism']} | {c['evidence_tier']} / {c['validation_level']} "
-                     f"| {v.get('verdict', '-')}{rev} | {r0.get('text', '')[:80]} | {r0.get('cheapest_test', '')[:60]} |")
-    lines += ["", "## Q3 Must-haves (TPP)"]
-    for hid, p in (state.get("profiles") or {}).items():
-        lines.append(f"- **{hid}**: " + "; ".join(p["must_haves"]))
-    if state.get("killed"):
-        lines += ["", "## Killed"] + [f"- **{k['hypothesis_id']}** {k['mechanism']}: {k['kill_criterion']}"
-                                      for k in state["killed"]]
+    model = state["llm"].get("model") or f"{state['llm']['profile']} profile"
+    L += ["", "## Run details", "",
+          f"- **Model:** {state['llm']['mode']} · {model} · {calls} calls · {tin:,} in / {tout:,} out tokens",
+          f"- **Run:** `{state['run_id']}` · files in `runs/{state['run_id'][:8]}…/`: `analysis.xlsx` (workbook), "
+          "`chat.md` (every step in plain language), `log.md` (full prompts and outputs)"]
     if state.get("decisions"):
-        lines += ["", "## Decision log", "", "| actor | action | target | reason |", "|---|---|---|---|"]
-        lines += [f"| {d['actor']} | {d['action']} | {d['target']} | {str(d.get('reason', ''))[:90]} |"
-                  for d in state["decisions"]]
-    lines += ["", f"Workbook: `{state.get('workbook_path')}`",
-              "", "_Next (other persons): A7 citation gate over every surviving claim, then A8 memo._"]
-    return "\n".join(lines)
+        per: dict[str, list[str]] = {}
+        for d in state["decisions"]:  # one line per card: who did what, in order
+            card = str(d["target"]).split(":")[-1]
+            step = f"{d['actor'].replace('_', ' ')} {d['action']}"
+            if d["action"] == "override" and "cap" in str(d.get("reason", "")):
+                step = "revision limit reached"
+            per.setdefault(card, []).append(step)
+        L += ["", "## Decision log", "", "| Card | What happened |", "|---|---|"]
+        L += [f"| {card} | {' → '.join(steps)} |" for card, steps in per.items()]
+    return "\n".join(L)
 
 
 # ---------------------------------------------------------------------------- A0 intake (input gate)
