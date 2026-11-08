@@ -1,10 +1,9 @@
 """Agents as named steps, run in plain asyncio or mapped onto LangGraph for audit and display.
 
 An agent is a sequence of (name, step) pairs. Each step reads the shared state
-and returns the keys it adds. `run_steps` runs them in order with no extra
-dependency; `build_graph` maps the same steps onto a LangGraph StateGraph (one
-node per step), so both paths execute identical code. LangGraph is an optional
-extra: `uv sync --extra graph`.
+and returns the keys it adds. `run_steps` runs them in order; `build_graph` maps
+the same steps onto a LangGraph StateGraph (one node per step, fixed edges), so
+both paths execute identical code and no model decides what runs next.
 """
 
 import dataclasses
@@ -12,6 +11,7 @@ from collections.abc import Awaitable, Callable, Mapping, Sequence
 from datetime import date
 from typing import Any
 
+from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel
 
 from frontier.core.retrieval import Record
@@ -30,13 +30,6 @@ async def run_steps(steps: Steps, state: State) -> State:
 
 def build_graph(steps: Steps, state_type: type):
     """The steps as a compiled LangGraph graph: START -> step 1 -> ... -> END."""
-    try:
-        from langgraph.graph import END, START, StateGraph
-    except ImportError as error:
-        raise ImportError(
-            "LangGraph is optional: install it with `uv sync --extra graph`"
-        ) from error
-
     graph = StateGraph(state_type)
     previous = START
     for name, step in steps:

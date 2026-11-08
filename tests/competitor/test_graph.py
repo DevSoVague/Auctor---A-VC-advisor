@@ -10,8 +10,6 @@ from frontier.agents.schemas import A4Input, A5Input
 from frontier.core.context import load_fixture
 from frontier.core.retrieval import Record
 
-pytest.importorskip("langgraph")
-
 LIVE = date(2026, 11, 7)
 ANSWER = "a5_model_output.json"
 PDE_CARD = A5Input.model_validate(load_fixture("a5_active.input"))

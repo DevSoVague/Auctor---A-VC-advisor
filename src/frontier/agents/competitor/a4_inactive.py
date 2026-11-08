@@ -363,7 +363,7 @@ def inputs(
 
 
 def graph():
-    """Agent 4 as a LangGraph graph, for auditing and display (needs the `graph` extra)."""
+    """Agent 4 as a LangGraph graph, for auditing and display."""
     return build_graph(STEPS, A4State)
 
 

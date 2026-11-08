@@ -327,7 +327,7 @@ def inputs(inp: A5Input, ctx: RunContext, params: CrowdingParams = DEFAULT_CROWD
 
 
 def graph():
-    """Agent 5 as a LangGraph graph, for auditing and display (needs the `graph` extra)."""
+    """Agent 5 as a LangGraph graph, for auditing and display."""
     return build_graph(STEPS, A5State)
 
 
