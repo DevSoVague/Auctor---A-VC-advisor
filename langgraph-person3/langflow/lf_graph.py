@@ -257,33 +257,80 @@ def _merge_back(st: dict, sub: dict, base: dict) -> None:
             st[k] = v
 
 
+def log_failure(st: dict, agent: str, step: str, hid: str | None, exc: BaseException) -> None:
+    """The failure log: runs/<run_id>/failures.log (readable) + failures.jsonl (one line per failure)."""
+    import time as _t
+    import traceback
+
+    rec = {"time": _t.strftime("%Y-%m-%d %H:%M:%S"), "run_id": st.get("run_id"), "agent": agent, "step": step,
+           "card": hid, "error": f"{type(exc).__name__}: {exc}",
+           "last_steps": [r.get("node") + (f" [{r.get('hid')}]" if r.get("hid") else "") + f": {r.get('detail', '')[:160]}"
+                          for r in (st.get("steps") or [])[-5:]],
+           "traceback": "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))[-6000:]}
+    try:
+        d = N.RUNS / st["run_id"]
+        d.mkdir(parents=True, exist_ok=True)
+        with (d / "failures.jsonl").open("a") as f:
+            f.write(json.dumps(rec, default=str) + "\n")
+        with (d / "failures.log").open("a") as f:
+            f.write(f"=== {rec['time']} · FAILED {agent}.{step}" + (f" · card {hid}" if hid else "")
+                    + f"\n{rec['error']}\nlast steps:\n  " + "\n  ".join(rec["last_steps"])
+                    + f"\n--- traceback ---\n{rec['traceback']}\n")
+    except OSError:
+        pass
+    st.setdefault("failed_cards", {})
+    if hid:
+        st["failed_cards"][hid] = f"{agent}.{step}: {rec['error'][:300]}"
+
+
+def _parallel(st: dict) -> int:
+    try:
+        return max(1, int(st.get("parallel") or MAX_PARALLEL))
+    except (TypeError, ValueError):
+        return MAX_PARALLEL
+
+
 async def _run_cards(st: dict, agent: str, step: str) -> None:
+    """One step for every card, up to `parallel` cards at once (P3 · Setup: Cards in parallel). A card that fails
+    is written to failures.log and skipped from then on; the other cards keep going."""
     if (st.get("intake") or {}).get("accepted") is False:
         return  # A0 rejected the pitch: no agent runs
-    """One step for every card. A3/A6 cards are independent, so they run at once (up to MAX_PARALLEL)."""
-    hids = _hids(st, agent)
-    if agent not in PER_CARD or len(hids) < 2 or MAX_PARALLEL < 2:
-        for hid in hids:
-            await run_step(st, agent, step, hid)
+    hids = [h for h in _hids(st, agent) if h not in (st.get("failed_cards") or {})]
+    if not hids:
         return
+    n = _parallel(st)
     base = copy.deepcopy(st)
-    gate = asyncio.Semaphore(MAX_PARALLEL)
+    gate = asyncio.Semaphore(n)
 
-    async def one(hid: str) -> dict:
+    async def one(hid: str):
         async with gate:
-            sub = copy.deepcopy(base)  # each card works on its own copy: `current` is per card
-            await run_step(sub, agent, step, hid)
+            sub = copy.deepcopy(base) if n > 1 else st  # each parallel card works on its own copy
+            try:
+                await run_step(sub, agent, step, hid)
+            except Exception as exc:  # noqa: BLE001 - isolate the card, keep the run going
+                log_failure(st, agent, step, hid, exc)
+                if hid is None:  # A1/A2 (run-wide): logged, then the run stops
+                    raise
+                return None
             return sub
 
+    if n == 1:
+        for h in hids:
+            await one(h)
+        return
     subs = await asyncio.gather(*(one(h) for h in hids))
     for sub in subs:  # merge in card order so steps, decisions and events stay deterministic
-        _merge_back(st, sub, base)
+        if sub is not None:
+            _merge_back(st, sub, base)
+    if len(st.get("failed_cards") or {}) and all(h in st["failed_cards"] for h in _hids(st, agent)):
+        raise RuntimeError(f"every card failed at {agent}.{step}; see runs/{st['run_id']}/failures.log")
 
 
 async def setup(config: dict, llm: dict, retrieval: str, message: str = "", search: str = "corpus",
                 extras: dict | None = None) -> tuple[dict, str]:
     """extras: tools, cite, judge, max_cards, pitch, store_pitch (see p3graph/state.py)."""
-    st: dict = {"config": config, "llm": llm, "retrieval": retrieval, "search": search, **(extras or {})}
+    st: dict = {"config": config, "llm": llm, "retrieval": retrieval, "search": search, "parallel": MAX_PARALLEL,
+                **(extras or {})}
     note = ""
     msg = (message or "").strip()
     if msg.lower().rstrip(".!") not in NO_INSTRUCTION:  # a real instruction: every agent's prompt gets it
@@ -295,7 +342,7 @@ async def setup(config: dict, llm: dict, retrieval: str, message: str = "", sear
     gate = (st["steps"][-1]["detail"] if st.get("pitch") else "no pitch")
     if (st.get("intake") or {}).get("accepted") is False:
         return st, f"PITCH REJECTED, no agent will run: {gate}"
-    flags = " · ".join([k for k in ("tools", "judge") if st.get(k)] + [f"cite {st.get('cite_mode', 'node')}"])
+    flags = " · ".join([k for k in ("tools", "judge") if st.get(k)] + [f"cite {st.get('cite_mode', 'node')}", f"parallel {st.get('parallel')}"])
     return st, (f"run {st['run_id'][:8]} · as_of {st['config']['as_of']} · llm {st['llm']['mode']} · "
                 f"search {st['search']} · {flags or 'no tools/cite/judge'} · pitch: {gate}{note}")
 

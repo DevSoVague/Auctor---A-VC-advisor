@@ -54,6 +54,9 @@ class P3StepSetup(Component):
                       "end only = agents are not blocked, one check over everything before the report; off = none."),
         DropdownInput(name="judge", display_name="A6b judge decides", options=["on", "off"], value="on"),
         MessageTextInput(name="max_cards", display_name="Max cards (0 = all)", value="1"),
+        MessageTextInput(name="parallel", display_name="Cards in parallel", value="6",
+                         info="How many hypothesis cards each step runs at once (1 = one after another). A card that "
+                              "fails is logged to runs/<run_id>/failures.log and skipped; the others continue."),
         DropdownInput(name="audience", display_name="Audience", options=["generalist", "specialist"],
                       value="generalist"),
     ]
@@ -70,7 +73,8 @@ class P3StepSetup(Component):
         mode = {"every node": "node", "end only": "end", "off": "off"}.get(self.cite_mode, "node")
         extras = {"tools": self.tools == "on", "cite": mode != "off", "cite_mode": mode, "judge": self.judge == "on",
                   "max_cards": int((self.max_cards or "0").strip() or 0), "pitch": (self.pitch or "").strip() or None,
-                  "store_pitch": self.store_pitch == "on"}
+                  "store_pitch": self.store_pitch == "on",
+                  "parallel": max(1, int((self.parallel or "1").strip() or 1))}
         st, status = await lf_graph.setup(cfg, llm, self.retrieval.strip() or "stub", message=msg or "",
                                           search=self.search, extras=extras)
         self.status = lf_graph.chat_text({}, st) or status

@@ -309,3 +309,9 @@ conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search e
   - Add `--keep N` to also list finished runs beyond the newest N.
   - Nothing is deleted without `--yes`.
   - Only folders with uuid names are considered. `langflow.log` and `monitor.log` are never touched.
+
+## Cards in parallel and the failure log (Langflow)
+
+- **Cards in parallel:** a field on the P3 · Setup node, default 6. Each step runs up to N hypothesis cards at once. 1 = one after another, as before. The env var `P3_MAX_PARALLEL` still sets the default.
+- **Failure log:** `runs/<run_id>/failures.log` (readable) and `failures.jsonl`. For each failure it records the time, the agent and step, the card, the error, the last 5 steps and the full traceback.
+- **A card that fails is isolated:** it is logged and skipped in later steps, and the other cards continue. The run stops only if every card fails, or if A1/A2 fail (they are run-wide, so they are logged first, then the error is raised).
