@@ -81,7 +81,9 @@ def _soft_failures(p: PursuitSignals, bars: CautionBars) -> list[str]:
             f"{p.name}: crowded mechanism, score {p.crowding_score:.2f} "
             f"(bar: {bars.max_crowding_score:.2f})"
         )
-    if p.form != "build" and (p.best_profile_fit is None or p.best_profile_fit < bars.min_profile_fit):
+    if p.form != "build" and (
+        p.best_profile_fit is None or p.best_profile_fit < bars.min_profile_fit
+    ):
         fit = "none" if p.best_profile_fit is None else f"{p.best_profile_fit:.2f}"
         out.append(f"{p.name}: best asset fit to the product profile is {fit}")
     if p.revised:
