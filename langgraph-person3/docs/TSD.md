@@ -458,3 +458,14 @@ flowchart LR
 > **`EMBED_MODEL` in your shell overrides the store's model.** The engine's `--search database` backend reads the same variable name. If they differ, the store would embed queries with the wrong model. Leave it unset, or set it to `Qwen/Qwen3-Embedding-8B`.
 
 > **Only one database can hold port 5433.** The team repo's compose file uses the same port.
+
+## Update 2026-11-08: evidence-store tools and the A7 judge
+
+See [HANDOFF.md](../../HANDOFF.md) for the full detail.
+
+- **Ports:** monitor 7872, Studio 2034, Langflow 7870. These replace 7862, 2024 and 7860.
+- **New flags:** `--search evstore`, `--tools`, `--no-judge`, `--max-cards N`.
+- **Graph:** each chain is now retrieve → prompt → **toolloop** → llm → parse → … → commit. A6's commit is followed by **a7_judge**, then a6_route; with the judge on, A7's decision is what gets routed.
+- **Tools:** DB read for A1–A6, DB write for A1 only, web search for A1/A4/A5, and nothing for A7. Every result is dated, within `2023-01-01 <= date < as_of`.
+- **New state keys:** `tools`, `judge`, `max_cards`, `judgments`.
+- **New workbook sheets:** ToolCalls, NewEvidence, Judge.
