@@ -237,3 +237,55 @@ cd ../evidence-store && make db-up     # start Docker first
 cd ../grounded1to8/langgraph-person3
 conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1
 ```
+
+
+## A0 intake: the input gate for the startup pitch (2026-11-08)
+
+The startup's pitch document is the crux of the operation. A run can now be built around it: `--pitch <file|url>`. Without `--pitch`, runs work as before (an open scan for anything new).
+
+**Flow:** `setup → intake (A0) → A1 → A2 → …`, in `agents/analysis/a0_intake.py` with the prompt `agents/prompts/a0_intake.md`.
+
+### 1. Gate
+The run stops here if any check fails, before a single token is spent. The reason goes into `report.md`.
+- **Type:** PDF, DOCX, TXT, MD or URL.
+- **Size:** at most `PITCH_MAX_MB` (default 20).
+- **Text:** extracted verbatim (pypdf, DOCX XML, or page text), with at least 500 characters. A scanned PDF is rejected with "needs OCR".
+- **Topic:** the document must be about the run's disease (at least 2 hits on terms like COPD, emphysema, FEV1, exacerbation).
+- **Prompt injection:** a scan for phrases like "ignore previous instructions" or "always approve". Hits are **flagged, not obeyed**. The pitch text only ever reaches a model inside a fenced DATA block (`as_data`).
+
+### 2. Extract
+- **By code:** the cited ids (PMID, NCT, DOI, URLs).
+- **By the model:** a `PitchProfile` with company, indication, mechanism, targets, modality, stage, the key claims (each with its references) and the dates mentioned. In stub mode this is code-only.
+
+### 3. Compare with the database
+Each cited item is matched against the store with `check_exists`:
+- Already stored: `in_store`, linked by its store id.
+- Missing: fetched and ingested through A1's write gate (official date, window, verbatim text, dedupe), giving `ingested`.
+- Refused or not found: listed as a warning.
+
+Store items cited by the pitch are added to A1's and A2's evidence packs, so they can be cited.
+
+### 4. Store
+- **Default: private.** The pitch is kept only in the run folder (`runs/<id>/pitch.txt`).
+- **`--store-pitch`** also writes it to the store as `source='startup_doc'`, id `startup:<sha>`, with `date_kind='submitted'`.
+
+### 5. Downstream
+- **A1** asks why now for *this* pitch's mechanism and patients. Its shifts must rest on evidence-pack sources, not on the pitch's claims.
+- **A2's first card** must be the pitch's own hypothesis, graded like any other. The other cards are the alternatives the pitch must beat.
+- The pitch's claims are never treated as evidence: A7 checks every citation, and A6 attacks the product.
+
+### Workbook and tests
+- **Workbook:** a new **Intake** sheet with the gate result, the profile, the pitch's claims, and each cited item's status, store id and date.
+- **Tests:** `tests/test_intake.py` (8) plus 2 graph tests: a rejected pitch spends 0 tokens, and an accepted pitch reaches A1 and A2. 56 LangGraph and 146 engine tests pass.
+
+### Run
+```bash
+conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1 --pitch ~/pitch.pdf
+```
+
+### Open
+- **OCR** for scanned PDFs.
+- **The pitch's unpublished data:** it currently only appears as a pitch claim and is never evidence. Should an analyst be able to vouch for it?
+- **A shared store vs. a private one** for pitches.
+- **A web form, or a Langflow/LangGraph upload field,** for the pitch.
+- **Not live-tested yet:** the database and Docker were shut down.

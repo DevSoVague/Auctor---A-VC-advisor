@@ -25,6 +25,7 @@ AGENT_NAME = {
     "a5_active": "A5 · Active landscape",
     "a6_redteam": "A6 · Red team",
     "a6b_judge": "A6b · Judge",
+    "a0_intake": "A0 · Intake",
 }
 STEP_ICON = {"retrieve": "🔎", "prompt": "📝", "llm": "🤖", "parse": "🧩", "fix": "🔧", "postcheck": "✅",
              "validate": "📏", "grade": "🏷️", "commit": "💾", "route": "🚦", "toolloop": "🛠️", "judge": "⚖️", "cite": "📚",

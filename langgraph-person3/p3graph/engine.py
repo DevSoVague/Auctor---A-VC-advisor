@@ -20,7 +20,7 @@ load_dotenv(ENGINE / ".env")
 
 from agents.analysis import a1_disease, a2_mechanism, a3_profile, a6_redteam, a6b_judge  # noqa: E402,F401
 from agents.analysis import tool_loop  # noqa: E402,F401
-from agents.analysis import a7_citations  # noqa: E402,F401
+from agents.analysis import a7_citations, a0_intake  # noqa: E402,F401
 from agents.analysis._common import EvidencePack, system_prompt  # noqa: E402,F401
 from agents.analysis.context import (  # noqa: E402,F401
     EventBus, LLMError, NebiusLLM, RunContext, StubLLM, Usage, complete_raw, fix_messages, parse_output, model_for,

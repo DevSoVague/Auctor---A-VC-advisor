@@ -125,6 +125,7 @@ async def setup(state: P3State) -> dict:
             "search": state.get("search") or "corpus",
             "tools": bool(state.get("tools")), "judge": bool(state.get("judge")),
             "cite": state.get("cite") is not False,
+            "pitch": state.get("pitch"), "store_pitch": bool(state.get("store_pitch")),
             "max_cards": int(state.get("max_cards") or 0),
             "workbook_path": str(RUNS / run_id / "analysis.xlsx"),
             "steps": [{"node": "setup", "agent": None, "hid": None, "ms": 0,
@@ -302,3 +303,32 @@ def report_md(state: P3State) -> str:
     lines += ["", f"Workbook: `{state.get('workbook_path')}`",
               "", "_Next (other persons): A7 citation gate over every surviving claim, then A8 memo._"]
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------- A0 intake (input gate)
+async def intake(state: P3State):
+    """Input gate for the startup pitch (state['pitch'] = path or URL). Rejected input ends the run here,
+    before any agent spends tokens. No pitch: pass-through (the run scans for anything new, as before)."""
+    src = state.get("pitch")
+    if not src:
+        return {"steps": [{"node": "intake", "agent": "a0_intake", "hid": None, "ms": 0, "detail": "no pitch: open scan"}]}
+    import time as _t
+
+    t0 = _t.time()
+    run = AgentRun(state, "a0_intake")
+    rep = await E.a0_intake.gate(src, run.ctx.config, run.ctx, store=bool(state.get("store_pitch")),
+                                 run_dir=RUNS / state["run_id"])
+    d = rep.model_dump(mode="json")
+    run.ctx.emit("intake_done", {"agent": "a0_intake", "report": d})
+    st = {}
+    for c in rep.cited:
+        st[c["status"]] = st.get(c["status"], 0) + 1
+    detail = (f"accepted · {rep.kind} · {rep.chars:,} chars · cited {st or 'none'}"
+              + (f" · {len(rep.injection_flags)} injection flag(s)" if rep.injection_flags else "")
+              if rep.accepted else "REJECTED: " + "; ".join(rep.reasons))
+    upd = run.update(intake=d)
+    upd["steps"] = [{"node": "intake", "agent": "a0_intake", "hid": None, "ms": int((_t.time() - t0) * 1000),
+                     "detail": detail}]
+    if not rep.accepted:
+        upd["report"] = f"# Run stopped at the input gate\n\nPitch `{src}` was rejected: " + "; ".join(rep.reasons)
+    return upd

@@ -52,13 +52,18 @@ async def retrieve(why_now: WhyNow, ctx) -> dict:
 
 
 def make_messages(why_now: WhyNow, assoc: list[dict], pack: EvidencePack, feedback: str | None,
-                  cfg, system: str | None = None) -> list[dict]:
+                  cfg, system: str | None = None, pitch: dict | None = None) -> list[dict]:
     payload = {"segments": [s.model_dump(mode="json") for s in why_now.segments],
                "shifts": [{"on": s.on, "type": s.type, "summary": s.summary} for s in why_now.shifts],
                "candidate_targets": [{k: a.get(k) for k in (
                    "target_id", "symbol", "genetic_score", "known_drug_max_phase_in_disease",
                    "tractability", "safety")} for a in assoc],
                "ask": f"Propose {MAX_CARDS + 1} candidate cards; weaker ones will be filtered."}
+    if pitch:  # A0 intake: build the run around the startup's pitch
+        payload["startup_pitch"] = pitch
+        payload["ask"] += (" The FIRST card must be the pitch's own mechanism hypothesis (its targets and "
+                           "direction), graded on the evidence pack like any other; the rest are the strongest "
+                           "alternative mechanisms the pitch must beat.")
     return build_messages(AGENT, payload, pack, feedback, cfg, system)
 
 

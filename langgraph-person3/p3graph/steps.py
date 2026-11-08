@@ -312,11 +312,24 @@ def _postcheck_detail(log: list[dict]) -> str:
     return ", ".join(f"{n} {k}" for k, n in kinds.items())
 
 
+async def _add_pitch_evidence(state, run, pack) -> list[dict]:
+    """The pitch's cited items that A0 found in (or ingested into) the store become citable evidence."""
+    ids = [c["id"] for c in ((state.get("intake") or {}).get("cited") or [])
+           if c.get("status") in ("in_store", "ingested") and c.get("id")]
+    kept = []
+    for i in ids:
+        d = await run.ctx.retrieval.doc(i)
+        if d is not None:
+            kept += [r["id"] for r in pack.add([d if isinstance(d, dict) else d.model_dump(mode="json")])]
+    return [{"call": f"pitch-cited items ({len(ids)})", "kept": kept}] if ids else []
+
+
 # ---------------------------------------------------------------------------- A1 disease
 @step(A1, "retrieve", fresh=True)
 async def a1_retrieve(state, run, w, hid):
     run.ctx.emit("agent_started", {"agent": A1.agent, "hypothesis_id": None})
     pack, log = await E.a1_disease.retrieve(run.ctx.config, run.ctx)
+    log += await _add_pitch_evidence(state, run, pack)
     return R({"pack": pack.to_dict(), "retrieval_log": log},
              f"{len(pack.items)} docs kept{_web(pack)} from {len(log)} retrieval calls")
 
@@ -324,7 +337,8 @@ async def a1_retrieve(state, run, w, hid):
 @step(A1, "prompt")
 async def a1_prompt(state, run, w, hid):
     msgs = E.a1_disease.make_messages(run.ctx.config, _pack(w), run.ctx.feedback,
-                                              system=_system(state, A1.agent))
+                                      system=_system(state, A1.agent),
+                                      pitch=E.a0_intake.pitch_brief(state.get("intake")))
     fb = " · with reviewer feedback" if run.ctx.feedback else ""
     return R({"msgs": msgs}, f"{len(msgs)} messages, {sum(len(m['content']) for m in msgs):,} chars{fb}",
              consume=True)
@@ -358,6 +372,7 @@ async def a1_commit(state, run, w, hid):
 async def a2_retrieve(state, run, w, hid):
     run.ctx.emit("agent_started", {"agent": A2.agent, "hypothesis_id": None})
     r = await E.a2_mechanism.retrieve(E.WhyNow.model_validate(state["why_now"]), run.ctx)
+    r["log"] += await _add_pitch_evidence(state, run, r["pack"])
     return R({"pack": r["pack"].to_dict(), "assoc": r["assoc"], "disease_drugs": r["disease_drugs"],
               "pub_counts": r["pub_counts"], "retrieval_log": r["log"]},
              f"{len(r['pack'].items)} docs{_web(r['pack'])}, {len(r['assoc'])} Open Targets targets, "
@@ -368,7 +383,8 @@ async def a2_retrieve(state, run, w, hid):
 async def a2_prompt(state, run, w, hid):
     msgs = E.a2_mechanism.make_messages(E.WhyNow.model_validate(state["why_now"]), w["assoc"], _pack(w),
                                         run.ctx.feedback, run.ctx.config,
-                                        system=_system(state, A2.agent))
+                                        system=_system(state, A2.agent),
+                                        pitch=E.a0_intake.pitch_brief(state.get("intake")))
     fb = " · with reviewer feedback" if run.ctx.feedback else ""
     return R({"msgs": msgs}, f"{len(msgs)} messages, {sum(len(m['content']) for m in msgs):,} chars{fb}",
              consume=True)
