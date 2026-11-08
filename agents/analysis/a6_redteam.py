@@ -16,7 +16,7 @@ from agents.analysis.tool_loop import with_checkers
 from agents.analysis._common import (
     TIER_CAP, EvidencePack, build_messages, emit_claims, post_check,
 )
-from agents.analysis.schemas import RedTeamInput, Verdict
+from agents.analysis.schemas import HypothesisCard, RedTeamInput, Verdict
 
 AGENT = "a6_redteam"
 REVISE_TARGETS = {"a1_disease", "a2_mechanism", "a3_profile", "a4_inactive", "a5_active"}

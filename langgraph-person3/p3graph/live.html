@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Person 3 · Live nodes</title>
+<title>Node Monitor</title>
 <style>
 :root{color-scheme:dark;font:15px/1.6 system-ui;background:#10141b;color:#e5eaf3}*{box-sizing:border-box}body{margin:0}header{position:sticky;top:0;z-index:2;background:#10141bf5;border-bottom:1px solid #303a49;padding:20px 4vw;display:flex;align-items:center;gap:24px;flex-wrap:wrap}h1{font-size:23px;margin:0}header p{margin:0;color:#a5b2c5;font-size:13px}select,button,input{font:inherit;color:inherit;background:#202937;border:1px solid #445067;border-radius:7px;padding:7px 10px}label{cursor:pointer;font-size:13px}main{max-width:1250px;margin:auto;padding:24px}article{margin:0 0 22px;background:#171e29;border:1px solid #354258;border-radius:12px;overflow:hidden}article.active{border-color:#6ad6c1}article.error{border-color:#fb8585}.top{padding:18px 22px;background:#1c2634;display:flex;gap:12px;align-items:center;flex-wrap:wrap}h2{font-size:19px;margin:0}.meta{color:#a8bbd4;font-size:13px}.badge{margin-left:auto;border-radius:20px;background:#2f4053;padding:3px 12px;font-size:12px}.active .badge{color:#88efcf}.error .badge{color:#ffadad}.body{padding:12px 22px 22px}h3{font-size:14px;color:#88d8cf;margin:18px 0 6px;text-transform:uppercase;letter-spacing:.07em}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.65 ui-monospace,monospace;margin:0;background:#101722;border-radius:7px;padding:15px;max-height:520px;overflow:auto}.prompt pre{color:#bfccdf}summary{cursor:pointer;color:#a8bbd4;padding:10px 0}p.note{color:#a3b1c5;font-size:13px}#status{color:#90e4cb;font-size:13px}#empty{padding:60px 12px;text-align:center;color:#a8bbd4}.summary{white-space:pre-wrap} .timing{font-size:12px;color:#9caec6} @media(max-width:600px){main{padding:12px}.body,.top{padding:12px}header{gap:10px}}
 
@@ -8,8 +8,9 @@ main{max-width:1920px}.workflow-grid{display:grid;grid-template-columns:repeat(3
 
 .workflow-grid{display:flex;overflow-x:auto;gap:20px;padding:4px 2px 18px;scroll-snap-type:x proximity;scrollbar-gutter:stable;align-items:stretch}.workflow{flex:0 0 clamp(340px,31vw,580px);scroll-snap-align:start}.workflow-head{min-height:116px;flex-wrap:wrap}.workflow-head>span:first-child{flex:1;min-width:180px}.workflow-status{white-space:normal;margin-left:0}.workflow-steps{height:460px}.board-controls{display:flex;gap:8px;align-items:center;margin:12px 0}.board-controls span{margin-right:auto;color:#a8bbd4;font-size:13px}.workflow-progress{padding:14px 16px;border-bottom:1px solid #354258}.progress-caption{font-size:13px;color:#c4d1e3;margin:0 0 10px}.progress-track{display:flex;gap:3px;height:12px}.progress-step{flex:1;min-width:4px;background:#394353;border-radius:3px}.progress-step.done{background:#63d5af}.progress-step.running{background:#596778;outline:2px solid #efc778;outline-offset:-2px}.progress-step.failed{background:#e68181}.progress-legend{display:flex;justify-content:space-between;font-size:11px;color:#a8bbd4;margin-top:7px}.live-preview{padding:12px 16px;border-bottom:1px solid #354258}.live-preview h3{margin:0 0 7px;font-size:11px}.live-preview pre{height:140px;max-height:140px;font-size:12px;padding:10px;color:#c4d1e3}.dialog-actions{display:flex;gap:8px;flex-wrap:wrap}dialog .workflow-steps{height:45vh}dialog .live-preview pre{height:170px;max-height:170px}.workflow-grid:focus-visible{outline:2px solid #88efcf}@media(max-width:700px){.workflow{flex-basis:88vw}.dialog-head{align-items:start;flex-direction:column}.workflow-steps{height:420px}}
 .step-timer{font-variant-numeric:tabular-nums;white-space:nowrap;font:12px ui-monospace,monospace;color:#b8cadf}.active .step-timer{color:#88efcf}
+[hidden]{display:none!important}.agent-tabs{display:flex;gap:8px;flex-wrap:wrap;padding:12px 0 18px}.agent-tab{cursor:pointer;padding:10px 16px}.agent-tab[aria-selected="true"]{background:#244c45;border-color:#78ddc6;color:#b3ffe8}.agent-preview{display:none;padding:12px 16px;border-bottom:1px solid #354258}.agent-preview h3{font-size:12px;margin:12px 0 6px}.agent-preview pre{height:145px;max-height:145px;font-size:12px}.agent-preview-meta{font-size:12px;color:#afc2d6;line-height:1.5}body:not([data-agent-view="all"]) .agent-preview{display:block}body:not([data-agent-view="all"]) .live-preview{display:none}dialog[data-view="readable"] .agent-preview{display:none}#focus-agent{max-width:230px}dialog .agent-preview pre{height:180px;max-height:180px}
 </style>
-<header><div><h1>Person 3 <span style="color:#78ddc6">/ Live nodes</span></h1><p>Langflow · prompts, model streams, and step results</p></div><select id="runs" aria-label="Run"><option value="">Waiting for a run…</option></select><label><input type="checkbox" id="latest" checked> Follow newest run</label><label><input type="checkbox" id="follow" checked> Auto-scroll</label><span id="status" role="status">Connecting…</span></header>
+<header><div><h1>Node <span style="color:#78ddc6">Monitor</span></h1><p>Langflow · prompts, model streams, and step results</p></div><select id="runs" aria-label="Run"><option value="">Waiting for a run…</option></select><label><input type="checkbox" id="latest" checked> Follow newest run</label><label><input type="checkbox" id="follow" checked> Auto-scroll</label><span id="status" role="status">Connecting…</span></header>
 <main hidden><p class="note">Reasoning shows the text exposed by your model, when available. Stub runs use fixture output.</p><div id="empty">Start a run in the Langflow Playground. Each idea will get its own workflow below.</div><details class="shared"><summary>Shared preparation · Setup, A1 and A2</summary><div id="shared-nodes" class="shared-content"></div></details><h2 class="section-heading">Idea workflows <span id="card-count">· waiting for cards</span></h2><p class="board-note">Scroll sideways through all ideas. Green steps are complete; grey steps are pending; outlined steps are running. Open an idea for its full prompts, reasoning, and results.</p><div class="board-controls"><span>Each idea has its own scrollable step history.</span><button id="previous-ideas" type="button" aria-label="Scroll to previous ideas">← Ideas</button><button id="next-ideas" type="button" aria-label="Scroll to next ideas">Ideas →</button></div><div id="workflows" class="workflow-grid" tabindex="0" role="region" aria-label="Idea workflows, scroll horizontally"></div><details class="shared"><summary>Final report and shared follow-up</summary><div id="final-nodes" class="shared-content"></div></details></main>
 <dialog id="focus-dialog"><div class="dialog-head"><h2 id="focus-title"></h2><div class="dialog-actions"><button id="previous-focus" type="button">← Previous idea</button><button id="next-focus" type="button">Next idea →</button><button id="close-focus" type="button">Close focus</button></div></div><div id="focus-content"></div></dialog>
 <script>
@@ -29,28 +30,83 @@ const stepLabel=name=>name.replaceAll('_',' · ').replace('llm','model');
 function workflow(hid,idea){
  let w=workflows.get(hid);
  if(!w){
-  const panel=el('section','workflow'),head=el('button','workflow-head'),title=el('span'),name=el('span','workflow-title',hid),caption=el('span','workflow-caption','A3 · Profile → A4 · Inactive → A5 · Active → A6 · Red team'),status=el('span','workflow-status','Queued'),content=el('div','workflow-content'),steps=el('div','workflow-steps');
+  const panel=el('section','workflow'),head=el('button','workflow-head'),title=el('span'),name=el('span','workflow-title',hid),caption=el('span','workflow-caption','Per-card agents · A3 · A4 · A5 · A6'),status=el('span','workflow-status','Queued'),content=el('div','workflow-content'),steps=el('div','workflow-steps');
   const meter=el('div','workflow-progress'),current=el('p','progress-caption'),track=el('div','progress-track'),legend=el('div','progress-legend'),preview=el('div','live-preview'),previewLabel=el('h3','','Latest activity'),thought=el('pre','','Waiting for this idea to start…');
   track.setAttribute('role','progressbar');track.setAttribute('aria-label',`${hid} workflow completion`);track.setAttribute('aria-valuemin','0');legend.append(el('span','','A3 · Profile'),el('span','','A4 · Inactive'),el('span','','A5 · Active'),el('span','','A6 · Red team'));meter.append(current,track,legend);preview.append(previewLabel,thought);content.append(meter,preview,steps);
   head.type='button';head.setAttribute('aria-haspopup','dialog');title.append(name,caption);head.append(title,status);panel.append(head,content);$('#workflows').append(panel);
-  w={panel,head,name,status,content,steps,hid,current,track,thought,previewLabel,order:[...IDEA_STEPS],states:new Map(),active:new Map(),failed:false,verdict:null,last:null,streamId:null,streamChannel:null};workflows.set(hid,w);head.onclick=()=>focusWorkflow(w);renderProgress(w);$('#card-count').textContent=`· ${workflows.size} ideas`;
+  w={panel,head,name,status,content,steps,hid,current,track,thought,previewLabel,order:[...IDEA_STEPS],states:new Map(),active:new Map(),failed:false,verdict:null,last:null,streamId:null,streamChannel:null};workflows.set(hid,w);head.onclick=()=>focusWorkflow(w);renderProgress(w);renderAgentPreview(w);$('#card-count').textContent=`· ${workflows.size} ideas`;
  }
+ if(w.head.querySelector('.workflow-caption')&&agentView!=='all')w.head.querySelector('.workflow-caption').textContent=AGENT_VIEWS.find(([key])=>key===agentView)[1]+' · '+hid;
  if(idea?.mechanism){w.name.textContent=`${hid} · ${idea.mechanism}`;w.head.setAttribute('aria-label',`Open workflow for ${hid}: ${idea.mechanism}`)}
  return w;
 }
-function focusWorkflow(w){restoreFocus();focused=w;$('#focus-title').textContent=w.name.textContent;$('#focus-content').append(w.content);if(!$('#focus-dialog').open)$('#focus-dialog').showModal()}
+function focusWorkflow(w){if(agentView!=='all'&&typeof setFocusView==='function')setFocusView('details');restoreFocus();focused=w;$('#focus-title').textContent=w.name.textContent;$('#focus-content').append(w.content);if(!$('#focus-dialog').open)$('#focus-dialog').showModal()}
 function restoreFocus(){if(focused){focused.panel.append(focused.content);focused=null}}
 function navigateFocus(direction){const all=[...workflows.values()],index=all.indexOf(focused);if(index>=0){const next=all[(index+direction+all.length)%all.length];focusWorkflow(next);next.panel.scrollIntoView({block:'nearest',inline:'nearest'})}}
 $('#close-focus').onclick=()=>$('#focus-dialog').close();$('#focus-dialog').addEventListener('close',restoreFocus);
 $('#previous-focus').onclick=()=>navigateFocus(-1);$('#next-focus').onclick=()=>navigateFocus(1);
 $('#previous-ideas').onclick=()=>$('#workflows').scrollBy({left:-$('#workflows').clientWidth*.85,behavior:'smooth'});
 $('#next-ideas').onclick=()=>$('#workflows').scrollBy({left:$('#workflows').clientWidth*.85,behavior:'smooth'});
+let agentView='all';
+const AGENT_VIEWS=[['all','All agents'],['a3','A3 · Profile'],['a4','A4 · Inactive assets'],['a5','A5 · Active landscape'],['a6','A6 · Red team']];
+const agentOf=(node,agent)=>/^(a\d+)(?:_|$)/.exec(node||agent||'')?.[1]||'';
+const inAgentView=node=>agentView==='all'||agentOf(node)===agentView;
+function applyAgentFilter(n){
+ const hidden=agentView!=='all'&&n.agent!==agentView;
+ if(n.card.dataset.hid)n.card.hidden=hidden;
+ if(n.naturalBox)n.naturalBox.hidden=hidden;
+}
+function ensureAgentPreview(w){
+ if(w.agentPreview)return;
+ w.activities=new Map();const preview=el('div','agent-preview'),meta=el('p','agent-preview-meta'),reasonLabel=el('h3','','Model reasoning'),reason=el('pre'),outputLabel=el('h3','','Model output'),output=el('pre');
+ preview.append(meta,reasonLabel,reason,outputLabel,output);w.content.insertBefore(preview,w.steps);Object.assign(w,{agentPreview:preview,agentMeta:meta,agentReason:reason,agentOutput:output});
+}
+function renderAgentPreview(w){
+ ensureAgentPreview(w);if(agentView==='all')return;
+ const activity=w.activities.get(agentView),label=AGENT_VIEWS.find(([key])=>key===agentView)?.[1]||agentView;
+ w.agentMeta.textContent=activity?`${label} · ${activity.model||'No model call yet'} · Latest model call preview; open a step for the full stream`:`${label} · Waiting for this agent`;
+ w.agentReason.textContent=activity?.reasoning||(activity?.modelEnded?'No separate reasoning was supplied for this model call.':'Waiting for this agent’s exposed reasoning…');
+ w.agentOutput.textContent=activity?.output||'Waiting for this agent’s model output…';
+ if($('#follow').checked){w.agentReason.scrollTop=w.agentReason.scrollHeight;w.agentOutput.scrollTop=w.agentOutput.scrollHeight}
+}
+function recordAgentActivity(e,n){
+ if(!e.hid)return;const w=workflow(e.hid);ensureAgentPreview(w);const agent=agentOf(e.node,e.agent);if(!agent)return;
+ let activity=w.activities.get(agent);if(!activity){activity={model:null,callId:null,reasoning:'',output:'',modelEnded:false};w.activities.set(agent,activity)}
+ if((e.event==='start'&&(e.model||e.node.endsWith('_llm')))||e.event==='request'){
+  if(activity.callId!==e.id||e.event==='request'){Object.assign(activity,{callId:e.id,reasoning:'',output:'',modelEnded:false})}
+  if(e.model)activity.model=e.model;
+ }
+ if(e.event==='delta'){
+  if(activity.callId!==e.id){Object.assign(activity,{callId:e.id,reasoning:'',output:'',modelEnded:false});if(e.model)activity.model=e.model}
+  if(e.channel==='reasoning')activity.reasoning=(activity.reasoning+(e.text||'')).slice(-12000);
+  if(e.channel==='output')activity.output=(activity.output+(e.text||'')).slice(-12000);
+ }
+ if((e.event==='end'||e.event==='error')&&activity.callId===e.id){activity.modelEnded=true;if(e.fixture&&!activity.output)activity.output=e.fixture.slice(-12000)}
+ if(agentView!=='all')renderAgentPreview(w);
+}
+function setAgentView(view){
+ if(!AGENT_VIEWS.some(([key])=>key===view))return;agentView=view;document.body.dataset.agentView=view;
+ for(const button of document.querySelectorAll('#agent-tabs [role="tab"]')){const selected=button.dataset.agent===view;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1}
+ $('#focus-agent').value=view;if(view!=='all'&&$('#focus-dialog').open&&typeof setFocusView==='function')setFocusView('details');$('#workflows').setAttribute('aria-labelledby','agent-tab-'+view);
+ for(const n of nodes.values())applyAgentFilter(n);
+ for(const w of workflows.values()){renderProgress(w);renderAgentPreview(w);const caption=w.head.querySelector('.workflow-caption');if(caption)caption.textContent=view==='all'?'Per-card agents · A3 · A4 · A5 · A6':AGENT_VIEWS.find(([key])=>key===view)[1]+' · '+w.hid}
+}
+const agentTabs=el('div','agent-tabs');agentTabs.id='agent-tabs';agentTabs.setAttribute('role','tablist');agentTabs.setAttribute('aria-label','Agent workflow views');
+for(const [key,label] of AGENT_VIEWS){
+ const button=el('button','agent-tab',label);button.id='agent-tab-'+key;button.type='button';button.dataset.agent=key;button.setAttribute('role','tab');button.setAttribute('aria-controls','workflows');button.setAttribute('aria-selected',String(key==='all'));button.tabIndex=key==='all'?0:-1;button.onclick=()=>setAgentView(key);
+ button.onkeydown=e=>{const current=AGENT_VIEWS.findIndex(([agent])=>agent===key);let next=current;if(e.key==='ArrowRight')next=(current+1)%AGENT_VIEWS.length;else if(e.key==='ArrowLeft')next=(current+AGENT_VIEWS.length-1)%AGENT_VIEWS.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=AGENT_VIEWS.length-1;else return;e.preventDefault();setAgentView(AGENT_VIEWS[next][0]);$('#agent-tab-'+AGENT_VIEWS[next][0]).focus()};agentTabs.append(button);
+}
+$('#workflows').before(agentTabs);$('#workflows').setAttribute('role','tabpanel');$('#workflows').setAttribute('aria-labelledby','agent-tab-all');document.body.dataset.agentView='all';
+const focusAgent=el('select');focusAgent.id='focus-agent';focusAgent.setAttribute('aria-label','Agent view in focus mode');for(const [key,label] of AGENT_VIEWS)focusAgent.add(new Option(label,key));focusAgent.onchange=()=>setAgentView(focusAgent.value);$('#focus-dialog .dialog-actions').prepend(focusAgent);
+
 function renderProgress(w){
- const done=w.order.filter(name=>w.states.get(name)==='done').length;
- w.track.replaceChildren(...w.order.map(name=>{const state=w.states.get(name)||'pending',segment=el('span','progress-step '+state);segment.title=`${stepLabel(name)} · ${state}`;segment.setAttribute('aria-label',segment.title);return segment}));
- w.track.setAttribute('aria-valuemax',String(w.order.length));w.track.setAttribute('aria-valuenow',String(done));
- const active=[...w.active.values()].map(stepLabel),state=w.failed?'Failed':active.length?`Running · ${active.join(', ')}`:w.verdict?'Complete':w.last?`Waiting after ${stepLabel(w.last)}`:'Queued';
- w.current.textContent=`${done}/${w.order.length} steps complete · ${state}`;w.track.setAttribute('aria-valuetext',w.current.textContent);w.status.textContent=state;w.status.title=w.verdict||'';w.panel.classList.toggle('active',w.active.size>0);w.panel.classList.toggle('error',w.failed);
+ const order=w.order.filter(inAgentView);
+ const legend=w.track.parentElement.querySelector('.progress-legend');if(legend)legend.replaceChildren(...(agentView==='all'?['A3 · Profile','A4 · Inactive','A5 · Active','A6 · Red team']:[AGENT_VIEWS.find(([key])=>key===agentView)[1],'Per-card steps']).map(label=>el('span','',label)));
+ const done=order.filter(name=>w.states.get(name)==='done').length;
+ w.track.replaceChildren(...order.map(name=>{const state=w.states.get(name)||'pending',segment=el('span','progress-step '+state);segment.title=`${stepLabel(name)} · ${state}`;segment.setAttribute('aria-label',segment.title);return segment}));
+ w.track.setAttribute('aria-valuemax',String(order.length));w.track.setAttribute('aria-valuenow',String(done));
+ const active=[...w.active.values()].filter(inAgentView).map(stepLabel),failed=order.some(name=>w.states.get(name)==='failed'),last=agentView==='all'?w.last:order.filter(name=>w.states.has(name)).at(-1),complete=agentView==='all'?Boolean(w.verdict):order.length>0&&done===order.length,state=failed?'Failed':active.length?`Running · ${active.join(', ')}`:complete?'Complete':last?`Waiting after ${stepLabel(last)}`:'Queued';
+ w.current.textContent=`${done}/${order.length} steps complete · ${state}`;w.track.setAttribute('aria-valuetext',w.current.textContent);w.status.textContent=state;w.status.title=w.verdict||'';w.panel.classList.toggle('active',active.length>0);w.panel.classList.toggle('error',failed);
 }
 function progress(e,n){
  if(!e.hid)return;const w=workflow(e.hid);
@@ -62,7 +118,7 @@ function progress(e,n){
  if(!w.order.includes(e.node)){const index=w.last?w.order.indexOf(w.last)+1:0;w.order.splice(index,0,e.node)}
  if(e.event==='start'){
   const index=w.order.indexOf(e.node);
-  if(w.states.get(e.node)==='done'){for(const name of w.order.slice(index))w.states.delete(name);w.verdict=null}
+  if(w.states.get(e.node)==='done'){for(const name of w.order.slice(index).filter(name=>agentOf(name)===agentOf(e.node)))w.states.delete(name);w.verdict=null}
   w.active.set(e.id,e.node);w.states.set(e.node,'running');w.failed=false;
   w.previewLabel.textContent=`${stepLabel(e.node)} · Current step`;w.thought.textContent=e.model?`Waiting for ${e.model} to stream…`:`Running ${stepLabel(e.node)}…`;w.streamId=null;w.streamChannel=null;
  }
@@ -79,8 +135,8 @@ function updateTimer(n,now=Date.now()/1000){
  n.timer.textContent=duration(elapsed);n.timer.title=`${state}: ${elapsed.toFixed(1)} seconds`;n.timer.setAttribute('aria-label',`${state} ${duration(elapsed)}`);
 }
 setInterval(()=>{const now=Date.now()/1000;for(const n of nodes.values())if(n.end===null)updateTimer(n,now)},100);
-function create(e){const card=el('article','active'),details=el('details','node-details'),top=el('summary','top'),body=el('div','body'),badge=el('span','badge','Running'),timer=el('span','step-timer','00:00.0');top.append(el('h2','',e.node.replaceAll('_',' · ')),el('span','meta',[e.agent,e.hid].filter(Boolean).join(' / ')),timer,badge);const meta=el('p','meta',e.model?`Model: ${e.model}`:'Deterministic step · no model call');body.append(meta);const desc=el('div','summary');body.append(desc);const prompts=el('div');body.append(prompts);details.append(top,body);card.append(details);const target=e.hid?workflow(e.hid).steps:e.node==='report'?$('#final-nodes'):$('#shared-nodes');target.append(card);const n={card,details,body,badge,meta,desc,prompts,channels:{},start:Number.isFinite(e.time)?e.time:Date.now()/1000,end:null,timer,target};updateTimer(n);nodes.set(e.id,n);return n}
-function consume(e){if(!e.id)return;$('#empty').hidden=true;const n=nodes.get(e.id)||create(e);progress(e,n);if(e.event==='end'&&['a2_grade','a2_postcheck'].includes(e.node))for(const idea of e.result?.cards||[])workflow(idea.id,idea);
+function create(e){const card=el('article','active'),details=el('details','node-details'),top=el('summary','top'),body=el('div','body'),badge=el('span','badge','Running'),timer=el('span','step-timer','00:00.0');top.append(el('h2','',e.node.replaceAll('_',' · ')),el('span','meta',[e.agent,e.hid].filter(Boolean).join(' / ')),timer,badge);const meta=el('p','meta',e.model?`Model: ${e.model}`:'Deterministic step · no model call');body.append(meta);const desc=el('div','summary');body.append(desc);const prompts=el('div');body.append(prompts);details.append(top,body);card.append(details);const target=e.hid?workflow(e.hid).steps:e.node==='report'?$('#final-nodes'):$('#shared-nodes');target.append(card);const n={card,details,body,badge,meta,desc,prompts,channels:{},start:Number.isFinite(e.time)?e.time:Date.now()/1000,end:null,timer,target};updateTimer(n);n.agent=agentOf(e.node,e.agent);n.card.dataset.agent=n.agent;if(e.hid)n.card.dataset.hid=e.hid;nodes.set(e.id,n);applyAgentFilter(n);return n}
+function consume(e){if(!e.id)return;$('#empty').hidden=true;const n=nodes.get(e.id)||create(e);recordAgentActivity(e,n);progress(e,n);if(e.event==='end'&&['a2_grade','a2_postcheck'].includes(e.node))for(const idea of e.result?.cards||[])workflow(idea.id,idea);
  if(e.event==='start'||e.event==='messages'){if(e.messages?.length)messages(n.prompts,e.messages)}
  if(e.event==='inputs'){const box=el('details');box.append(el('summary','','Step inputs'));readable(box,e.inputs);n.body.append(box)}
  if(e.event==='request'){n.meta.textContent=`Model: ${e.model}`;const box=el('details');box.append(el('summary','',`Request ${n.body.querySelectorAll('details.request').length+1} · exact messages and response schema`));box.className='request';const p=el('div');messages(p,e.messages||[]);section(p,'Response format',JSON.stringify(e.response_format,null,2));box.append(p);n.body.append(box);messages(n.prompts,e.messages||[])}

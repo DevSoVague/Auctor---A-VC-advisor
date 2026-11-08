@@ -85,6 +85,11 @@ def step_file(a: str, step: str) -> str:
                          info="Optional comment appended to the prompt."),
 '''
         args = ", feedback=self.feedback, system_prompt=self.system_prompt"
+        if a in ("a4", "a5"):  # starts beside A3; its prompt waits for A3's profile
+            extra_in += f'''        HandleInput(name="a3_state", display_name="A3 profile", input_types=["Data"], required=False,
+                    info="Connect A3's last step: {a.upper()} waits for A3's target product profile here."),
+'''
+            args += ", a3_state=self.a3_state.data if self.a3_state else None"
     elif step in ("llm", "parse", "validate"):
         extra_in = f'''        MessageTextInput(name="model", display_name="Model for this step",
                       value="inherit", advanced=True, info="inherit = Setup; or enter any provider/local model ID."),
@@ -157,7 +162,7 @@ class P3StepSetup(Component):
         DropdownInput(name="store_pitch", display_name="Store pitch in shared DB", options=["off", "on"], value="off"),
         DropdownInput(name="tools", display_name="Agent tools (DB/web)", options=["on", "off"], value="on"),
         DropdownInput(name="cite_mode", display_name="A7 citation check", options=["every node", "end only", "off"],
-                      value="every node", info="every node = check after each agent, restart on hallucination (max 2); "
+                      value="off", info="every node = check after each agent, restart on hallucination (max 2); "
                       "end only = agents are not blocked, one check over everything before the report; off = none."),
         DropdownInput(name="judge", display_name="A6b judge decides", options=["on", "off"], value="on"),
         MessageTextInput(name="max_cards", display_name="Max cards (0 = all)", value="1"),
@@ -219,6 +224,32 @@ class P3StepReport(Component):
         return Data(data=st)
 '''
 
+JOIN = HEAD + '''
+
+class P3StepJoin(Component):
+    display_name = "P3 · Join (A3 + A4 + A5)"
+    description = ("A3, A4 and A5 run side by side after A2. This waits for all of them and merges their results "
+                   "into one run state for A6.")
+    icon = "merge"
+    name = "P3StepJoin"
+
+    inputs = [
+        HandleInput(name="base", display_name="Fork point (A2)", input_types=["Data"], required=True,
+                    info="A2's last step: the state the branches started from."),
+        HandleInput(name="branches", display_name="Branches", input_types=["Data"], required=True, is_list=True,
+                    info="The last step of each branch: A3, A4 and A5."),
+    ]
+    outputs = [Output(display_name="Run state", name="state_out", method="run_step")]
+
+    async def run_step(self) -> Data:
+        lf_graph = _load_lf()
+
+        branches = self.branches if isinstance(self.branches, list) else [self.branches]
+        st, status = lf_graph.join(self.base.data, [b.data for b in branches if b is not None])
+        self.status = status
+        return Data(data=st)
+'''
+
 AFTER = [f"{a}_{s}" for a in ORDER for s in ORDER[a]] + ["setup", "report"]
 CUSTOM = HEAD + f'''
 
@@ -260,7 +291,7 @@ def main() -> None:
         for step in ORDER[a]:
             (OUT / f"step_{a}_{step}.py").write_text(step_file(a, step))
             n += 1
-    for name, src in (("step_setup", SETUP), ("step_report", REPORT), ("step_custom", CUSTOM)):
+    for name, src in (("step_setup", SETUP), ("step_report", REPORT), ("step_custom", CUSTOM), ("step_join", JOIN)):
         (OUT / f"{name}.py").write_text(src)
         n += 1
     print(f"wrote {n} components to {OUT}")

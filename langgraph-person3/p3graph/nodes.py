@@ -270,10 +270,13 @@ async def report(state: P3State) -> dict:
     d = Path(path).parent
     (d / "report.md").write_text(md)
     (d / "steps.md").write_text(steps_md(state))
-    (d / "result.json").write_text(json.dumps(
-        {k: state.get(k) for k in ("run_id", "config", "llm", "why_now", "cards", "grades", "profiles",
-                                   "verdicts", "killed", "decisions", "usage", "signals", "steps", "chat")},
-        indent=1, default=str))
+    # assets/judgments/revise_used/intake and the A7 ledger let the memo (person 5) rebuild a run
+    # from this file alone; citation_checks are the 'citation_check' events, ledger rows only.
+    result = {k: state.get(k) for k in ("run_id", "config", "llm", "intake", "why_now", "cards", "grades",
+                                        "profiles", "assets", "verdicts", "judgments", "revise_used",
+                                        "killed", "decisions", "usage", "signals", "steps", "chat")}
+    result["citation_checks"] = [p for e, p in state.get("events") or [] if e == "citation_check"]
+    (d / "result.json").write_text(json.dumps(result, indent=1, default=str))
     send("end", {"detail": "Report and workbook saved", "result": {"report": md, "workbook_path": path}})
     return {"report": md, "workbook_path": path}
 
