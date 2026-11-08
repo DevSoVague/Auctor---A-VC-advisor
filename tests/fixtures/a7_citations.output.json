@@ -1,0 +1,32 @@
+{
+  "entries": [
+    {
+      "claim_id": "a1-c1",
+      "source_id": "pmid:FIXTURE-0001",
+      "source_date": "2019-05-14",
+      "supports": "yes",
+      "action": "keep"
+    },
+    {
+      "claim_id": "a3-c1",
+      "source_id": "fda:FIXTURE-0001",
+      "source_date": "2017-06-01",
+      "supports": "yes",
+      "action": "keep"
+    },
+    {
+      "claim_id": "a5-c1",
+      "source_id": "nct:FIXTURE-0001",
+      "source_date": "2018-07-01",
+      "supports": "yes",
+      "action": "keep"
+    },
+    {
+      "claim_id": "a5-c1",
+      "source_id": "sec:FIXTURE-0002",
+      "source_date": "2022-02-01",
+      "supports": "partly",
+      "action": "downgrade"
+    }
+  ]
+}

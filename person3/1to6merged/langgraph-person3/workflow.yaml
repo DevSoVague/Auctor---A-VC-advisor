@@ -1,0 +1,38 @@
+# Edit this file to change the workflow. Everything here is optional; with `insert: []` the graph is the stock one.
+#
+# prompts: put prompts/<agent>.md next to this file to REPLACE an agent's system prompt, or
+#          prompts/<agent>.append.md to ADD to it.  Agents: a1_disease a2_mechanism a3_profile a6_redteam.
+#          Check what is used:  python -m p3graph prompt a3_profile
+#
+# insert:  splice your own node after any step. `after` is a step name (see: python -m p3graph nodes).
+#          `node` is  file:function  (custom_nodes.py).  `enabled: false` switches one off.
+#          `may_goto` lists nodes your function can jump to (only needed for the diagram).
+
+prompts_dir: prompts
+
+insert:
+  # Tool call: extra searches added to A3's evidence pack before the model runs.
+  - name: a3_extra_evidence
+    after: a3_retrieve
+    node: custom_nodes:run_tools
+    enabled: false
+    params:
+      tools:
+        - {name: corpus_search, query: "{mechanism} adverse events safety", k: 4}
+
+  # Loop: if A3 returned fewer than 2 must-haves, ask again (up to 2 times).
+  - name: a3_refine
+    after: a3_postcheck
+    node: custom_nodes:refine_loop
+    enabled: false
+    may_goto: [a3_prompt]
+    params: {field: must_haves, min: 2, max_loops: 2, feedback: "Give two measurable must-haves."}
+
+  # Safety gate: stop for a human when A6's verdict has an unsourced / overconfident / safety-flagged claim.
+  # on_fail: review (pause; in single_shot it only flags) | loop | stop | flag
+  - name: a6_safety_gate
+    after: a6_postcheck
+    node: custom_nodes:safety_gate
+    enabled: false
+    may_goto: [a6_prompt]
+    params: {on_fail: review, max_confidence: 0.9}

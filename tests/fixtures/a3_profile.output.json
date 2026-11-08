@@ -1,0 +1,29 @@
+{
+  "hypothesis_id": "h1",
+  "soc_gap_at_launch": "Fixture: frequent exacerbators still exacerbate on inhaled triple therapy.",
+  "minimum_specs": [
+    "Fixture: >= 15% reduction in moderate-to-severe exacerbations vs placebo",
+    "Fixture: twice-daily nebulized or inhaled dosing"
+  ],
+  "holy_grail_specs": [
+    "Fixture: >= 30% exacerbation reduction",
+    "Fixture: once-daily handheld inhaler"
+  ],
+  "must_haves": [
+    "Fixture: exacerbation reduction on top of triple therapy",
+    "Fixture: no systemic PDE4 GI side effects"
+  ],
+  "expansion_opportunity": "Fixture: non-cystic fibrosis bronchiectasis after first approval.",
+  "claims": [
+    {
+      "id": "a3-c1",
+      "agent": "a3_profile",
+      "text": "Fixture claim about the standard-of-care gap.",
+      "kind": "evidence",
+      "confidence": 0.7,
+      "source_ids": [
+        "fda:FIXTURE-0001"
+      ]
+    }
+  ]
+}

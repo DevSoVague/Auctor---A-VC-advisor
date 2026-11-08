@@ -1,0 +1,106 @@
+{
+  "why_now": {
+    "shifts": [
+      {
+        "on": "2019-05-14",
+        "type": "endpoint",
+        "effect_on": [
+          "time",
+          "cost"
+        ],
+        "summary": "Fixture: moderate-to-severe exacerbation rate accepted as a primary endpoint.",
+        "claims": [
+          {
+            "id": "a1-c1",
+            "agent": "a1_disease",
+            "text": "Fixture claim about exacerbation endpoints.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "pmid:FIXTURE-0001"
+            ]
+          }
+        ]
+      },
+      {
+        "on": "2023-03-02",
+        "type": "segment",
+        "effect_on": [
+          "selection"
+        ],
+        "summary": "Fixture: eosinophil count defines a type 2 segment.",
+        "claims": [
+          {
+            "id": "a1-c2",
+            "agent": "a1_disease",
+            "text": "Fixture claim about eosinophilic COPD.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "pmid:FIXTURE-0003"
+            ]
+          }
+        ]
+      },
+      {
+        "on": "2024-07-01",
+        "type": "negative",
+        "effect_on": [
+          "cost",
+          "selection"
+        ],
+        "summary": "Fixture: a new approved biologic raises the bar for the type 2 segment.",
+        "claims": [
+          {
+            "id": "a1-c3",
+            "agent": "a1_disease",
+            "text": "Fixture claim about a new standard of care.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "fda:FIXTURE-0002"
+            ]
+          }
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "name": "Eosinophilic COPD",
+        "inclusion_criteria": [
+          "Fixture: blood eosinophils >= 300 cells/uL",
+          "Fixture: >= 2 exacerbations in 12 months"
+        ],
+        "claims": [
+          {
+            "id": "a1-c4",
+            "agent": "a1_disease",
+            "text": "Fixture claim defining the segment.",
+            "kind": "evidence",
+            "confidence": 0.7,
+            "source_ids": [
+              "pmid:FIXTURE-0003"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Frequent exacerbators on triple therapy",
+        "inclusion_criteria": [
+          "Fixture: on inhaled triple therapy",
+          "Fixture: >= 2 exacerbations in 12 months"
+        ],
+        "claims": [
+          {
+            "id": "a1-c5",
+            "agent": "a1_disease",
+            "text": "Fixture reasoning about the segment.",
+            "kind": "reasoning",
+            "confidence": 0.5,
+            "source_ids": []
+          }
+        ]
+      }
+    ]
+  }
+}

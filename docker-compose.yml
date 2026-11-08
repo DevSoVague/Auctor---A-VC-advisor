@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: frontier
       POSTGRES_DB: frontier
     ports:
-      - "5432:5432"
+      - "5433:5432"  # 5433 on the host so a local Postgres on 5432 doesn't clash
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

@@ -1,0 +1,1119 @@
+{
+ "documents": [
+  {
+   "id": "fx:fda-roflumilast-2011",
+   "source": "fda",
+   "source_date": "2011-02-28",
+   "title": "Approval: roflumilast for severe COPD",
+   "body": "Oral PDE4 inhibitor (PDE4B/PDE4D) approved to reduce COPD exacerbations in severe COPD with chronic bronchitis.",
+   "tags": [
+    "approval",
+    "PDE4"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:fda-trelegy-2017",
+   "source": "fda",
+   "source_date": "2017-09-18",
+   "title": "Approval: single-inhaler triple therapy (FF/UMEC/VI) for COPD",
+   "body": "Once-daily inhaled ICS/LAMA/LABA triple therapy approved for COPD maintenance.",
+   "tags": [
+    "approval",
+    "soc"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:fda-breztri-2020",
+   "source": "fda",
+   "source_date": "2020-07-23",
+   "title": "Approval: budesonide/glycopyrrolate/formoterol for COPD",
+   "body": "Twice-daily inhaled triple therapy approved for COPD maintenance.",
+   "tags": [
+    "approval",
+    "soc"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:fda-ensifentrine-2024",
+   "source": "fda",
+   "source_date": "2024-06-26",
+   "title": "Approval: ensifentrine for COPD maintenance",
+   "body": "Nebulised dual PDE3/PDE4 inhibitor (PDE3A/PDE4B) approved for COPD maintenance treatment.",
+   "tags": [
+    "approval",
+    "PDE3",
+    "PDE4"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:fda-dupilumab-copd-2024",
+   "source": "fda",
+   "source_date": "2024-09-27",
+   "title": "Approval: dupilumab add-on for COPD with eosinophilic phenotype",
+   "body": "IL-4R alpha antibody (IL4R) approved as add-on maintenance for COPD with raised blood eosinophils.",
+   "tags": [
+    "approval",
+    "IL4R",
+    "type2"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-gold2019",
+   "source": "pubmed",
+   "source_date": "2018-11-15",
+   "title": "GOLD 2019: blood eosinophils guide ICS in COPD",
+   "body": "Human COPD guideline: blood eosinophil count >=300 cells/uL identifies patients most likely to benefit from ICS; <100 unlikely. First formal biomarker-defined segment in COPD treatment.",
+   "tags": [
+    "human",
+    "guideline",
+    "segment",
+    "eosinophil"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-impact-2018",
+   "source": "pubmed",
+   "source_date": "2018-04-18",
+   "title": "IMPACT: triple therapy vs dual therapy in COPD",
+   "body": "In 10,355 patients with COPD and exacerbation history, single-inhaler triple therapy reduced moderate/severe exacerbations vs dual therapy; larger benefit with higher eosinophils.",
+   "tags": [
+    "human",
+    "soc",
+    "eosinophil"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-ethos-2020",
+   "source": "pubmed",
+   "source_date": "2020-06-24",
+   "title": "ETHOS: triple therapy reduces exacerbations, mortality signal",
+   "body": "Triple therapy reduced moderate/severe exacerbations and showed lower all-cause mortality vs dual therapy. Raises the bar for any add-on therapy, which must now be tested on top of triple therapy.",
+   "tags": [
+    "human",
+    "soc",
+    "negative_bar"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-endpoint-exac-2019",
+   "source": "pubmed",
+   "source_date": "2019-03-10",
+   "title": "Exacerbation rate as primary endpoint for COPD biologics",
+   "body": "Review: annualised moderate/severe exacerbation rate is the accepted primary endpoint for COPD add-on biologics; eosinophil enrichment reduces required sample size; SGRQ and pre-BD FEV1 as key secondaries.",
+   "tags": [
+    "endpoint",
+    "trial_tool",
+    "eosinophil"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-ct-imaging-2018",
+   "source": "pubmed",
+   "source_date": "2018-08-02",
+   "title": "Quantitative CT as a trial enrichment tool in COPD",
+   "body": "Human cohort (COPDGene): quantitative CT airway and emphysema measures identify subtypes and predict progression; proposed for enrichment.",
+   "tags": [
+    "human",
+    "trial_tool"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-type2-copd-2019",
+   "source": "pubmed",
+   "source_date": "2019-06-12",
+   "title": "Type 2 inflammation in a subset of COPD",
+   "body": "Human sputum and blood studies: 20-40% of COPD patients show type 2 inflammation (IL4R/IL13 pathway, raised FeNO and eosinophils), associated with exacerbation risk.",
+   "tags": [
+    "human",
+    "segment",
+    "type2",
+    "IL4R",
+    "IL13"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-dupi-asthma-2018",
+   "source": "pubmed",
+   "source_date": "2018-05-21",
+   "title": "Dupilumab in moderate-to-severe asthma",
+   "body": "IL4R antibody reduced severe exacerbations in asthma, greater with eos>=300 and high FeNO. Mechanistic precedent in type 2 airway disease.",
+   "tags": [
+    "human",
+    "IL4R",
+    "type2"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-metrex-2017",
+   "source": "pubmed",
+   "source_date": "2017-09-11",
+   "title": "Mepolizumab in eosinophilic COPD (METREX/METREO)",
+   "body": "Anti-IL5 antibody: modest, inconsistent exacerbation reduction across two Phase 3 trials in eosinophilic COPD.",
+   "tags": [
+    "human",
+    "failure",
+    "IL5"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-crl-mepo-2018",
+   "source": "pubmed",
+   "source_date": "2018-09-07",
+   "title": "FDA declines mepolizumab COPD approval",
+   "body": "Complete response letter for anti-IL5 (IL5) in COPD citing insufficient efficacy evidence.",
+   "tags": [
+    "regulatory",
+    "negative_bar",
+    "failure",
+    "IL5"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-galathea-2019",
+   "source": "pubmed",
+   "source_date": "2019-05-20",
+   "title": "Benralizumab in COPD (GALATHEA/TERRANOVA)",
+   "body": "Anti-IL5RA antibody did not significantly reduce exacerbations in COPD with eosinophils >=220 despite eosinophil depletion. Suggests eosinophils are a marker, not the driver, in COPD.",
+   "tags": [
+    "human",
+    "failure",
+    "IL5RA",
+    "IL5",
+    "contradiction"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-il33-genetics-2019",
+   "source": "pubmed",
+   "source_date": "2019-01-14",
+   "title": "IL33 and IL1RL1 loci in airway disease genetics",
+   "body": "Human genetics: variants at IL33 and IL1RL1 (ST2) associated with asthma and lung function; IL33 loss-of-function variant protective in asthma.",
+   "tags": [
+    "human",
+    "genetics",
+    "IL33",
+    "IL1RL1"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-il33-smoke-2020",
+   "source": "pubmed",
+   "source_date": "2020-03-03",
+   "title": "IL-33 release and ST2 shift in smokers' airways",
+   "body": "Human lung tissue: cigarette smoke drives epithelial IL33 release and shifts IL1RL1 (ST2) expression toward NK and macrophage cells, a type-2-independent pathway.",
+   "tags": [
+    "human",
+    "IL33",
+    "IL1RL1",
+    "mechanism"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-itepekimab-ph2-2021",
+   "source": "pubmed",
+   "source_date": "2021-08-01",
+   "title": "Itepekimab Phase 2 in COPD",
+   "body": "Anti-IL33 antibody missed primary endpoint overall; exacerbations reduced in former smokers (subgroup).",
+   "tags": [
+    "human",
+    "IL33",
+    "unreplicated"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-tslp-asthma-2017",
+   "source": "pubmed",
+   "source_date": "2017-09-07",
+   "title": "Tezepelumab in uncontrolled asthma (PATHWAY)",
+   "body": "Anti-TSLP antibody reduced asthma exacerbations regardless of eosinophil count.",
+   "tags": [
+    "human",
+    "TSLP"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-tslp-mouse-2019",
+   "source": "pubmed",
+   "source_date": "2019-11-20",
+   "title": "TSLP in a murine smoke-exposure model",
+   "body": "Single-lab mouse study: TSLP blockade reduced smoke-induced airway inflammation. Not replicated.",
+   "tags": [
+    "preclinical",
+    "TSLP",
+    "single_lab",
+    "unreplicated"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-pde3-4-ph2-2018",
+   "source": "pubmed",
+   "source_date": "2018-10-01",
+   "title": "Ensifentrine Phase 2b on top of tiotropium",
+   "body": "Human trial: nebulised dual PDE3A/PDE4B inhibitor improved FEV1 added to LAMA; bronchodilator and anti-inflammatory; GI effects low vs oral PDE4.",
+   "tags": [
+    "human",
+    "PDE3",
+    "PDE4"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-roflu-safety-2016",
+   "source": "pubmed",
+   "source_date": "2016-05-10",
+   "title": "Roflumilast tolerability",
+   "body": "Oral PDE4 (PDE4B/PDE4D) inhibition: diarrhoea, nausea, weight loss; high discontinuation.",
+   "tags": [
+    "human",
+    "safety",
+    "PDE4"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-hhip-gwas-2017",
+   "source": "pubmed",
+   "source_date": "2017-02-06",
+   "title": "COPD GWAS: HHIP, FAM13A, CHRNA5 loci",
+   "body": "Human genetics: HHIP among the strongest COPD susceptibility loci; no tractable binding site known.",
+   "tags": [
+    "human",
+    "genetics",
+    "HHIP"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-danirixin-2019",
+   "source": "pubmed",
+   "source_date": "2019-04-15",
+   "title": "CXCR2 antagonist danirixin in COPD",
+   "body": "No efficacy and a numerical increase in exacerbations; programme stopped.",
+   "tags": [
+    "human",
+    "failure",
+    "safety",
+    "CXCR2"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-il5-mouse-2018",
+   "source": "pubmed",
+   "source_date": "2018-02-01",
+   "title": "Eosinophil depletion restores airway function in mice",
+   "body": "Preclinical IL5 study claiming eosinophil depletion reverses emphysema.",
+   "tags": [
+    "preclinical",
+    "IL5"
+   ],
+   "url": null,
+   "doi": "10.0000/fx.2018.001"
+  },
+  {
+   "id": "fx:pm-boreas-2023",
+   "source": "pubmed",
+   "source_date": "2023-05-21",
+   "title": "BOREAS: dupilumab in COPD with type 2 inflammation",
+   "body": "IL4R antibody reduced moderate/severe exacerbations ~30% in COPD with eos>=300 on triple therapy.",
+   "tags": [
+    "human",
+    "IL4R",
+    "type2"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-enhance-2023",
+   "source": "pubmed",
+   "source_date": "2023-01-10",
+   "title": "ENHANCE-1/2: ensifentrine Phase 3",
+   "body": "Dual PDE3A/PDE4B inhibitor improved FEV1 and reduced exacerbation rate in Phase 3.",
+   "tags": [
+    "human",
+    "PDE3",
+    "PDE4"
+   ],
+   "url": null
+  },
+  {
+   "id": "fx:pm-il33-ph3-2025",
+   "source": "pubmed",
+   "source_date": "2025-05-20",
+   "title": "Anti-IL-33 Phase 3 results in COPD",
+   "body": "Anti-IL33 Phase 3 programmes reported mixed results: one trial met the primary endpoint, a replicate did not.",
+   "tags": [
+    "human",
+    "IL33",
+    "unreplicated"
+   ],
+   "url": null
+  }
+ ],
+ "trials": [
+  {
+   "id": "fx:nct-galathea",
+   "source": "ctgov",
+   "source_date": "2014-06-01",
+   "title": "Benralizumab in COPD exacerbations",
+   "phase": "3",
+   "sponsor": "AstraZeneca",
+   "intervention": "benralizumab",
+   "mechanism": "IL5RA antibody",
+   "primary_endpoint": "annualised exacerbation rate",
+   "primary_completion": "2018-08-01",
+   "inclusion_criteria": [
+    "COPD",
+    ">=2 moderate or >=1 severe exacerbation in prior year",
+    "on ICS/LABA/LAMA"
+   ],
+   "status_history": [
+    {
+     "on": "2014-06-01",
+     "status": "recruiting"
+    },
+    {
+     "on": "2018-09-01",
+     "status": "completed_negative"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-danirixin-2b",
+   "source": "ctgov",
+   "source_date": "2016-11-01",
+   "title": "Danirixin (CXCR2) in COPD",
+   "phase": "2",
+   "sponsor": "GSK",
+   "intervention": "danirixin",
+   "mechanism": "CXCR2 antagonist",
+   "primary_endpoint": "respiratory symptoms",
+   "primary_completion": "2019-01-01",
+   "inclusion_criteria": [
+    "COPD",
+    "mild to moderate airflow limitation"
+   ],
+   "status_history": [
+    {
+     "on": "2016-11-01",
+     "status": "recruiting"
+    },
+    {
+     "on": "2018-12-01",
+     "status": "terminated",
+     "why_stopped": "lack of efficacy and exacerbation imbalance"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-boreas",
+   "source": "ctgov",
+   "source_date": "2019-04-01",
+   "title": "Dupilumab in COPD with type 2 inflammation (BOREAS)",
+   "phase": "3",
+   "sponsor": "Sanofi",
+   "intervention": "dupilumab",
+   "mechanism": "IL4R antibody",
+   "primary_endpoint": "annualised moderate/severe exacerbation rate",
+   "primary_completion": "2022-12-01",
+   "inclusion_criteria": [
+    "COPD 40-80 years",
+    "blood eosinophils >=300 cells/uL",
+    ">=2 moderate or >=1 severe exacerbation in prior year",
+    "on triple therapy"
+   ],
+   "status_history": [
+    {
+     "on": "2019-04-01",
+     "status": "recruiting"
+    },
+    {
+     "on": "2023-03-01",
+     "status": "completed"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-matinee",
+   "source": "ctgov",
+   "source_date": "2019-10-01",
+   "title": "Mepolizumab in COPD (MATINEE)",
+   "phase": "3",
+   "sponsor": "GSK",
+   "intervention": "mepolizumab",
+   "mechanism": "IL5 antibody",
+   "primary_endpoint": "annualised exacerbation rate",
+   "primary_completion": "2024-06-01",
+   "inclusion_criteria": [
+    "COPD",
+    "blood eosinophils >=300 cells/uL",
+    "on triple therapy"
+   ],
+   "status_history": [
+    {
+     "on": "2019-10-01",
+     "status": "recruiting"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-itepekimab-2",
+   "source": "ctgov",
+   "source_date": "2018-09-01",
+   "title": "Itepekimab (anti-IL-33) Phase 2 in COPD",
+   "phase": "2",
+   "sponsor": "Regeneron",
+   "intervention": "itepekimab",
+   "mechanism": "IL33 antibody",
+   "primary_endpoint": "annualised exacerbation rate",
+   "primary_completion": "2020-08-01",
+   "inclusion_criteria": [
+    "COPD",
+    ">=2 moderate or >=1 severe exacerbation",
+    "current or former smokers"
+   ],
+   "status_history": [
+    {
+     "on": "2018-09-01",
+     "status": "recruiting"
+    },
+    {
+     "on": "2020-09-01",
+     "status": "completed"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-astegolimab-2",
+   "source": "ctgov",
+   "source_date": "2019-02-01",
+   "title": "Astegolimab (anti-ST2) Phase 2 in COPD",
+   "phase": "2",
+   "sponsor": "Genentech",
+   "intervention": "astegolimab",
+   "mechanism": "IL1RL1 (ST2) antibody",
+   "primary_endpoint": "exacerbation rate",
+   "primary_completion": "2021-06-01",
+   "inclusion_criteria": [
+    "COPD",
+    ">=1 exacerbation in prior year"
+   ],
+   "status_history": [
+    {
+     "on": "2019-02-01",
+     "status": "recruiting"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-tezepelumab-copd",
+   "source": "ctgov",
+   "source_date": "2019-07-01",
+   "title": "Tezepelumab Phase 2 in COPD",
+   "phase": "2",
+   "sponsor": "AstraZeneca",
+   "intervention": "tezepelumab",
+   "mechanism": "TSLP antibody",
+   "primary_endpoint": "exacerbation rate",
+   "primary_completion": "2022-03-01",
+   "inclusion_criteria": [
+    "COPD",
+    ">=2 moderate or >=1 severe exacerbation",
+    "on triple therapy"
+   ],
+   "status_history": [
+    {
+     "on": "2019-07-01",
+     "status": "recruiting"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-enhance1",
+   "source": "ctgov",
+   "source_date": "2020-09-01",
+   "title": "Ensifentrine Phase 3 (ENHANCE-1)",
+   "phase": "3",
+   "sponsor": "Verona Pharma",
+   "intervention": "ensifentrine",
+   "mechanism": "PDE3/PDE4 inhibitor",
+   "primary_endpoint": "FEV1 AUC0-12h",
+   "primary_completion": "2022-08-01",
+   "inclusion_criteria": [
+    "COPD 40-80 years",
+    "FEV1 30-70% predicted",
+    "symptomatic (mMRC>=2)"
+   ],
+   "status_history": [
+    {
+     "on": "2020-09-01",
+     "status": "recruiting"
+    },
+    {
+     "on": "2022-12-01",
+     "status": "completed"
+    }
+   ]
+  },
+  {
+   "id": "fx:nct-aerify1",
+   "source": "ctgov",
+   "source_date": "2021-06-01",
+   "title": "Itepekimab Phase 3 (AERIFY-1)",
+   "phase": "3",
+   "sponsor": "Sanofi",
+   "intervention": "itepekimab",
+   "mechanism": "IL33 antibody",
+   "primary_endpoint": "annualised exacerbation rate",
+   "primary_completion": "2025-01-01",
+   "inclusion_criteria": [
+    "COPD",
+    "former smokers",
+    ">=2 moderate or >=1 severe exacerbation"
+   ],
+   "status_history": [
+    {
+     "on": "2021-06-01",
+     "status": "recruiting"
+    }
+   ]
+  }
+ ],
+ "opentargets_releases": [
+  {
+   "id": "fx:ot-2020-11",
+   "source": "opentargets",
+   "source_date": "2020-11-18",
+   "associations": [
+    {
+     "target_id": "hgnc:PDE4B",
+     "symbol": "PDE4B",
+     "genetic_score": 0.1,
+     "known_drug_max_phase_in_disease": 4,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "GI intolerance",
+      "weight loss"
+     ]
+    },
+    {
+     "target_id": "hgnc:PDE4D",
+     "symbol": "PDE4D",
+     "genetic_score": 0.2,
+     "known_drug_max_phase_in_disease": 4,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "emesis"
+     ]
+    },
+    {
+     "target_id": "hgnc:PDE3A",
+     "symbol": "PDE3A",
+     "genetic_score": 0.0,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "cardiac inotropy with systemic exposure"
+     ]
+    },
+    {
+     "target_id": "hgnc:IL4R",
+     "symbol": "IL4R",
+     "genetic_score": 0.15,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": [
+      "conjunctivitis",
+      "transient eosinophilia"
+     ]
+    },
+    {
+     "target_id": "hgnc:IL13",
+     "symbol": "IL13",
+     "genetic_score": 0.2,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL5",
+     "symbol": "IL5",
+     "genetic_score": 0.05,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL5RA",
+     "symbol": "IL5RA",
+     "genetic_score": 0.0,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL33",
+     "symbol": "IL33",
+     "genetic_score": 0.35,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL1RL1",
+     "symbol": "IL1RL1",
+     "genetic_score": 0.45,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:TSLP",
+     "symbol": "TSLP",
+     "genetic_score": 0.25,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:CXCR2",
+     "symbol": "CXCR2",
+     "genetic_score": 0.0,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "neutropenia"
+     ]
+    },
+    {
+     "target_id": "hgnc:HHIP",
+     "symbol": "HHIP",
+     "genetic_score": 0.85,
+     "known_drug_max_phase_in_disease": 0,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": false,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:MMP12",
+     "symbol": "MMP12",
+     "genetic_score": 0.4,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": []
+    }
+   ]
+  },
+  {
+   "id": "fx:ot-2026-09",
+   "source": "opentargets",
+   "source_date": "2026-09-15",
+   "associations": [
+    {
+     "target_id": "hgnc:PDE4B",
+     "symbol": "PDE4B",
+     "genetic_score": 0.1,
+     "known_drug_max_phase_in_disease": 4,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "GI intolerance",
+      "weight loss"
+     ]
+    },
+    {
+     "target_id": "hgnc:PDE4D",
+     "symbol": "PDE4D",
+     "genetic_score": 0.2,
+     "known_drug_max_phase_in_disease": 4,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "emesis"
+     ]
+    },
+    {
+     "target_id": "hgnc:PDE3A",
+     "symbol": "PDE3A",
+     "genetic_score": 0.0,
+     "known_drug_max_phase_in_disease": 4,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "cardiac inotropy with systemic exposure"
+     ]
+    },
+    {
+     "target_id": "hgnc:IL4R",
+     "symbol": "IL4R",
+     "genetic_score": 0.15,
+     "known_drug_max_phase_in_disease": 4,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": [
+      "conjunctivitis",
+      "transient eosinophilia"
+     ]
+    },
+    {
+     "target_id": "hgnc:IL13",
+     "symbol": "IL13",
+     "genetic_score": 0.2,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL5",
+     "symbol": "IL5",
+     "genetic_score": 0.05,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL5RA",
+     "symbol": "IL5RA",
+     "genetic_score": 0.0,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL33",
+     "symbol": "IL33",
+     "genetic_score": 0.35,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:IL1RL1",
+     "symbol": "IL1RL1",
+     "genetic_score": 0.45,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:TSLP",
+     "symbol": "TSLP",
+     "genetic_score": 0.25,
+     "known_drug_max_phase_in_disease": 3,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": true,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:CXCR2",
+     "symbol": "CXCR2",
+     "genetic_score": 0.0,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": [
+      "neutropenia"
+     ]
+    },
+    {
+     "target_id": "hgnc:HHIP",
+     "symbol": "HHIP",
+     "genetic_score": 0.85,
+     "known_drug_max_phase_in_disease": 0,
+     "tractability": {
+      "small_molecule": false,
+      "antibody": false,
+      "other": false
+     },
+     "safety": []
+    },
+    {
+     "target_id": "hgnc:MMP12",
+     "symbol": "MMP12",
+     "genetic_score": 0.4,
+     "known_drug_max_phase_in_disease": 2,
+     "tractability": {
+      "small_molecule": true,
+      "antibody": false,
+      "other": false
+     },
+     "safety": []
+    }
+   ]
+  }
+ ],
+ "drugs": [
+  {
+   "id": "fx:chembl-roflumilast",
+   "source": "chembl",
+   "source_date": "2012-01-01",
+   "title": "ChEMBL: roflumilast",
+   "body": "roflumilast: PDE4 inhibitor. Indications: COPD. Max phase in COPD: 4.",
+   "name": "roflumilast",
+   "mechanism": "PDE4 inhibitor",
+   "target_symbols": [
+    "PDE4B",
+    "PDE4D"
+   ],
+   "indications": [
+    "COPD"
+   ],
+   "max_phase_in_indication": 4
+  },
+  {
+   "id": "fx:chembl-ensifentrine",
+   "source": "chembl",
+   "source_date": "2020-10-01",
+   "title": "ChEMBL: ensifentrine",
+   "body": "ensifentrine: PDE3/PDE4 inhibitor. Indications: COPD. Max phase in COPD: 3.",
+   "name": "ensifentrine",
+   "mechanism": "PDE3/PDE4 inhibitor",
+   "target_symbols": [
+    "PDE3A",
+    "PDE4B"
+   ],
+   "indications": [
+    "COPD"
+   ],
+   "max_phase_in_indication": 3
+  },
+  {
+   "id": "fx:chembl-dupilumab",
+   "source": "chembl",
+   "source_date": "2019-06-01",
+   "title": "ChEMBL: dupilumab",
+   "body": "dupilumab: IL4R antibody. Indications: asthma, atopic dermatitis, COPD. Max phase in COPD: 3.",
+   "name": "dupilumab",
+   "mechanism": "IL4R antibody",
+   "target_symbols": [
+    "IL4R"
+   ],
+   "indications": [
+    "asthma",
+    "atopic dermatitis",
+    "COPD"
+   ],
+   "max_phase_in_indication": 3
+  },
+  {
+   "id": "fx:chembl-mepolizumab",
+   "source": "chembl",
+   "source_date": "2018-01-01",
+   "title": "ChEMBL: mepolizumab",
+   "body": "mepolizumab: IL5 antibody. Indications: asthma, COPD. Max phase in COPD: 3.",
+   "name": "mepolizumab",
+   "mechanism": "IL5 antibody",
+   "target_symbols": [
+    "IL5"
+   ],
+   "indications": [
+    "asthma",
+    "COPD"
+   ],
+   "max_phase_in_indication": 3
+  },
+  {
+   "id": "fx:chembl-benralizumab",
+   "source": "chembl",
+   "source_date": "2018-01-01",
+   "title": "ChEMBL: benralizumab",
+   "body": "benralizumab: IL5RA antibody. Indications: asthma, COPD. Max phase in COPD: 3.",
+   "name": "benralizumab",
+   "mechanism": "IL5RA antibody",
+   "target_symbols": [
+    "IL5RA"
+   ],
+   "indications": [
+    "asthma",
+    "COPD"
+   ],
+   "max_phase_in_indication": 3
+  },
+  {
+   "id": "fx:chembl-itepekimab",
+   "source": "chembl",
+   "source_date": "2019-06-01",
+   "title": "ChEMBL: itepekimab",
+   "body": "itepekimab: IL33 antibody. Indications: COPD, asthma. Max phase in COPD: 2.",
+   "name": "itepekimab",
+   "mechanism": "IL33 antibody",
+   "target_symbols": [
+    "IL33"
+   ],
+   "indications": [
+    "COPD",
+    "asthma"
+   ],
+   "max_phase_in_indication": 2
+  },
+  {
+   "id": "fx:chembl-astegolimab",
+   "source": "chembl",
+   "source_date": "2019-06-01",
+   "title": "ChEMBL: astegolimab",
+   "body": "astegolimab: IL1RL1 (ST2) antibody. Indications: COPD, asthma. Max phase in COPD: 2.",
+   "name": "astegolimab",
+   "mechanism": "IL1RL1 (ST2) antibody",
+   "target_symbols": [
+    "IL1RL1"
+   ],
+   "indications": [
+    "COPD",
+    "asthma"
+   ],
+   "max_phase_in_indication": 2
+  },
+  {
+   "id": "fx:chembl-tezepelumab",
+   "source": "chembl",
+   "source_date": "2020-06-01",
+   "title": "ChEMBL: tezepelumab",
+   "body": "tezepelumab: TSLP antibody. Indications: asthma, COPD. Max phase in COPD: 2.",
+   "name": "tezepelumab",
+   "mechanism": "TSLP antibody",
+   "target_symbols": [
+    "TSLP"
+   ],
+   "indications": [
+    "asthma",
+    "COPD"
+   ],
+   "max_phase_in_indication": 2
+  },
+  {
+   "id": "fx:chembl-danirixin",
+   "source": "chembl",
+   "source_date": "2017-01-01",
+   "title": "ChEMBL: danirixin",
+   "body": "danirixin: CXCR2 antagonist. Indications: COPD. Max phase in COPD: 2.",
+   "name": "danirixin",
+   "mechanism": "CXCR2 antagonist",
+   "target_symbols": [
+    "CXCR2"
+   ],
+   "indications": [
+    "COPD"
+   ],
+   "max_phase_in_indication": 2
+  }
+ ],
+ "retractions": [
+  {
+   "id": "fx:rw-2020-001",
+   "source": "retraction",
+   "source_date": "2020-02-01",
+   "title": "Retraction notice",
+   "body": "Retraction of 10.0000/fx.2018.001 (image duplication).",
+   "doi": "10.0000/fx.2018.001"
+  }
+ ]
+}
