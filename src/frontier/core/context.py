@@ -12,6 +12,7 @@ LLM_MODE=live, calls go through the model router (core/router.py).
 import json
 import uuid
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Protocol, TypeVar
 
 from pydantic import BaseModel, ValidationError
@@ -37,13 +38,17 @@ class LLMBackend(Protocol):
     ) -> str: ...
 
 
+# Model-call names that aren't agents but return an agent's output shape.
+STUB_FIXTURE_FOR = {"a7_escalate": "a7_citations"}
+
+
 class StubLLM:
     """Returns tests/fixtures/<agent>.output.json, whatever the messages say."""
 
     async def complete(
         self, *, run_id: str, agent: str, messages: list[Message], schema: type[BaseModel]
     ) -> str:
-        path = fixtures_dir() / f"{agent}.output.json"
+        path = fixtures_dir() / f"{STUB_FIXTURE_FOR.get(agent, agent)}.output.json"
         if not path.exists():
             raise FileNotFoundError(f"LLM_MODE=stub but there is no fixture at {path}")
         return path.read_text()
@@ -96,6 +101,14 @@ def make_context(config: RunConfig, run_id: str | None = None) -> RunContext:
         backend=StubLLM() if settings.llm_mode == "stub" else Router.from_settings(settings),
         run_id=run_id or str(uuid.uuid4()),
     )
+
+
+PROMPTS_DIR = Path(__file__).resolve().parents[1] / "agents" / "prompts"
+
+
+def load_prompt(agent: str) -> str:
+    """Read src/frontier/agents/prompts/<agent>.md (fixed instructions; goes first)."""
+    return (PROMPTS_DIR / f"{agent}.md").read_text()
 
 
 def load_fixture(name: str) -> dict:

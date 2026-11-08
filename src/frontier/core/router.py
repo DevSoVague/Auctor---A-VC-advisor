@@ -8,7 +8,8 @@ Follows the PRD (Services, Model router):
    once, then walk the fallback list.
 4. Log every call to llm_calls: tokens in, cached and out; list price; latency.
 5. Enforce caps: max output tokens per call, max calls per run, max USD per run.
-   Breaching one raises BudgetExceeded and stops the run.
+   Breaching one raises BudgetExceeded and stops the run. Each call also has a
+   time limit (REQUEST_TIMEOUT_SECONDS); a timeout is retried like a 5xx.
 6. LLM_MODE=stub never reaches the router (core/context.py uses StubLLM).
 
 Caps are checked before each paid call, so a run can overshoot the USD cap by at
@@ -38,6 +39,7 @@ from frontier.core.costs import (
 Completion = Callable[..., Awaitable[Any]]
 
 RETRY_DELAY_SECONDS = 1.0
+TIMEOUT_GRACE_SECONDS = 15.0  # our hard limit fires this long after LiteLLM's
 
 
 class BudgetExceeded(RuntimeError):
@@ -64,6 +66,8 @@ class Target:
 
 def is_retryable(exc: BaseException) -> bool:
     """429 and 5xx responses, timeouts and dropped connections."""
+    if isinstance(exc, TimeoutError):  # includes asyncio's, raised by our own time limit
+        return True
     status = getattr(exc, "status_code", None)
     if isinstance(status, int) and (status == 429 or status >= 500):
         return True
@@ -214,7 +218,12 @@ class Router:
         }
         if target.api_base:
             kwargs["api_base"] = target.api_base
-        return await self.completion(**kwargs)
+        limit = self.settings.request_timeout_seconds
+        kwargs["timeout"] = limit  # LiteLLM's own limit
+        # Our hard limit, a little later, in case a provider ignores LiteLLM's.
+        return await asyncio.wait_for(
+            self.completion(**kwargs), timeout=limit + TIMEOUT_GRACE_SECONDS
+        )
 
     async def _finish(
         self,
