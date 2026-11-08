@@ -1,5 +1,12 @@
 # Handoff: db1to6merged
 
+> **Clone this repo and work on it separately.** It is its own repo (`DevSoVague/db1to6merged`), not a branch of the team repo or of `1to6merged`. Clone it into its own folder next to `evidence-store`, and do not copy changes back into `1to6merged` by hand:
+>
+> ```bash
+> cd ~/Desktop/ctrl+alt+cure/upmc
+> git clone https://github.com/DevSoVague/db1to6merged.git
+> ```
+
 The COPD agents 1–7 with the evidence store wired in as tool calls. This folder is a copy of `1to6merged`, which itself was not changed.
 
 ## What's new compared with 1to6merged
@@ -32,7 +39,22 @@ The COPD agents 1–7 with the evidence store wired in as tool calls. This folde
   It is enforced in `db_tools.ACCESS`.
 - **Linear V1:** 1 → 2 → 3 → 4 → 5 → 6 → 7 per card, with one revise round per card.
 
-## Required
+## Everything required to run this
+
+| Need | Why | How |
+|---|---|---|
+| macOS/Linux, conda | envs | `conda create -n hack python=3.12` |
+| Python packages (env `hack`) | engine, graph, DB client | `pip install -r requirements-person3.txt "psycopg[binary]" pgvector numpy langgraph langgraph-checkpoint-sqlite pyyaml openpyxl httpx` |
+| Docker Desktop | runs the evidence-store Postgres | the `evidence-store-db` container on `:5433` |
+| `evidence-store/` folder | the data, `evstore` client, schema, cached embeddings | next to this repo, or set `EVSTORE_PATH` |
+| `frontier-store.zip` | person 1's export, to build the DB | `unzip ../frontier-store.zip -d ../evidence-store/data` |
+| Nebius key | every LLM and embedding call | `NEBIUS_API_KEY` in `.env` |
+| Tavily key (optional) | `web_search` for A1/A4/A5, and fetching plain web pages | `TAVILY_API_KEY` |
+| NCBI key (optional) | faster PubMed (10 req/s instead of 3) | `NCBI_API_KEY` |
+| Langflow env (optional) | the Langflow view | conda env `langflow` (Langflow 1.8.4), `./run_langflow.sh` |
+| Free ports | monitor, Studio, Langflow | 7872, 2034, 7870 (override with `P3_MONITOR_PORT` / `PORT`) |
+
+Checklist:
 
 1. **Conda env `hack`:** `pip install -r requirements-person3.txt psycopg[binary] pgvector numpy langgraph`.
 2. **The evidence store:** the folder `../evidence-store` (or set `EVSTORE_PATH`) and its Postgres running on `localhost:5433`. Start it with `cd ../evidence-store && make db-up`. To rebuild it: `make cache-import && make all`.
@@ -74,14 +96,43 @@ conda run -n hack python -m pytest -q          # also in the repo root
 - **Tool calls:** 105 in total, every result dated.
 - **Cost:** about 610k input and 85k output tokens on DeepSeek V4 Flash.
 
-## Open items
+## Version control (how we do it)
 
-- **A4 and A5 placed 0 assets** on the store data. Their gather logic relies on ChEMBL naming, which has nothing to match. This is teammate code and was not changed.
-- **Ask person 1 to ingest:**
-  - Open Targets into the store's `targets` table. A2 is using the fixture's 2020-11 release meanwhile.
-  - Google News records.
-  - Market data dated before 2025, so backtests can see it.
-- **No Tavily key yet:** `web_search` returns an error and the agents carry on without it.
-- **`--profile final`:** Qwen3.5 returned truncated JSON for A3. Use `dev` (DeepSeek) for now.
-- **Not done yet:** running 3, 4 and 5 in parallel per card with card-only input for A4 and A5. That needs changes to A4/A5's input schemas.
-- **Database backups:** in `backups/`, kept locally and not in git. Restore with `pg_restore -c -d postgresql://frontier:frontier@localhost:5433/frontier <file>`.
+1. **Never edit a working copy in place.** Before a big change, copy the folder (`cp -a 1to6merged db1to6merged`) and work only in the new copy. The old copy stays runnable.
+2. **Each copy gets its own GitHub repo.** Use `gh repo create DevSoVague/<name> --private --source=. --push`. Commits are under your own git identity only (`git config user.name` / `user.email`), with no co-author lines.
+3. **Never commit** `.env`, `runs/`, `backups/`, `*.sqlite` or `*.dump` (see `.gitignore`).
+4. **Snapshot the database before anything writes to it** (A1 ingest, live runs):
+   ```bash
+   pg_dump -Fc postgresql://frontier:frontier@localhost:5433/frontier -f backups/evidence-store_<what>_$(date +%Y%m%d-%H%M).dump
+   ```
+   Restore with `pg_restore -c -d postgresql://frontier:frontier@localhost:5433/frontier <file>`.
+5. **Each copy uses its own ports,** so two copies can run at the same time.
+6. **Tests write to temp folders** (`conftest.py`), so `runs/` only holds real runs.
+
+## Prompts must be editable (requirement)
+
+- **System prompts** live in files: `agents/prompts/<agent>.md` (engine default), overridden by `langgraph-person3/prompts/` (see `workflow.yaml`), overridden by a prompt typed into a node (`state["prompts"][agent]`, the Langflow/LangGraph view). `python -m p3graph prompt <agent>` shows which file is in use.
+- **To do: make user prompts editable the same way.** These are not editable today: the user-message template (`_common.build_messages`), the tool briefs (`tool_loop.BRIEFS`, `CHECKERS`, `gather_brief`, `final_messages`), A1's `NOVELTY_BRIEF` and `ANALYSIS_BRIEF`, and the A7 input template. They are Python strings. Move each into a prompt file, for example `prompts/<agent>.user.md` and `prompts/tools/<name>.md`, with `{placeholders}`. Load them through the same chain (file → workflow.yaml → node override) and show them as editable fields in Langflow/LangGraph Studio.
+- **No hardcoded prompt text in code.** Code only fills placeholders (as_of, window, evidence pack, input JSON).
+- Add `a7_judge` to the `prompt` CLI choices and to the Langflow components (it is missing there now).
+
+## Open questions and next tasks
+
+1. **A1 "ingest a document" option. This is a priority.** The product is a startup's pitch document handed to a YC/VC firm, and the pipeline is built around it. Add an optional A1 input:
+   - **Input:** an uploaded file or URL (PDF, DOCX or web page), passed as `--ingest <path|url>`, as a Langflow/LangGraph input field, or as `ingest_document` with a local file.
+   - **Scan:** extract the text verbatim (pdf/docx parser), find the claims, drugs, targets, trials (NCT ids), papers (PMID/DOI) and dates it cites.
+   - **Compare with the database:** for each cited item, run `check_exists`. If it's already stored, link to it. If not, `fetch_source` and ingest it with its official date. Flag claims that contradict stored evidence and anything dated outside the window.
+   - **Store the pitch itself** as a `startup_doc` record. It has no publication date: use its submission date and mark `date_kind=submitted`.
+   - **Hand off:** A2 builds its hypothesis cards from the pitch's mechanism, with the store as evidence. A3–A7 then test the pitch, not a generic idea. Without the option, the run stays as it is now (scan for anything new).
+   - **Open questions:** do we keep the pitch private (not added to the shared store)? What do we do when the pitch cites unpublished data?
+2. **A4/A5 return 0 assets on store data.** Their gather relies on ChEMBL naming, which has no data in the store. Owner: person 4. Options: map store `drugs` and `trials` into their Records, or add ChEMBL to the store.
+3. **Ask person 1 to ingest more:**
+   - Open Targets, into the `targets` table with tractability, genetic score and max phase. A2 uses the fixture's 2020-11 release until then.
+   - Google News.
+   - Market and label data dated before 2025, so backtests before 2025 see market data.
+   - More 2023–25 papers than the current 50.
+4. **Parallel 3/4/5 per card** (the whiteboard design). A4/A5 should take only A2's card; their `A4Input`/`A5Input` require A3's profile today. Do this after linear V1 has been timed.
+5. **Tavily key:** until it's added, `web_search` errors and the agents carry on without it.
+6. **`--profile final`:** Qwen3.5 truncates A3's JSON. Raise `max_tokens`, switch A3 to DeepSeek or GLM, or keep `dev`.
+7. **Checkers stop at 6 calls** (`CHECKER_CALLS`) without writing a summary note. Consider one forced summary round.
+8. **Cost per card is about 225k tokens** (A3 + A6 + A7), and A1 + A2 is about 300k. Decide on budgets (`MAX_TOTAL_TOKENS_PER_RUN`) before running all cards.
