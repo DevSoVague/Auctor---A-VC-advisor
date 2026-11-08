@@ -81,7 +81,7 @@ def test_single_shot_backtest_end_to_end(stub):
     a3_calls = [x for x in stub.calls if x["agent"] == "a3_profile" and '"h3"' in x["messages"][-1]["content"]]
     assert len(a3_calls) == 2 and "Red Team requested a revision" in a3_calls[1]["messages"][-1]["content"]
     # report + workbook
-    assert "## Q2 Mechanisms" in s["report"] and "## Decision log" in s["report"]
+    assert "## At a glance" in s["report"] and "## Decision log" in s["report"]
     wb = load_workbook(s["workbook_path"])
     hyp = list(wb["Hypotheses"].iter_rows(min_row=2, values_only=True))
     assert len(hyp) == len(s["cards"])

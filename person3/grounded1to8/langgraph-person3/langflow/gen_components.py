@@ -167,8 +167,16 @@ class P3StepSetup(Component):
         DropdownInput(name="judge", display_name="A6b judge decides", options=["on", "off"], value="on"),
         MessageTextInput(name="max_cards", display_name="Max cards (0 = all)", value="1"),
         MessageTextInput(name="parallel", display_name="Cards in parallel", value="6",
-                         info="How many hypothesis cards each step runs at once (1 = one after another). A card that "
-                              "fails is logged to runs/<run_id>/failures.log and skipped; the others continue."),
+                         info="How many hypothesis cards each step runs at once (1 = one after another); A3, A4 and A5 "
+                              "use their own fields below. A card that fails is logged to runs/<run_id>/failures.log "
+                              "and skipped; the others continue."),
+        MessageTextInput(name="parallel_a3", display_name="A3 cards in parallel", value="3",
+                         info="How many cards A3 works on at once. A3, A4 and A5 run side by side after A2, each with "
+                              "its own limit. Blank = 'Cards in parallel'."),
+        MessageTextInput(name="parallel_a4", display_name="A4 cards in parallel", value="3",
+                         info="How many cards A4 works on at once (beside A3 and A5). Blank = 'Cards in parallel'."),
+        MessageTextInput(name="parallel_a5", display_name="A5 cards in parallel", value="3",
+                         info="How many cards A5 works on at once (beside A3 and A4). Blank = 'Cards in parallel'."),
         DropdownInput(name="audience", display_name="Audience", options=["generalist", "specialist"],
                       value="generalist"),
     ]
@@ -186,7 +194,9 @@ class P3StepSetup(Component):
         extras = {"tools": self.tools == "on", "cite": mode != "off", "cite_mode": mode, "judge": self.judge == "on",
                   "max_cards": int((self.max_cards or "0").strip() or 0), "pitch": (self.pitch or "").strip() or None,
                   "store_pitch": self.store_pitch == "on",
-                  "parallel": max(1, int((self.parallel or "1").strip() or 1))}
+                  "parallel": max(1, int((self.parallel or "1").strip() or 1)),
+                  "parallel_by_agent": {a: (getattr(self, f"parallel_{a}", "") or "").strip()
+                                        for a in ("a3", "a4", "a5")}}
         st, status = await lf_graph.setup(cfg, llm, self.retrieval.strip() or "stub", message=msg or "",
                                           search=self.search, extras=extras)
         self.status = lf_graph.chat_text({}, st) or status
