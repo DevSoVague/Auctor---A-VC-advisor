@@ -51,12 +51,14 @@ if [ "${ONLY:-}" != "hack" ]; then
   # so it is used as a set of version CONSTRAINTS: pip installs Langflow and what the agents need, all at their pins.
   if conda env list | awk '{print $1}' | grep -qx langflow; then echo "• conda env 'langflow' exists: updating it"
   else echo "• creating conda env 'langflow' (python 3.11)"; conda create -n langflow python=3.11 -y >/dev/null; fi
-  echo "• [langflow] installing Langflow 1.8.4 and the engine's needs (large: 10 to 20 minutes)"
+  echo "• [langflow] installing Langflow 1.8.4 and the engine's needs with uv (pip's resolver gets lost in Langflow's own conflicts)"
+  conda run --no-capture-output -n langflow python -m pip install -q uv
+  LFPY="$(conda run -n langflow python -c 'import sys; print(sys.executable)')"
+  # first at Person 3's pinned versions (constraints); if those do not resolve on today's PyPI, with uv's own resolution
   PKGS=("langflow==1.8.4" "langgraph==0.6.11" pgvector "psycopg[binary]" aiosqlite python-docx openpyxl matplotlib litellm pydantic-settings PyYAML)
-  LFPIP="conda run --no-capture-output -n langflow python -m pip"
-  $LFPIP install -q "${PKGS[@]}" -c "$P3/requirements-langflow.txt" || {
-    echo "• [langflow] Person 3's exact pins do not resolve together on today's PyPI; installing the same packages with pip's own resolution"
-    $LFPIP install -q "${PKGS[@]}"
+  conda run --no-capture-output -n langflow uv pip install --python "$LFPY" "${PKGS[@]}" -c "$P3/requirements-langflow.txt" || {
+    echo "• [langflow] Person 3's exact pins do not resolve together today; installing with uv's own resolution"
+    conda run --no-capture-output -n langflow uv pip install --python "$LFPY" "${PKGS[@]}"
   }
   echo "• [langflow] installing this repo (frontier: agent 8) without touching the pins"
   conda run --no-capture-output -n langflow python -m pip install -q --no-deps -e "$HERE"
