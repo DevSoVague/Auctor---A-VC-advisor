@@ -1,0 +1,6 @@
+{
+  "dependencies": ["."],
+  "graphs": {"person3_analysis": "./p3graph/graph.py:graph"},
+  "env": "../frontier-engine/.env",
+  "python_version": "3.12"
+}
