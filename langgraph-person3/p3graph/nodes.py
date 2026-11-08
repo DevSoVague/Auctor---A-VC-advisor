@@ -125,6 +125,7 @@ async def setup(state: P3State) -> dict:
             "search": state.get("search") or "corpus",
             "tools": bool(state.get("tools")), "judge": bool(state.get("judge")),
             "cite": state.get("cite") is not False,
+            "cite_mode": state.get("cite_mode") or ("node" if state.get("cite") is not False else "off"),
             "pitch": state.get("pitch"), "store_pitch": bool(state.get("store_pitch")),
             "max_cards": int(state.get("max_cards") or 0),
             "workbook_path": str(RUNS / run_id / "analysis.xlsx"),
@@ -141,7 +142,7 @@ async def next_card(state: P3State) -> Command:
            else "All hypotheses are done. Moving on to the report.")
     chat = [NR.say(_writer(), state["run_id"], "Next hypothesis", "▸", "next_card", msg, 0, q[0] if q else None)]
     if not q:
-        return Command(goto="report", update={"current": None, "chat": chat, "steps": [
+        return Command(goto="a7_final", update={"current": None, "chat": chat, "steps": [
             {"node": "next_card", "agent": None, "hid": None, "ms": 0, "detail": "queue empty → report"}]})
     return Command(goto="a3_retrieve", update={"current": q[0], "queue": q[1:], "chat": chat, "steps": [
         {"node": "next_card", "agent": None, "hid": q[0], "ms": 0,
@@ -221,6 +222,44 @@ def make_review(agent: str, next_node: str | list[str], rerun_node: str) -> Call
 
 
 # ---------------------------------------------------------------------------- report
+async def final_citations(state: P3State) -> dict:
+    """cite_mode 'end': one A7 pass over every committed output (no restarts). Unsupported sources are
+    stripped from the outputs in state; the ledger goes to the Citations sheet."""
+    from p3graph import steps as S
+
+    if S.cite_mode(state) != "end":
+        return {}
+    run = AgentRun(state, "a7_citations")
+    C = E.a7_citations
+    upd: dict = {}
+    jobs = []
+    if state.get("why_now"):
+        jobs.append(("a1_disease", None, E.WhyNow, state["why_now"], "why_now"))
+    if state.get("cards"):
+        jobs.append(("a2_mechanism", None, E.A2Output, {"cards": state["cards"]}, "cards"))
+    for hid, v in (state.get("profiles") or {}).items():
+        jobs.append(("a3_profile", hid, E.ProductProfile, v, "profiles"))
+    for hid, v in (state.get("verdicts") or {}).items():
+        jobs.append(("a6_redteam", hid, E.Verdict, v, "verdicts"))
+    n_bad = n = 0
+    for agent, hid, schema, data, key in jobs:
+        out = schema.model_validate(data)
+        res = await C.check(agent, out, None, run.ctx, hid)
+        C.apply(out, res)
+        n, n_bad = n + res["checked"], n_bad + len(res["hallucinated"])
+        d = out.model_dump(mode="json")
+        if key == "cards":
+            upd["cards"] = d["cards"]
+        elif hid:
+            upd.setdefault(key, {})[hid] = d
+        else:
+            upd[key] = d
+    out = run.update(**upd)
+    out["steps"] = [{"node": "a7_final", "agent": "a7_citations", "hid": None, "ms": 0,
+                     "detail": f"end-of-run citation check · {n} citations · {n_bad} unsupported (stripped)"}]
+    return out
+
+
 async def report(state: P3State) -> dict:
     send = live.observer(state, "report")
     send("start")

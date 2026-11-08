@@ -517,3 +517,11 @@ def test_accepted_pitch_reaches_a1_and_a2(stub, tmp_path, monkeypatch):
     for agent in ("a1_disease", "a2_mechanism"):
         msg = next(x for x in stub.calls if x["agent"] == agent)["messages"][-1]["content"]
         assert "startup_pitch" in msg
+
+
+def test_cite_end_mode_checks_once_before_report(stub):
+    s = run(drive(build(InMemorySaver()), {**inp(), "cite_mode": "end"}, cfg())).values
+    nodes = [x["node"] for x in s["steps"]]
+    assert "a7_final" in nodes and nodes.index("a7_final") < len(nodes)
+    assert all("not per node" in x["detail"] for x in s["steps"] if x["node"].endswith("_cite"))
+    assert any(e[0] == "citation_check" for e in s["events"])

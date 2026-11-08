@@ -35,6 +35,7 @@ class P3State(TypedDict, total=False):
     pitch: str | None  # A0 intake: path or URL of the startup's pitch document (the crux of a run)
     store_pitch: bool  # also write the pitch to the shared store (default: private, run folder only)
     intake: dict | None  # A0 IntakeReport
+    cite_mode: str  # A7: 'node' (every node, restarts) | 'end' (once before the report) | 'off'
     cite: bool  # A7 citation check after every node (default on; False = off)
     judge: bool  # A6b judge decides each card from A3's profile and A6's verdict (drives a6_route)
 

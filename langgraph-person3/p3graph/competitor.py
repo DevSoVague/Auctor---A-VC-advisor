@@ -28,6 +28,7 @@ from agents.competitor.steps import jsonable
 from p3graph import engine as E
 from p3graph import narrate as NR
 from p3graph import nodes as N
+from p3graph import steps as S
 from p3graph import live
 from p3graph.state import P3State
 
@@ -160,7 +161,7 @@ def make_node(short: str, step: str):
             s["system"] = (state.get("prompts") or {}).get(agent)
             extra: dict[str, Any] = {}
             if step == "commit":
-                if state.get("cite") is not False:  # A7 citation gate, restart = redo prompt → llm → merge (→ score)
+                if S.cite_mode(state) == "node":  # A7 citation gate, restart = redo prompt → llm → merge (→ score)
                     s = await _cite(short, s, fns, run, hid)
                 out = s[cfg["kind"]]
                 emit_claims(run.ctx, agent, out, hid)

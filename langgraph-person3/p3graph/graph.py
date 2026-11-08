@@ -92,7 +92,7 @@ def build(checkpointer=None, workflow: dict | str | None = None):
     _chain(g, W, S.A2, validate_first=None)
     g.add_node("review_a2", N.make_review("a2_mechanism", "next_card", "a2_retrieve"),
                destinations=("next_card", "a2_retrieve"))
-    g.add_node("next_card", N.next_card, destinations=("a3_retrieve", "report"))
+    g.add_node("next_card", N.next_card, destinations=("a3_retrieve", "a7_final"))
 
     _chain(g, W, S.A3, validate_first=True)
     g.add_node("review_a3", N.make_review("a3_profile", C.first("a4"), "a3_retrieve"),
@@ -103,7 +103,9 @@ def build(checkpointer=None, workflow: dict | str | None = None):
     g.add_node("a6_route", S.a6_route, destinations=("review_a6", "a3_retrieve", C.first("a4")))
     g.add_node("review_a6", N.make_review("a6_redteam", "next_card", "a6_retrieve"),
                destinations=("next_card", "a6_retrieve"))
+    g.add_node("a7_final", N.final_citations)  # cite_mode 'end': one A7 pass over everything
     g.add_node("report", N.report)
+    g.add_edge("a7_final", "report")
 
     g.add_edge(START, "setup")
     g.add_node("intake", N.intake)  # A0 input gate: a rejected pitch ends the run here
