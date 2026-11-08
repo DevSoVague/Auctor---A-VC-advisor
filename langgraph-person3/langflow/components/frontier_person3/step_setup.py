@@ -40,9 +40,18 @@ class P3StepSetup(Component):
         DropdownInput(name="profile", display_name="Profile", options=["dev", "final"], value="dev"),
         MessageTextInput(name="retrieval", display_name="Retrieval (corpus / RAG)", value="stub",
                          info="'stub' (fixture corpus) or the URL of person 1's retrieval API (the RAG index)."),
-        DropdownInput(name="search", display_name="Search source", options=["corpus", "web", "both"],
-                      value="corpus", info="Where search() looks: the corpus above, Tavily web search "
-                      "(needs TAVILY_API_KEY in frontier-engine/.env), or both."),
+        DropdownInput(name="search", display_name="Search source",
+                      options=["evstore", "evstore+web", "corpus", "web", "both", "database", "database+web"],
+                      value="evstore", info="evstore = the COPD evidence store (../evidence-store on :5433); corpus = "
+                      "fixtures; web = Tavily (needs TAVILY_API_KEY)."),
+        MessageTextInput(name="pitch", display_name="Startup pitch (path or URL)", value="",
+                         info="PDF, DOCX, TXT, MD or URL. A0 gates it (type, size, text, topic, injection); a rejected "
+                              "pitch stops the run. Empty = open scan."),
+        DropdownInput(name="store_pitch", display_name="Store pitch in shared DB", options=["off", "on"], value="off"),
+        DropdownInput(name="tools", display_name="Agent tools (DB/web)", options=["on", "off"], value="on"),
+        DropdownInput(name="cite", display_name="A7 citation check every node", options=["on", "off"], value="on"),
+        DropdownInput(name="judge", display_name="A6b judge decides", options=["on", "off"], value="on"),
+        MessageTextInput(name="max_cards", display_name="Max cards (0 = all)", value="1"),
         DropdownInput(name="audience", display_name="Audience", options=["generalist", "specialist"],
                       value="generalist"),
     ]
@@ -56,6 +65,10 @@ class P3StepSetup(Component):
         llm = {"mode": self.llm_mode, "model": None if self.model == "profile default" else self.model,
                "profile": self.profile}
         msg = getattr(self.message, "text", None) if self.message else None
-        st, status = await lf_graph.setup(cfg, llm, self.retrieval.strip() or "stub", message=msg or "", search=self.search)
+        extras = {"tools": self.tools == "on", "cite": self.cite == "on", "judge": self.judge == "on",
+                  "max_cards": int((self.max_cards or "0").strip() or 0), "pitch": (self.pitch or "").strip() or None,
+                  "store_pitch": self.store_pitch == "on"}
+        st, status = await lf_graph.setup(cfg, llm, self.retrieval.strip() or "stub", message=msg or "",
+                                          search=self.search, extras=extras)
         self.status = lf_graph.chat_text({}, st) or status
         return Data(data=st)

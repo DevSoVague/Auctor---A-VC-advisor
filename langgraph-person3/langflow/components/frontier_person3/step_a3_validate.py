@@ -20,7 +20,7 @@ from lfx.schema.data import Data
 
 
 class P3A3Validate(Component):
-    display_name = "P3 · A3.5 Validate"
+    display_name = "P3 · A3.6 Validate"
     description = "A3 TPP: The agent's own checks. On problems: one retry (fix prompt → model again), then fail loudly."
     icon = "check-circle"
     name = "P3A3Validate"

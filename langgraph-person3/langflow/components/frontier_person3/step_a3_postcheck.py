@@ -20,7 +20,7 @@ from lfx.schema.data import Data
 
 
 class P3A3Postcheck(Component):
-    display_name = "P3 · A3.6 Postcheck"
+    display_name = "P3 · A3.7 Postcheck"
     description = "A3 TPP: Citation check: strips unknown sources, downgrades claims, caps confidence."
     icon = "shield-check"
     name = "P3A3Postcheck"

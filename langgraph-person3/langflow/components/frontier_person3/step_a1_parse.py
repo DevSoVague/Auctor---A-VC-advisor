@@ -20,7 +20,7 @@ from lfx.schema.data import Data
 
 
 class P3A1Parse(Component):
-    display_name = "P3 · A1.4 Parse"
+    display_name = "P3 · A1.5 Parse"
     description = "A1 Disease: JSON-schema check of the raw output. On a schema error: one retry with the error appended."
     icon = "braces"
     name = "P3A1Parse"

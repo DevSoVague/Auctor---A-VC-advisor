@@ -16,12 +16,12 @@ AGENTS = {"a1": ("A1 Disease", "a1_disease"), "a2": ("A2 Mechanism", "a2_mechani
           "a3": ("A3 TPP", "a3_profile"), "a4": ("A4 Inactive assets", "a4_inactive"),
           "a5": ("A5 Active landscape", "a5_active"), "a6": ("A6 Red Team", "a6_redteam")}
 ORDER = {
-    "a1": ["retrieve", "prompt", "llm", "parse", "postcheck", "validate", "commit"],
-    "a2": ["retrieve", "prompt", "llm", "parse", "grade", "postcheck", "commit"],
-    "a3": ["retrieve", "prompt", "llm", "parse", "validate", "postcheck", "commit"],
+    "a1": ["retrieve", "prompt", "toolloop", "llm", "parse", "postcheck", "validate", "cite", "commit"],
+    "a2": ["retrieve", "prompt", "toolloop", "llm", "parse", "grade", "postcheck", "cite", "commit"],
+    "a3": ["retrieve", "prompt", "toolloop", "llm", "parse", "validate", "postcheck", "cite", "commit"],
     "a4": ["gather", "triage", "establish", "prompt", "llm", "merge", "commit"],
     "a5": ["gather", "shortlist", "establish", "prompt", "llm", "merge", "score", "commit"],
-    "a6": ["retrieve", "prompt", "llm", "parse", "validate", "postcheck", "commit", "route"],
+    "a6": ["retrieve", "prompt", "toolloop", "llm", "parse", "validate", "postcheck", "cite", "commit", "judge", "route"],
 }
 INFO = {
     "retrieve": ("search", "Deterministic evidence retrieval: the only documents the model may cite."),
@@ -38,6 +38,9 @@ INFO = {
     "establish": ("clipboard-list", "Code: fixes each asset's stage, owner, last activity, flags and the dated records the model may cite."),
     "merge": ("merge", "Code: pairs the model's replies with the assets, re-imposes code's facts, drops unmatched replies, ranks."),
     "score": ("gauge", "Code: crowding score for the mechanism and the trial readouts in the next 12 months."),
+    "toolloop": ("wrench", "The agent calls evidence-store / web tools (A1 also ingests new evidence; A6 runs checkers)."),
+    "cite": ("book-check", "A7 citation check: every claim vs its source. Hallucination restarts this agent (max 2), then strips it."),
+    "judge": ("scale", "A6b judge: reads only A3's profile and A6's attack, decides advance / revise / kill."),
     "route": ("git-branch", "Red-team decision: revise once (reruns A3 and A6 for that card), kill, or survive."),
 }
 MODELS = ["inherit", "openai/gpt-oss-120b", "deepseek-ai/DeepSeek-V4-Flash-0731", "Qwen/Qwen3.5-397B-A17B",
@@ -144,9 +147,18 @@ class P3StepSetup(Component):
         DropdownInput(name="profile", display_name="Profile", options=["dev", "final"], value="dev"),
         MessageTextInput(name="retrieval", display_name="Retrieval (corpus / RAG)", value="stub",
                          info="'stub' (fixture corpus) or the URL of person 1's retrieval API (the RAG index)."),
-        DropdownInput(name="search", display_name="Search source", options=["corpus", "web", "both"],
-                      value="corpus", info="Where search() looks: the corpus above, Tavily web search "
-                      "(needs TAVILY_API_KEY in frontier-engine/.env), or both."),
+        DropdownInput(name="search", display_name="Search source",
+                      options=["evstore", "evstore+web", "corpus", "web", "both", "database", "database+web"],
+                      value="evstore", info="evstore = the COPD evidence store (../evidence-store on :5433); corpus = "
+                      "fixtures; web = Tavily (needs TAVILY_API_KEY)."),
+        MessageTextInput(name="pitch", display_name="Startup pitch (path or URL)", value="",
+                         info="PDF, DOCX, TXT, MD or URL. A0 gates it (type, size, text, topic, injection); a rejected "
+                              "pitch stops the run. Empty = open scan."),
+        DropdownInput(name="store_pitch", display_name="Store pitch in shared DB", options=["off", "on"], value="off"),
+        DropdownInput(name="tools", display_name="Agent tools (DB/web)", options=["on", "off"], value="on"),
+        DropdownInput(name="cite", display_name="A7 citation check every node", options=["on", "off"], value="on"),
+        DropdownInput(name="judge", display_name="A6b judge decides", options=["on", "off"], value="on"),
+        MessageTextInput(name="max_cards", display_name="Max cards (0 = all)", value="1"),
         DropdownInput(name="audience", display_name="Audience", options=["generalist", "specialist"],
                       value="generalist"),
     ]
@@ -160,7 +172,11 @@ class P3StepSetup(Component):
         llm = {"mode": self.llm_mode, "model": None if self.model == "profile default" else self.model,
                "profile": self.profile}
         msg = getattr(self.message, "text", None) if self.message else None
-        st, status = await lf_graph.setup(cfg, llm, self.retrieval.strip() or "stub", message=msg or "", search=self.search)
+        extras = {"tools": self.tools == "on", "cite": self.cite == "on", "judge": self.judge == "on",
+                  "max_cards": int((self.max_cards or "0").strip() or 0), "pitch": (self.pitch or "").strip() or None,
+                  "store_pitch": self.store_pitch == "on"}
+        st, status = await lf_graph.setup(cfg, llm, self.retrieval.strip() or "stub", message=msg or "",
+                                          search=self.search, extras=extras)
         self.status = lf_graph.chat_text({}, st) or status
         return Data(data=st)
 '''
