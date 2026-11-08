@@ -215,12 +215,20 @@ def append_chat(run_id: str, md: str) -> None:
         pass  # best effort, like the step files
 
 
+PRE_RUN = {"setup", "intake"}  # these nodes never create a run folder: no folder until an agent runs
+
+
+def writes(run_id: str, node: str | None) -> bool:
+    return node not in PRE_RUN or (RUNS / run_id).exists()
+
+
 def say(writer, run_id: str, who: str, icon: str, node: str, text: str, ms: int | None = None,
         hid: str | None = None) -> dict:
     """Emit one chat message: live stream + chat.md. Returns the entry (steps also keep it in state['chat'])."""
     entry = {"who": who, "icon": icon, "node": node, "hid": hid, "ms": ms, "text": text,
              "t": time.strftime("%H:%M:%S")}
-    append_chat(run_id, format_msg(f"{icon} {who}", text, ms, entry["t"]))
+    if writes(run_id, node):
+        append_chat(run_id, format_msg(f"{icon} {who}", text, ms, entry["t"]))
     if writer:
         writer({"event": "narration", **entry})
     return entry
@@ -238,6 +246,8 @@ def log_full(run_id: str, node: str, hid: str | None, row: dict, delta: dict, ar
     The *_llm node also gets the full prompt messages, the model's raw text and its reasoning."""
     import json
 
+    if not writes(run_id, node):
+        return
     try:
         d = RUNS / run_id
         d.mkdir(parents=True, exist_ok=True)

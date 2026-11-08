@@ -226,16 +226,8 @@ async def _cite(short: str, s: dict, fns: dict, run: N.AgentRun, hid: str) -> di
 
 
 def _dump(state: P3State, name: str, hid: str, row: dict, changed: dict, s: dict | None) -> None:
-    try:
-        d = N.RUNS / state["run_id"] / "steps"
-        d.mkdir(parents=True, exist_ok=True)
-        n = len(state.get("steps") or []) + 1
-        body = {**row, "changed": jsonable(changed)}
-        if s is not None and s.get("messages"):
-            body["messages"] = s["messages"]
-        (d / f"{n:03d}_{name}_{hid}.json").write_text(json.dumps(body, indent=1, default=str))
-    except OSError:
-        pass  # debug files are best effort
+    """Per-step files were removed: log.jsonl holds the same record (one line per step)."""
+    return
 
 
 def add_to_graph(g, W, after: str, before: str) -> None:

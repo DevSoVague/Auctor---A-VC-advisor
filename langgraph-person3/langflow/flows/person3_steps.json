@@ -7336,6 +7336,62 @@
   ],
   "edges": [
    {
+    "source": "p3-a3-parse",
+    "target": "p3-a3-validate",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Parse",
+      "id": "p3-a3-parse",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-validate",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-parse{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-cite",
+    "target": "p3-a1-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Cite",
+      "id": "p3-a1-cite",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-cite{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
     "source": "p3-a2-grade",
     "target": "p3-a2-postcheck",
     "data": {
@@ -7364,12 +7420,42 @@
     "selected": false
    },
    {
-    "source": "p3-a3-parse",
-    "target": "p3-a3-validate",
+    "source": "p3-report",
+    "target": "p3-chat",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A3Parse",
-      "id": "p3-a3-parse",
+      "dataType": "P3StepReport",
+      "id": "p3-report",
+      "name": "report",
+      "output_types": [
+       "Message"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "input_value",
+      "id": "p3-chat",
+      "inputTypes": [
+       "Data",
+       "DataFrame",
+       "Message"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153report\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-report{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153report\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}-p3-chat{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-merge",
+    "target": "p3-a5-score",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Merge",
+      "id": "p3-a5-merge",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -7377,16 +7463,100 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a3-validate",
+      "id": "p3-a5-score",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-parse{\u0153dataType\u0153:\u0153P3A3Parse\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-merge{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-score{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-validate",
+    "target": "p3-a3-postcheck",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Validate",
+      "id": "p3-a3-validate",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-postcheck",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-validate{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-prompt",
+    "target": "p3-a2-toolloop",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Prompt",
+      "id": "p3-a2-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-toolloop",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-prompt{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-setup",
+    "target": "p3-a1-retrieve",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3StepSetup",
+      "id": "p3-setup",
+      "name": "state",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-retrieve",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-setup{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -7420,6 +7590,370 @@
     "selected": false
    },
    {
+    "source": "p3-a1-validate",
+    "target": "p3-a1-cite",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Validate",
+      "id": "p3-a1-validate",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-cite",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-validate{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-commit",
+    "target": "p3-a6-judge",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Commit",
+      "id": "p3-a6-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-judge",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-commit{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-judge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-shortlist",
+    "target": "p3-a5-establish",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Shortlist",
+      "id": "p3-a5-shortlist",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-establish",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-shortlist{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-establish{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-route",
+    "target": "p3-report",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Route",
+      "id": "p3-a6-route",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-report",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Route\u0153,\u0153id\u0153:\u0153p3-a6-route\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-route{\u0153dataType\u0153:\u0153P3A6Route\u0153,\u0153id\u0153:\u0153p3-a6-route\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-report{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-commit",
+    "target": "p3-a4-gather",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Commit",
+      "id": "p3-a3-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-gather",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-gather{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-validate",
+    "target": "p3-a6-postcheck",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Validate",
+      "id": "p3-a6-validate",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-postcheck",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Validate\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-validate{\u0153dataType\u0153:\u0153P3A6Validate\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-merge",
+    "target": "p3-a4-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Merge",
+      "id": "p3-a4-merge",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-merge{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-prompt",
+    "target": "p3-a3-toolloop",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Prompt",
+      "id": "p3-a3-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-toolloop",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-prompt{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-toolloop",
+    "target": "p3-a3-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Toolloop",
+      "id": "p3-a3-toolloop",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-toolloop{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-retrieve",
+    "target": "p3-a3-prompt",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Retrieve",
+      "id": "p3-a3-retrieve",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-prompt",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-retrieve{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-commit",
+    "target": "p3-a3-retrieve",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Commit",
+      "id": "p3-a2-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-retrieve",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-commit",
+    "target": "p3-a6-retrieve",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Commit",
+      "id": "p3-a5-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-retrieve",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-commit{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-retrieve",
+    "target": "p3-a1-prompt",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Retrieve",
+      "id": "p3-a1-retrieve",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-prompt",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-retrieve{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
     "source": "p3-a4-triage",
     "target": "p3-a4-establish",
     "data": {
@@ -7443,6 +7977,370 @@
     "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Triage\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
     "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "id": "reactflow__edge-p3-a4-triage{\u0153dataType\u0153:\u0153P3A4Triage\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-establish{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-prompt",
+    "target": "p3-a6-toolloop",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Prompt",
+      "id": "p3-a6-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-toolloop",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-prompt{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-llm",
+    "target": "p3-a3-parse",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Llm",
+      "id": "p3-a3-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-parse",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-llm{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-parse",
+    "target": "p3-a2-grade",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Parse",
+      "id": "p3-a2-parse",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-grade",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Parse\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-parse{\u0153dataType\u0153:\u0153P3A2Parse\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-grade{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-postcheck",
+    "target": "p3-a6-cite",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Postcheck",
+      "id": "p3-a6-postcheck",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-cite",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-postcheck{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-postcheck",
+    "target": "p3-a2-cite",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Postcheck",
+      "id": "p3-a2-postcheck",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-cite",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Postcheck\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-postcheck{\u0153dataType\u0153:\u0153P3A2Postcheck\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-toolloop",
+    "target": "p3-a1-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Toolloop",
+      "id": "p3-a1-toolloop",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-toolloop{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-gather",
+    "target": "p3-a4-triage",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Gather",
+      "id": "p3-a4-gather",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-triage",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-gather{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-triage{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-establish",
+    "target": "p3-a5-prompt",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Establish",
+      "id": "p3-a5-establish",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-prompt",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-establish{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a2-llm",
+    "target": "p3-a2-parse",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A2Llm",
+      "id": "p3-a2-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-parse",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Llm\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-llm{\u0153dataType\u0153:\u0153P3A2Llm\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a6-cite",
+    "target": "p3-a6-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A6Cite",
+      "id": "p3-a6-cite",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a6-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Cite\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-cite{\u0153dataType\u0153:\u0153P3A6Cite\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a5-prompt",
+    "target": "p3-a5-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A5Prompt",
+      "id": "p3-a5-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-prompt{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-parse",
+    "target": "p3-a1-postcheck",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Parse",
+      "id": "p3-a1-parse",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-postcheck",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-parse{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-prompt",
+    "target": "p3-a4-llm",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Prompt",
+      "id": "p3-a4-prompt",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a4-llm",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-prompt{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -7504,42 +8402,12 @@
     "selected": false
    },
    {
-    "source": "p3-report",
-    "target": "p3-chat",
+    "source": "p3-a2-toolloop",
+    "target": "p3-a2-llm",
     "data": {
      "sourceHandle": {
-      "dataType": "P3StepReport",
-      "id": "p3-report",
-      "name": "report",
-      "output_types": [
-       "Message"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "input_value",
-      "id": "p3-chat",
-      "inputTypes": [
-       "Data",
-       "DataFrame",
-       "Message"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153report\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-report{\u0153dataType\u0153:\u0153P3StepReport\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153name\u0153:\u0153report\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}-p3-chat{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153p3-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-prompt",
-    "target": "p3-a4-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Prompt",
-      "id": "p3-a4-prompt",
+      "dataType": "P3A2Toolloop",
+      "id": "p3-a2-toolloop",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -7547,156 +8415,16 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a4-llm",
+      "id": "p3-a2-llm",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-prompt{\u0153dataType\u0153:\u0153P3A4Prompt\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-toolloop",
-    "target": "p3-a6-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Toolloop",
-      "id": "p3-a6-toolloop",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-llm",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-toolloop{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-parse",
-    "target": "p3-a2-grade",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Parse",
-      "id": "p3-a2-parse",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-grade",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Parse\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-parse{\u0153dataType\u0153:\u0153P3A2Parse\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-grade{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-grade\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-commit",
-    "target": "p3-a2-retrieve",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Commit",
-      "id": "p3-a1-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-retrieve",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-commit{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-cite",
-    "target": "p3-a3-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Cite",
-      "id": "p3-a3-cite",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Cite\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-cite{\u0153dataType\u0153:\u0153P3A3Cite\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-merge",
-    "target": "p3-a5-score",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Merge",
-      "id": "p3-a5-merge",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-score",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-merge{\u0153dataType\u0153:\u0153P3A5Merge\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-score{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a2-toolloop{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -7730,208 +8458,12 @@
     "selected": false
    },
    {
-    "source": "p3-a1-validate",
-    "target": "p3-a1-cite",
+    "source": "p3-a6-toolloop",
+    "target": "p3-a6-llm",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A1Validate",
-      "id": "p3-a1-validate",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-cite",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-validate{\u0153dataType\u0153:\u0153P3A1Validate\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-prompt",
-    "target": "p3-a5-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Prompt",
-      "id": "p3-a5-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-llm",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-prompt{\u0153dataType\u0153:\u0153P3A5Prompt\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-prompt",
-    "target": "p3-a3-toolloop",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Prompt",
-      "id": "p3-a3-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-toolloop",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-prompt{\u0153dataType\u0153:\u0153P3A3Prompt\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-route",
-    "target": "p3-report",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Route",
-      "id": "p3-a6-route",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-report",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Route\u0153,\u0153id\u0153:\u0153p3-a6-route\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-route{\u0153dataType\u0153:\u0153P3A6Route\u0153,\u0153id\u0153:\u0153p3-a6-route\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-report{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-toolloop",
-    "target": "p3-a2-llm",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Toolloop",
-      "id": "p3-a2-toolloop",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-llm",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-toolloop{\u0153dataType\u0153:\u0153P3A2Toolloop\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-llm",
-    "target": "p3-a2-parse",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Llm",
-      "id": "p3-a2-llm",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-parse",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Llm\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-llm{\u0153dataType\u0153:\u0153P3A2Llm\u0153,\u0153id\u0153:\u0153p3-a2-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-prompt",
-    "target": "p3-a6-toolloop",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Prompt",
-      "id": "p3-a6-prompt",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
+      "dataType": "P3A6Toolloop",
       "id": "p3-a6-toolloop",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-prompt{\u0153dataType\u0153:\u0153P3A6Prompt\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-retrieve",
-    "target": "p3-a3-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Retrieve",
-      "id": "p3-a3-retrieve",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -7939,520 +8471,16 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a3-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-retrieve{\u0153dataType\u0153:\u0153P3A3Retrieve\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-cite",
-    "target": "p3-a1-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Cite",
-      "id": "p3-a1-cite",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-cite{\u0153dataType\u0153:\u0153P3A1Cite\u0153,\u0153id\u0153:\u0153p3-a1-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-commit",
-    "target": "p3-a6-judge",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Commit",
-      "id": "p3-a6-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-judge",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-commit{\u0153dataType\u0153:\u0153P3A6Commit\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-judge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-judge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-cite",
-    "target": "p3-a6-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Cite",
-      "id": "p3-a6-cite",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Cite\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-cite{\u0153dataType\u0153:\u0153P3A6Cite\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a2-postcheck",
-    "target": "p3-a2-cite",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A2Postcheck",
-      "id": "p3-a2-postcheck",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a2-cite",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Postcheck\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-postcheck{\u0153dataType\u0153:\u0153P3A2Postcheck\u0153,\u0153id\u0153:\u0153p3-a2-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-score",
-    "target": "p3-a5-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Score",
-      "id": "p3-a5-score",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-score{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-llm",
-    "target": "p3-a5-merge",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Llm",
-      "id": "p3-a5-llm",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-merge",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-llm{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-merge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-commit",
-    "target": "p3-a5-gather",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Commit",
-      "id": "p3-a4-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-gather",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-commit{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-gather{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-validate",
-    "target": "p3-a3-postcheck",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Validate",
-      "id": "p3-a3-validate",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-postcheck",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-validate{\u0153dataType\u0153:\u0153P3A3Validate\u0153,\u0153id\u0153:\u0153p3-a3-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-postcheck",
-    "target": "p3-a3-cite",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Postcheck",
-      "id": "p3-a3-postcheck",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-cite",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-postcheck{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-setup",
-    "target": "p3-a1-retrieve",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3StepSetup",
-      "id": "p3-setup",
-      "name": "state",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-retrieve",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-setup{\u0153dataType\u0153:\u0153P3StepSetup\u0153,\u0153id\u0153:\u0153p3-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-gather",
-    "target": "p3-a5-shortlist",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Gather",
-      "id": "p3-a5-gather",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-shortlist",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-gather{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-shortlist{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-postcheck",
-    "target": "p3-a1-validate",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Postcheck",
-      "id": "p3-a1-postcheck",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-validate",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-postcheck{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-parse",
-    "target": "p3-a1-postcheck",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Parse",
-      "id": "p3-a1-parse",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-postcheck",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-parse{\u0153dataType\u0153:\u0153P3A1Parse\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-retrieve",
-    "target": "p3-a1-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Retrieve",
-      "id": "p3-a1-retrieve",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-retrieve{\u0153dataType\u0153:\u0153P3A1Retrieve\u0153,\u0153id\u0153:\u0153p3-a1-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-retrieve",
-    "target": "p3-a6-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Retrieve",
-      "id": "p3-a6-retrieve",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-retrieve{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a6-llm",
-    "target": "p3-a6-parse",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A6Llm",
       "id": "p3-a6-llm",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-parse",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-llm{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-merge",
-    "target": "p3-a4-commit",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Merge",
-      "id": "p3-a4-merge",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a4-commit",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-merge{\u0153dataType\u0153:\u0153P3A4Merge\u0153,\u0153id\u0153:\u0153p3-a4-merge\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a1-llm",
-    "target": "p3-a1-parse",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A1Llm",
-      "id": "p3-a1-llm",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a1-parse",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-llm{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-toolloop{\u0153dataType\u0153:\u0153P3A6Toolloop\u0153,\u0153id\u0153:\u0153p3-a6-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -8486,12 +8514,12 @@
     "selected": false
    },
    {
-    "source": "p3-a6-postcheck",
-    "target": "p3-a6-cite",
+    "source": "p3-a6-llm",
+    "target": "p3-a6-parse",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A6Postcheck",
-      "id": "p3-a6-postcheck",
+      "dataType": "P3A6Llm",
+      "id": "p3-a6-llm",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8499,27 +8527,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a6-cite",
+      "id": "p3-a6-parse",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-postcheck{\u0153dataType\u0153:\u0153P3A6Postcheck\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-llm{\u0153dataType\u0153:\u0153P3A6Llm\u0153,\u0153id\u0153:\u0153p3-a6-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a6-validate",
-    "target": "p3-a6-postcheck",
+    "source": "p3-a6-retrieve",
+    "target": "p3-a6-prompt",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A6Validate",
-      "id": "p3-a6-validate",
+      "dataType": "P3A6Retrieve",
+      "id": "p3-a6-retrieve",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8527,27 +8555,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a6-postcheck",
+      "id": "p3-a6-prompt",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Validate\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a6-validate{\u0153dataType\u0153:\u0153P3A6Validate\u0153,\u0153id\u0153:\u0153p3-a6-validate\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-postcheck{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-postcheck\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a6-retrieve{\u0153dataType\u0153:\u0153P3A6Retrieve\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a4-gather",
-    "target": "p3-a4-triage",
+    "source": "p3-a5-gather",
+    "target": "p3-a5-shortlist",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A4Gather",
-      "id": "p3-a4-gather",
+      "dataType": "P3A5Gather",
+      "id": "p3-a5-gather",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8555,27 +8583,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a4-triage",
+      "id": "p3-a5-shortlist",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-gather{\u0153dataType\u0153:\u0153P3A4Gather\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-triage{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-triage\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-gather{\u0153dataType\u0153:\u0153P3A5Gather\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-shortlist{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a2-prompt",
-    "target": "p3-a2-toolloop",
+    "source": "p3-a3-postcheck",
+    "target": "p3-a3-cite",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A2Prompt",
-      "id": "p3-a2-prompt",
+      "dataType": "P3A3Postcheck",
+      "id": "p3-a3-postcheck",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8583,72 +8611,16 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a2-toolloop",
+      "id": "p3-a3-cite",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-prompt{\u0153dataType\u0153:\u0153P3A2Prompt\u0153,\u0153id\u0153:\u0153p3-a2-prompt\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-toolloop{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-toolloop\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a4-establish",
-    "target": "p3-a4-prompt",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A4Establish",
-      "id": "p3-a4-establish",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a4-prompt",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a4-establish{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-commit",
-    "target": "p3-a4-gather",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Commit",
-      "id": "p3-a3-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a4-gather",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-commit{\u0153dataType\u0153:\u0153P3A3Commit\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-gather{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-postcheck{\u0153dataType\u0153:\u0153P3A3Postcheck\u0153,\u0153id\u0153:\u0153p3-a3-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-cite{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -8682,12 +8654,12 @@
     "selected": false
    },
    {
-    "source": "p3-a1-toolloop",
-    "target": "p3-a1-llm",
+    "source": "p3-a5-llm",
+    "target": "p3-a5-merge",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A1Toolloop",
-      "id": "p3-a1-toolloop",
+      "dataType": "P3A5Llm",
+      "id": "p3-a5-llm",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8695,27 +8667,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a1-llm",
+      "id": "p3-a5-merge",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a1-toolloop{\u0153dataType\u0153:\u0153P3A1Toolloop\u0153,\u0153id\u0153:\u0153p3-a1-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-llm{\u0153dataType\u0153:\u0153P3A5Llm\u0153,\u0153id\u0153:\u0153p3-a5-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-merge{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-merge\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a5-establish",
-    "target": "p3-a5-prompt",
+    "source": "p3-a1-postcheck",
+    "target": "p3-a1-validate",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A5Establish",
-      "id": "p3-a5-establish",
+      "dataType": "P3A1Postcheck",
+      "id": "p3-a1-postcheck",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8723,44 +8695,16 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a5-prompt",
+      "id": "p3-a1-validate",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-establish{\u0153dataType\u0153:\u0153P3A5Establish\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a3-llm",
-    "target": "p3-a3-parse",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A3Llm",
-      "id": "p3-a3-llm",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a3-parse",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-llm{\u0153dataType\u0153:\u0153P3A3Llm\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-postcheck{\u0153dataType\u0153:\u0153P3A1Postcheck\u0153,\u0153id\u0153:\u0153p3-a1-postcheck\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-validate{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-validate\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
@@ -8794,12 +8738,12 @@
     "selected": false
    },
    {
-    "source": "p3-a2-commit",
-    "target": "p3-a3-retrieve",
+    "source": "p3-a5-score",
+    "target": "p3-a5-commit",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A2Commit",
-      "id": "p3-a2-commit",
+      "dataType": "P3A5Score",
+      "id": "p3-a5-score",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8807,83 +8751,27 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a3-retrieve",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a2-commit{\u0153dataType\u0153:\u0153P3A2Commit\u0153,\u0153id\u0153:\u0153p3-a2-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-shortlist",
-    "target": "p3-a5-establish",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Shortlist",
-      "id": "p3-a5-shortlist",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a5-establish",
-      "inputTypes": [
-       "Data"
-      ],
-      "type": "other"
-     }
-    },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-shortlist{\u0153dataType\u0153:\u0153P3A5Shortlist\u0153,\u0153id\u0153:\u0153p3-a5-shortlist\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-establish{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-establish\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "className": "",
-    "animated": false,
-    "selected": false
-   },
-   {
-    "source": "p3-a5-commit",
-    "target": "p3-a6-retrieve",
-    "data": {
-     "sourceHandle": {
-      "dataType": "P3A5Commit",
       "id": "p3-a5-commit",
-      "name": "state_out",
-      "output_types": [
-       "Data"
-      ]
-     },
-     "targetHandle": {
-      "fieldName": "state",
-      "id": "p3-a6-retrieve",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a5-commit{\u0153dataType\u0153:\u0153P3A5Commit\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a6-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a6-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a5-score{\u0153dataType\u0153:\u0153P3A5Score\u0153,\u0153id\u0153:\u0153p3-a5-score\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false
    },
    {
-    "source": "p3-a3-toolloop",
-    "target": "p3-a3-llm",
+    "source": "p3-a4-establish",
+    "target": "p3-a4-prompt",
     "data": {
      "sourceHandle": {
-      "dataType": "P3A3Toolloop",
-      "id": "p3-a3-toolloop",
+      "dataType": "P3A4Establish",
+      "id": "p3-a4-establish",
       "name": "state_out",
       "output_types": [
        "Data"
@@ -8891,16 +8779,128 @@
      },
      "targetHandle": {
       "fieldName": "state",
-      "id": "p3-a3-llm",
+      "id": "p3-a4-prompt",
       "inputTypes": [
        "Data"
       ],
       "type": "other"
      }
     },
-    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
-    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
-    "id": "reactflow__edge-p3-a3-toolloop{\u0153dataType\u0153:\u0153P3A3Toolloop\u0153,\u0153id\u0153:\u0153p3-a3-toolloop\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-llm{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-llm\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-establish{\u0153dataType\u0153:\u0153P3A4Establish\u0153,\u0153id\u0153:\u0153p3-a4-establish\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a4-prompt{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a4-prompt\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a3-cite",
+    "target": "p3-a3-commit",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A3Cite",
+      "id": "p3-a3-cite",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a3-commit",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A3Cite\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a3-cite{\u0153dataType\u0153:\u0153P3A3Cite\u0153,\u0153id\u0153:\u0153p3-a3-cite\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a3-commit{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a3-commit\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a4-commit",
+    "target": "p3-a5-gather",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A4Commit",
+      "id": "p3-a4-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a5-gather",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a4-commit{\u0153dataType\u0153:\u0153P3A4Commit\u0153,\u0153id\u0153:\u0153p3-a4-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a5-gather{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a5-gather\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-commit",
+    "target": "p3-a2-retrieve",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Commit",
+      "id": "p3-a1-commit",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a2-retrieve",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-commit{\u0153dataType\u0153:\u0153P3A1Commit\u0153,\u0153id\u0153:\u0153p3-a1-commit\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a2-retrieve{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a2-retrieve\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "p3-a1-llm",
+    "target": "p3-a1-parse",
+    "data": {
+     "sourceHandle": {
+      "dataType": "P3A1Llm",
+      "id": "p3-a1-llm",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "p3-a1-parse",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-p3-a1-llm{\u0153dataType\u0153:\u0153P3A1Llm\u0153,\u0153id\u0153:\u0153p3-a1-llm\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-p3-a1-parse{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153p3-a1-parse\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
     "className": "",
     "animated": false,
     "selected": false

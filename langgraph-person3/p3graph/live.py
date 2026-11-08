@@ -24,6 +24,8 @@ def emit(run_id: str, event: str, **data):
     try:
         with _lock:
             folder = RUNS / run_id
+            if not folder.exists() and data.get("node") in ("setup", "intake"):
+                return  # no run folder until an agent runs (failed / rejected starts leave nothing)
             folder.mkdir(parents=True, exist_ok=True)
             with (folder / "live.jsonl").open("a") as f:
                 f.write(json.dumps({"event": event, "time": time.time(), **data}, default=str) + "\n")

@@ -300,7 +300,7 @@ def write_workbook(state: P3State) -> str:
 
 def steps_md(state: P3State) -> str:
     """Every graph step in order: what ran, how long it took, what it did."""
-    rows = ["# Step trace", "", "Per-step inputs and outputs are in `steps/NNN_<node>.json` next to this file.", "",
+    rows = ["# Step trace", "", "Per-step inputs and outputs are in `log.jsonl` (one line per step) next to this file.", "",
             "| # | node | card | ms | what happened |", "|---|---|---|---|---|"]
     for i, s in enumerate(state.get("steps") or [], 1):
         rows.append(f"| {i} | {s['node']} | {s.get('hid') or ''} | {s.get('ms', '')} | "

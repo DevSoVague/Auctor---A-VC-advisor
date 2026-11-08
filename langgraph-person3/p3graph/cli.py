@@ -183,6 +183,9 @@ async def main_async(a) -> None:
             snap = await graph.aget_state({"configurable": {"thread_id": a.thread}})
             print(N.steps_md(snap.values))
             return
+        if a.cmd == "clean":
+            clean_runs(a.keep, a.idle_min, a.yes)
+            return
         if a.cmd == "status":
             snap = await graph.aget_state({"configurable": {"thread_id": a.thread}})
             v = snap.values
@@ -207,6 +210,31 @@ async def main_async(a) -> None:
             if a.action == "edit":
                 decision["edited_output"] = json.loads(Path(a.edited).read_text())
             await _drive(graph, Command(resume=decision), cfg, a.interactive)
+
+
+def clean_runs(keep: int, idle_min: int, yes: bool) -> None:
+    """Unfinished = a run folder with no report.md (stopped, failed or abandoned). Only uuid-named run folders
+    are considered; langflow.log, monitor.log and anything else in runs/ are never touched."""
+    import re
+    import shutil
+    import time as _time
+
+    from p3graph.nodes import RUNS
+
+    now = _time.time()
+    runs = [d for d in RUNS.iterdir() if d.is_dir() and re.fullmatch(r"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}", d.name)]
+    idle = [d for d in runs if now - max((f.stat().st_mtime for f in d.rglob("*")), default=d.stat().st_mtime) > idle_min * 60]
+    unfinished = [d for d in idle if not (d / "report.md").exists()]
+    finished = sorted((d for d in runs if (d / "report.md").exists()), key=lambda d: d.stat().st_mtime, reverse=True)
+    old = [d for d in finished[keep:] if d in idle] if keep else []
+    print(f"{len(runs)} runs · {len(unfinished)} unfinished (no report.md, idle > {idle_min} min)"
+          + (f" · {len(old)} finished beyond the newest {keep}" if keep else ""))
+    for d in unfinished + old:
+        print(("deleting " if yes else "would delete ") + d.name + ("" if d in unfinished else "  (finished)"))
+        if yes:
+            shutil.rmtree(d)
+    if not yes and (unfinished or old):
+        print("dry run: add --yes to delete")
 
 
 def main() -> None:
@@ -254,6 +282,10 @@ def main() -> None:
     c = sub.add_parser("chat", help="read a run's chat (natural-language trace); --follow to watch it live")
     c.add_argument("target", nargs="?", default=None, help="run id (default: newest run)")
     c.add_argument("-f", "--follow", action="store_true", help="keep printing as the run writes (use in a 2nd terminal)")
+    cl = sub.add_parser("clean", help="list (and with --yes delete) unfinished runs; never touches logs")
+    cl.add_argument("--keep", type=int, default=0, help="also list finished runs beyond the newest N (0 = keep all)")
+    cl.add_argument("--idle-min", type=int, default=30, help="only runs untouched for this many minutes")
+    cl.add_argument("--yes", action="store_true", help="delete what is listed (default: dry run)")
     sub.add_parser("diagram")
     a = ap.parse_args()
     global COMPACT
