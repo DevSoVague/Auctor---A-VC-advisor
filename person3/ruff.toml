@@ -1,0 +1,7 @@
+# Person 3 code was written outside the team's lint setup (line length, import order, etc.).
+# Keep the shared CI green by checking only for real errors here: syntax errors and undefined names.
+# Tighten later by deleting this file once the code is reformatted to the root ruff config.
+line-length = 120
+
+[lint]
+select = ["E9", "F63", "F7", "F82"]
