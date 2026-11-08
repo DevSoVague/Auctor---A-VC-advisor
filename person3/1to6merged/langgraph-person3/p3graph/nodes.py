@@ -231,7 +231,8 @@ async def report(state: P3State) -> dict:
     (d / "steps.md").write_text(steps_md(state))
     (d / "result.json").write_text(json.dumps(
         {k: state.get(k) for k in ("run_id", "config", "llm", "why_now", "cards", "grades", "profiles",
-                                   "verdicts", "killed", "decisions", "usage", "signals", "steps", "chat")},
+                                   "assets", "verdicts", "judgments", "revise_used", "killed", "decisions",
+                                   "usage", "signals", "steps", "chat")},
         indent=1, default=str))
     send("end", {"detail": "Report and workbook saved", "result": {"report": md, "workbook_path": path}})
     return {"report": md, "workbook_path": path}

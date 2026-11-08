@@ -97,3 +97,12 @@ def test_resume_rules(client):
     wait(client, guided)
     r = client.post(f"/runs/{guided}/checkpoint", json={"action": "edit"})
     assert r.status_code == 422  # edit needs edited_output
+
+
+def test_result_json_carries_everything_the_memo_reads(client):
+    """A8 (person 5) can rebuild a finished run from result.json alone, including A4/A5."""
+    run_id = client.post("/runs", json={**STUB, "mode": "single_shot"}).json()["run_id"]
+    assert wait(client, run_id)["status"] == "done"
+    result = client.get(f"/runs/{run_id}/files/result.json").json()
+    assert {"assets", "judgments", "revise_used", "verdicts", "killed", "signals"} <= result.keys()
+    assert result["assets"]  # A4/A5 outputs, keyed '<hid>:inactive' and '<hid>:landscape'
