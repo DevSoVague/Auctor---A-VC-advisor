@@ -9,6 +9,11 @@ build/
 # Secrets: real values live only in .env
 .env
 
+# Private background material (sponsor brief with contact details), kept local only
+Background_Info/
+# Adam's local plan of attack (restart fallback), kept local only
+plan/
+
 # Raw data: downloaded by the ingest scripts, never committed
 data/*
 !data/.gitkeep
