@@ -195,24 +195,52 @@ class ClaimLedger(BaseModel):
     entries: list[LedgerEntry]
 
 
-class Decision(BaseModel):
-    """One row of the decisions table: the memo's decision log."""
+class AttackRuling(BaseModel):
+    """Person 3's A7 Judge: its ruling on one of the red team's (A6) risks."""
 
-    actor: Literal["reviewer", "red_teamer", "orchestrator"]
-    action: Literal["approve", "edit", "rerun", "revise", "kill", "override"]
+    risk: str  # the red-team risk, as A6 stated it
+    holds: bool  # does the attack hold against A3's profile?
+    severity: Literal["fatal", "major", "minor"]
+    why: str
+
+
+class JudgeDecision(BaseModel):
+    """Person 3's A7 Judge: reads only A3's profile and A6's verdict, and decides.
+
+    Not the Citation Checker (a7_citations). Copied unchanged from
+    person3/1to6merged/agents/analysis/_schemas_draft.py.
+    """
+
+    hypothesis_id: str
+    red_team_is: Literal["right", "partly_right", "wrong"]
+    decision: Literal["advance", "revise", "kill"]
+    rulings: list[AttackRuling]
+    reasoning: str
+
+
+class Decision(BaseModel):
+    """One row of the decisions table: the memo's decision log.
+
+    'judge' and 'approve_all' are logged by Person 3's pipeline (the A7 Judge, and the
+    reviewer's "approve the rest for this agent").
+    """
+
+    actor: Literal["reviewer", "red_teamer", "judge", "orchestrator"]
+    action: Literal["approve", "approve_all", "edit", "rerun", "revise", "kill", "override"]
     target: str  # e.g. 'a3_profile:h1'
     reason: str
     at: datetime | None = None
 
 
 class HypothesisDossier(BaseModel):
-    """Everything agents 2 to 6 produced for one hypothesis."""
+    """Everything agents 2 to 6, and the A7 Judge, produced for one hypothesis."""
 
     card: HypothesisCard
     profile: ProductProfile
     inactive: InactiveAssets
     landscape: Landscape
     verdict: Verdict
+    judgment: JudgeDecision | None = None  # None when the run had the judge off
 
 
 # Agent 1 takes the RunConfig itself (disease, cutoff, intake settings).

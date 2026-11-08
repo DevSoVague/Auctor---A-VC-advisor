@@ -2,11 +2,12 @@
 
 import json
 import re
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from frontier.agents.schemas import AGENTS, Claim, Memo, ProductProfile
+from frontier.agents.schemas import AGENTS, Claim, Decision, JudgeDecision, Memo, ProductProfile
 from frontier.core.context import load_fixture
 from frontier.core.retrieval import fixtures_dir
 
@@ -83,3 +84,19 @@ def test_memo_needs_two_or_three_pursuits():
     base = load_fixture("a8_orchestrator.output")
     with pytest.raises(ValidationError):
         Memo.model_validate({**base, "pursuits": base["pursuits"][:1]})
+
+
+P3_JUDGE = (
+    Path(__file__).resolve().parents[1] / "person3/1to6merged/tests/fixtures/a7_judge_out.json"
+)
+
+
+def test_person3_judge_output_validates():
+    """Person 3's A7 Judge fixture (one decision per hypothesis) fits JudgeDecision."""
+    for decision in json.loads(P3_JUDGE.read_text()).values():
+        JudgeDecision.model_validate(decision)
+
+
+def test_decision_accepts_what_the_pipeline_logs():
+    Decision(actor="judge", action="revise", target="h1", reason="red team partly_right")
+    Decision(actor="reviewer", action="approve_all", target="a3_profile", reason="")
