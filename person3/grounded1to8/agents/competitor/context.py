@@ -30,13 +30,35 @@ class RecordAdapter:
         self.as_of = inner.as_of
 
     @staticmethod
+    def _curated_drug(d: dict, fields: dict) -> tuple[str, dict]:
+        """The evidence store's curated drugs, in the shape agents 4 and 5 read ChEMBL drugs.
+
+        The store labels them source 'curated', which Record does not accept, so every one was
+        dropped and A4/A5 found no drugs. They read: name, synonyms (brand names), mechanism
+        (the pathway text), molecule_type, targets. Placement by shared target is not possible
+        (the store lists none), so it falls to same_mechanism by the pathway's words.
+        """
+        mech = " ".join(x for x in (fields.get("pathway"), fields.get("drug_class")) if x)
+        low = mech.lower()
+        modality = ("antibody" if "antibod" in low else "small molecule"
+                    if any(w in low for w in ("inhibitor", "antagonist", "potentiator", "agonist"))
+                    else None)
+        return "chembl", {**fields, "name": d.get("title") or fields.get("name"),
+                          "synonyms": list(fields.get("brand_names") or []), "mechanism": mech,
+                          "molecule_type": modality, "targets": list(fields.get("targets") or []),
+                          "development_status": fields.get("drug_status") or fields.get("status")}
+
+    @staticmethod
     def _rec(d: dict) -> Record | None:
         extra = {k: v for k, v in d.items()
                  if k not in ("id", "source", "source_date", "title", "body", "url")}
+        fields, source = d.get("fields") or extra, d["source"]
         try:
-            return Record(id=d["id"], source=d["source"], source_date=str(d["source_date"])[:10],
+            if source == "curated" and (fields.get("pathway") or fields.get("drug_class")):
+                source, fields = RecordAdapter._curated_drug(d, fields)
+            return Record(id=d["id"], source=source, source_date=str(d["source_date"])[:10],
                           title=d.get("title"), body=d.get("body"), url=d.get("url"),
-                          fields=d.get("fields") or extra)
+                          fields=fields)
         except Exception:  # noqa: BLE001 - a row the Record model can't hold is skipped
             return None
 

@@ -79,8 +79,10 @@ def test_every_result_is_dated_inside_window(as_of):
 def test_backtest_hides_later_records():
     ex = ToolExecutor("a3_profile", date(2024, 1, 1))
     assert run(ex("market_stats", {}))["count"] == 0  # market data is all dated 2025
-    assert "outside" in run(ex("get_document", {"id": "fda:NDA206756"})).get("error", "") or \
-        "no record" in run(ex("get_document", {"id": "fda:NDA206756"})).get("error", "")
+    # pmid:38844921 was first published 2024-06-06, after this run's 2024-01-01 cutoff
+    # (fda:NDA206756 no longer works here: the store also holds its 2023-06-01 label version)
+    err = run(ex("get_document", {"id": "pmid:38844921"})).get("error", "")
+    assert "outside" in err or "no record" in err
 
 
 @live

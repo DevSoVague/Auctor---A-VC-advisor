@@ -98,9 +98,9 @@ def _rows_for(doc: dict, parents: list[dict]) -> list[dict]:
         sections = (doc["fields"] or {}).get("sections") or {}
         if isinstance(sections, dict) and sections:
             for name, text in sections.items():
-                add(name, text or "", ver, f"chunk:{did}:{name}")
+                add(name, text or "", ver, f"chunk:{did}@{ver}:{name}")  # versioned, like ctgov
         else:
-            add("Label", doc["body"] or "", ver, f"chunk:{did}:b")
+            add("Label", doc["body"] or "", ver, f"chunk:{did}@{ver}:b")
     else:
         add("Summary", doc["body"] or "", ver, f"chunk:{did}@{ver}:b")
 

@@ -103,6 +103,11 @@ def _record_to_ev(rec: Any) -> dict:
                 ev[k] = f[k]
         if f.get("interventions"):
             ev["intervention"] = f["interventions"] if isinstance(f["interventions"], str) else json.dumps(f["interventions"])[:300]
+            if isinstance(f["interventions"], list):
+                ev["interventions"] = f["interventions"]  # the full list, for agents 4 and 5 (the string above is cut at 300 chars)
+        for k in ("sponsor_class", "conditions", "completion", "primary_completion", "enrollment"):
+            if f.get(k) not in (None, "", []):
+                ev[k] = f[k]
         if f.get("primary_outcomes"):
             ev["primary_endpoint"] = str(f["primary_outcomes"])[:300]
     elif src == "pubmed":
@@ -111,8 +116,20 @@ def _record_to_ev(rec: Any) -> dict:
                 ev[k] = f[k]
     elif src == "fda":
         ev["dates"] = {k: f.get(k) for k in ("label_effective", "cms_release") if f.get(k)}
+        # the drug a label approves, for agents 4 and 5 (generic name first; brand names resolve to it)
+        if f.get("generic") or f.get("brand"):
+            ev["drug"] = f.get("generic") or f.get("brand")
+        for k in ("brand", "manufacturer", "drug_class", "application_number"):
+            if f.get(k):
+                ev[k] = f[k]
     elif src == "curated":
         ev["dates"] = {k: f.get(k) for k in ("date",) if f.get(k)}
+        # a curated drug (drugs table): what agents 4 and 5 need to place it on a mechanism
+        for k in ("pathway", "drug_class", "brand_names", "targets"):
+            if f.get(k):
+                ev[k] = f[k]
+        if f.get("status"):
+            ev["drug_status"] = f["status"]  # in_market | shelved
     # evidence tags the agents' graders use (A2: human lines / failed precedent; A6: checklist)
     tags = ["human"] if src in ("pubmed", "ctgov", "fda", "curated") else []
     if src == "ctgov" and (str(f.get("status", "")).upper() in ("TERMINATED", "WITHDRAWN", "SUSPENDED")

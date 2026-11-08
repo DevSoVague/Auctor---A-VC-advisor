@@ -17,6 +17,10 @@ if str(ENGINE) not in sys.path:
 from dotenv import load_dotenv  # noqa: E402
 
 load_dotenv(ENGINE / ".env")
+load_dotenv(ENGINE.parents[1] / ".env")  # the team repo's root .env (Nebius key); never overrides
+for _k in ("NEBIUS_BASE_URL", "NEBIUS_MODEL", "LOCAL_LLM_BASE_URL"):  # .env.example ships these blank;
+    if not os.environ.get(_k):  # a blank value must mean "use the default", not an empty address
+        os.environ.pop(_k, None)
 
 from agents.analysis import a1_disease, a2_mechanism, a3_profile, a6_redteam, a6b_judge  # noqa: E402,F401
 from agents.analysis import tool_loop  # noqa: E402,F401
