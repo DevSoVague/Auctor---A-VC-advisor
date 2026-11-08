@@ -1,7 +1,0 @@
-{
- "disease": "COPD",
- "disease_id": "EFO_0000341",
- "as_of": "2021-01-01",
- "mode": "single_shot",
- "profile": "dev"
-}
