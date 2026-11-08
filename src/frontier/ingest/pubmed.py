@@ -1,7 +1,8 @@
 """PubMed ingestion for the COPD store (person 1).
 
-Fetches PubMed records through NCBI E-utilities, keeps the raw XML in data/pubmed/
-(git-ignored), and upserts one row per article into the documents table.
+Fetches PubMed records through NCBI E-utilities and keeps the raw XML in data/pubmed/
+(git-ignored) as the archive. Only papers in the curated sets (ingest/curated/) go into the
+documents table, one row each; pass --all to store every paper.
 
     uv run python -m frontier.ingest.pubmed                     # 2016-01 to this month
     uv run python -m frontier.ingest.pubmed --start 2020-01 --end 2020-03
@@ -321,6 +322,13 @@ def upsert(conn, records: Iterable[PubmedRecord]) -> int:
     return len(rows)
 
 
+def curated_ids() -> set[str]:
+    """Ids of the papers in the curated sets: the only ones the store keeps by default."""
+    from frontier.ingest import collections
+
+    return {i for s in collections.load_sets() for i in s["ids"] if i.startswith("pmid:")}
+
+
 def main(argv: list[str] | None = None) -> int:
     today = date.today()
     parser = argparse.ArgumentParser(
@@ -330,7 +338,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--end", default=f"{END:%Y-%m}", help="last month, YYYY-MM")
     parser.add_argument("--refresh", action="store_true", help="download months again")
     parser.add_argument("--download-only", action="store_true", help="skip the database")
+    parser.add_argument(
+        "--all", action="store_true", help="store every paper, not only the curated sets"
+    )
     args = parser.parse_args(argv)
+    keep = None if args.all else curated_ids()
 
     import psycopg
 
@@ -347,15 +359,18 @@ def main(argv: list[str] | None = None) -> int:
             records = [
                 r for r in parse_xml(gzip.decompress(path.read_bytes())) if in_window(r.source_date)
             ]
+            stored = [r for r in records if keep is None or r.id in keep]
             if conn is not None:
-                upsert(conn, records)
+                upsert(conn, stored)
                 conn.commit()
-            total += len(records)
-            print(f"{year}-{month:02d}: {len(records)} records", flush=True)
+            total += len(stored)
+            print(
+                f"{year}-{month:02d}: {len(records)} downloaded, {len(stored)} stored", flush=True
+            )
     finally:
         if conn is not None:
             conn.close()
-    print(f"done: {total} records{' (download only)' if args.download_only else ''}")
+    print(f"done: {total} papers stored{' (download only)' if args.download_only else ''}")
     return 0
 
 

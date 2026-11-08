@@ -1,7 +1,7 @@
 """ClinicalTrials.gov ingestion for the COPD store (person 1).
 
 Downloads every interventional COPD study from the ClinicalTrials.gov API v2,
-keeps the raw JSON in data/ctgov/ (git-ignored), and writes up to two versions
+keeps the raw JSON in data/ctgov/ (git-ignored) as the archive, and writes up to two versions
 of each study into the documents table (one row per version):
 
   ctgov-live          the current record, dated by its last-update-posted date
@@ -13,6 +13,9 @@ updated after the cutoff is seen only as registered: no status, enrollment,
 completion dates, stop reason or results, so later outcomes can't leak in.
 This is the PRD's fallback; the API only serves the current record, and AACT's
 dated archive snapshots need an account (not set up yet).
+
+Only trials linked to a drug already in the store are written (run fda and shelved
+first); pass --all to write every trial.
 
     uv run python -m frontier.ingest.ctgov            # download today's records and load
     uv run python -m frontier.ingest.ctgov --refresh  # download again even if done today
@@ -237,6 +240,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--refresh", action="store_true", help="download again even if done today")
     parser.add_argument("--download-only", action="store_true", help="skip the database")
+    parser.add_argument(
+        "--all", action="store_true", help="store every trial, not only those linked to a drug"
+    )
     args = parser.parse_args(argv)
 
     today = datetime.now(UTC).date()
@@ -249,7 +255,15 @@ def main(argv: list[str] | None = None) -> int:
     if not args.download_only:
         import psycopg
 
+        from frontier.ingest import structured
+
         with psycopg.connect(Settings().database_url) as conn:
+            if not args.all:
+                index = structured.store_drug_index(conn)
+                rows = [r for r in rows if structured.is_linked(r, index)]
+                print(
+                    f"{len(rows)} versions linked to a drug in the store (run fda, shelved first)"
+                )
             upsert(conn, rows)
     print("done")
     return 0

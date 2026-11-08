@@ -1,7 +1,7 @@
 """Industry news for the COPD store (person 1).
 
-Two kinds of feed, both stored as dated rows in the documents table so agents
-still read news only through the as-of retrieval API:
+Downloads to data/news/ (git-ignored) as an archive; the team whiteboard keeps news out
+of the store, so rows go into the documents table only with --load. Two kinds of feed:
 
 1. Google News search RSS for COPD, one window per month from 2016 on. The
    after:/before: operators make history available, so the 2021 backtest sees
@@ -248,13 +248,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--end", default=f"{END:%Y-%m}", help="last month, YYYY-MM")
     parser.add_argument("--refresh", action="store_true", help="download past months again")
     parser.add_argument("--feeds-only", action="store_true", help="skip the Google News history")
-    parser.add_argument("--download-only", action="store_true", help="skip the database")
+    parser.add_argument(
+        "--load", action="store_true", help="also write to the database (default: archive only)"
+    )
     args = parser.parse_args(argv)
 
     import psycopg
 
     fetcher = Fetcher()
-    conn = None if args.download_only else psycopg.connect(Settings().database_url)
+    conn = psycopg.connect(Settings().database_url) if args.load else None
     total = 0
     try:
         batches: list[tuple[str, list[NewsItem]]] = []
@@ -292,7 +294,7 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         if conn is not None:
             conn.close()
-    print(f"done: {total} rows written{' (download only)' if args.download_only else ''}")
+    print(f"done: {total} rows written" if args.load else "done: downloaded to data/news/ only")
     return 0
 
 

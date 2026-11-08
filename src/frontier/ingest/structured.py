@@ -271,6 +271,18 @@ def read_docs(conn, source: str) -> list[dict]:
         return cur.fetchall()
 
 
+def store_drug_index(conn) -> list[tuple[re.Pattern, str]]:
+    """Drug patterns built from the drugs in the store (fda labels and shelved drugs)."""
+    shelved = [d for d in read_docs(conn, "curated") if d["id"].startswith("curated:shelved:")]
+    drugs = build(read_docs(conn, "fda"), shelved, [])["drugs"]
+    return drug_index(drugs)
+
+
+def is_linked(doc: dict, index: list[tuple[re.Pattern, str]]) -> bool:
+    """Whether a ctgov document's interventions match one of the indexed drugs."""
+    return from_ctgov(doc, index)["drug_id"] is not None
+
+
 def main() -> int:
     import psycopg
 
