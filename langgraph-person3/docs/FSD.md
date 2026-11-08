@@ -338,3 +338,14 @@ The evidence store is the team's pre-loaded COPD database. It answers routine qu
 - 8 of 50 supporting quotes don't match the paper closely enough to verify (`quote_verified = false`).
 - There is no Open Targets or EDGAR data, so `targets()` and `filings()` return nothing. `pmid:38724168` has no abstract.
 - A few `source_ids` in the shelved and market rows point at URLs or news ids that have no document in the store.
+
+## Update 2026-11-08: evidence-store tools and the A7 judge
+
+See [HANDOFF.md](../../HANDOFF.md) for the full detail.
+
+- **Ports:** monitor 7872, Studio 2034, Langflow 7870. These replace 7862, 2024 and 7860.
+- **New flags:** `--search evstore`, `--tools`, `--no-judge`, `--max-cards N`.
+- **Graph:** each chain is now retrieve → prompt → **toolloop** → llm → parse → … → commit. A6's commit is followed by **a7_judge**, then a6_route; with the judge on, A7's decision is what gets routed.
+- **Tools:** DB read for A1–A6, DB write for A1 only, web search for A1/A4/A5, and nothing for A7. Every result is dated, within `2023-01-01 <= date < as_of`.
+- **New state keys:** `tools`, `judge`, `max_cards`, `judgments`.
+- **New workbook sheets:** ToolCalls, NewEvidence, Judge.
