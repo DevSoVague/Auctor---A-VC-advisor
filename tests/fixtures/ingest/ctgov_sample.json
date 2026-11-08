@@ -1,0 +1,54 @@
+[
+  {
+    "protocolSection": {
+      "identificationModule": {"nctId": "FIXTURE-0201", "briefTitle": "[fixture] FIX-101 Phase 3 in COPD"},
+      "statusModule": {
+        "overallStatus": "COMPLETED",
+        "startDateStruct": {"date": "2019-03", "type": "ACTUAL"},
+        "primaryCompletionDateStruct": {"date": "2022-01-15", "type": "ACTUAL"},
+        "studyFirstPostDateStruct": {"date": "2019-02-01", "type": "ACTUAL"},
+        "lastUpdatePostDateStruct": {"date": "2023-05-10", "type": "ACTUAL"},
+        "resultsFirstPostDateStruct": {"date": "2023-05-10", "type": "ACTUAL"}
+      },
+      "sponsorCollaboratorsModule": {"leadSponsor": {"name": "Fixture Bio Inc", "class": "INDUSTRY"}},
+      "conditionsModule": {"conditions": ["COPD"]},
+      "designModule": {"studyType": "INTERVENTIONAL", "phases": ["PHASE3"],
+                       "enrollmentInfo": {"count": 800, "type": "ACTUAL"}},
+      "armsInterventionsModule": {"interventions": [{"type": "DRUG", "name": "FIX-101", "otherNames": ["FX101"]}]},
+      "outcomesModule": {"primaryOutcomes": [{"measure": "Change in FEV1 at week 12"}]},
+      "descriptionModule": {"briefSummary": "Made-up summary: FIX-101 improved lung function."}
+    },
+    "hasResults": true
+  },
+  {
+    "protocolSection": {
+      "identificationModule": {"nctId": "FIXTURE-0202", "briefTitle": "[fixture] Terminated before the cutoff"},
+      "statusModule": {
+        "overallStatus": "TERMINATED",
+        "whyStopped": "Business decision",
+        "studyFirstPostDateStruct": {"date": "2017-06-01"},
+        "lastUpdatePostDateStruct": {"date": "2020-08-20"}
+      },
+      "conditionsModule": {"conditions": ["Pulmonary Disease, Chronic Obstructive"]},
+      "designModule": {"studyType": "INTERVENTIONAL", "phases": ["PHASE2", "PHASE3"]}
+    }
+  },
+  {
+    "protocolSection": {
+      "identificationModule": {"nctId": "FIXTURE-0203", "briefTitle": "[fixture] Never updated"},
+      "statusModule": {
+        "overallStatus": "NOT_YET_RECRUITING",
+        "studyFirstPostDateStruct": {"date": "2026-10-01"},
+        "lastUpdatePostDateStruct": {"date": "2026-10-01"}
+      },
+      "designModule": {"studyType": "INTERVENTIONAL"}
+    }
+  },
+  {
+    "protocolSection": {
+      "identificationModule": {"nctId": "FIXTURE-0204", "briefTitle": "[fixture] Observational registry"},
+      "statusModule": {"studyFirstPostDateStruct": {"date": "2018-01-01"}},
+      "designModule": {"studyType": "OBSERVATIONAL"}
+    }
+  }
+]

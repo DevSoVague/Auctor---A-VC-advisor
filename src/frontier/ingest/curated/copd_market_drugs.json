@@ -1,0 +1,16 @@
+{
+  "name": "copd-market-drugs",
+  "note": "Marketed COPD maintenance drugs, one or two per drug class. label_query is the openFDA brand name; cms_brand is the start of the brand name in Medicare Part D data.",
+  "drugs": [
+    {"label_query": "OHTUVAYRE", "cms_brand": "Ohtuvayre", "class": "PDE3/PDE4 inhibitor"},
+    {"label_query": "DUPIXENT", "cms_brand": "Dupixent", "class": "anti-IL-4R alpha antibody"},
+    {"label_query": "NUCALA", "cms_brand": "Nucala", "class": "anti-IL-5 antibody"},
+    {"label_query": "DALIRESP", "cms_brand": "Daliresp", "class": "PDE4 inhibitor"},
+    {"label_query": "SPIRIVA HANDIHALER", "cms_brand": "Spiriva Handihaler", "class": "LAMA"},
+    {"label_query": "YUPELRI", "cms_brand": "Yupelri", "class": "LAMA, nebulized"},
+    {"label_query": "ANORO ELLIPTA", "cms_brand": "Anoro Ellipta", "class": "LAMA/LABA"},
+    {"label_query": "STIOLTO RESPIMAT", "cms_brand": "Stiolto Respimat", "class": "LAMA/LABA"},
+    {"label_query": "TRELEGY ELLIPTA", "cms_brand": "Trelegy Ellipta", "class": "ICS/LAMA/LABA"},
+    {"label_query": "BREZTRI AEROSPHERE", "cms_brand": "Breztri Aerosphere", "class": "ICS/LAMA/LABA"}
+  ]
+}

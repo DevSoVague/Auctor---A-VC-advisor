@@ -1,0 +1,644 @@
+{
+  "name": "copd-drug-trials-2023-2024",
+  "rule": "PubMed COPD store, source_date 2023-01-01 to 2024-12-31; publication type is a clinical trial; title or MeSH names a drug or drug class; herbal, supplement, device, technique, screening and service studies excluded by title; 7 more excluded by hand (MANUAL_OUT). Ranked Phase III, Phase II, multicenter, other; then randomized first; then by date. Top 50.",
+  "excluded_by_hand": [
+    "pmid:38354442",
+    "pmid:38368315",
+    "pmid:38513689",
+    "pmid:38655676",
+    "pmid:39167788",
+    "pmid:39173827",
+    "pmid:39616147"
+  ],
+  "papers": [
+    {
+      "id": "pmid:36681255",
+      "source_date": "2023-01-18",
+      "tier": "Phase III",
+      "title": "Improvements in health status with revefenacin, a once-daily, nebulized, long-acting muscarinic antagonist for chronic obstructive pulmonary disease.",
+      "journal": "Respiratory medicine",
+      "publication_types": [
+        "Clinical Trial, Phase III",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:36725331",
+      "source_date": "2023-02-01",
+      "tier": "Other trial",
+      "title": "Budesonide/formoterol maintenance and reliever therapy versus fluticasone/salmeterol fixed-dose treatment in patients with COPD.",
+      "journal": "Thorax",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37011709",
+      "source_date": "2023-04-01",
+      "tier": "Other trial",
+      "title": "Valaciclovir for Epstein-Barr Virus Suppression in Moderate-to-Severe COPD: A Randomized Double-Blind Placebo-Controlled Trial.",
+      "journal": "Chest",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37272521",
+      "source_date": "2023-05-21",
+      "tier": "Phase III",
+      "title": "Dupilumab for COPD with Type 2 Inflammation Indicated by Eosinophil Counts.",
+      "journal": "The New England journal of medicine",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase III",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37364283",
+      "source_date": "2023-06-26",
+      "tier": "Phase III",
+      "title": "Ensifentrine, a Novel Phosphodiesterase 3 and 4 Inhibitor for the Treatment of Chronic Obstructive Pulmonary Disease: Randomized, Double-Blind, Placebo-controlled, Multicenter Phase III Trials (the ENHANCE Trials).",
+      "journal": "American journal of respiratory and critical care medicine",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase III",
+        "Multicenter Study",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37385657",
+      "source_date": "2023-06-29",
+      "tier": "Other trial",
+      "title": "Airway smooth muscle area to predict steroid responsiveness in COPD patients receiving triple therapy (HISTORIC): a randomised, placebo-controlled, double-blind, investigator-initiated trial.",
+      "journal": "The European respiratory journal",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37411039",
+      "source_date": "2023-07-06",
+      "tier": "Multicenter trial",
+      "title": "Icenticaftor, a CFTR Potentiator, in COPD: A Multicenter, Parallel-Group, Double-Blind Clinical Trial.",
+      "journal": "American journal of respiratory and critical care medicine",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Multicenter Study",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37450935",
+      "source_date": "2023-07-14",
+      "tier": "Other trial",
+      "title": "A Double-Blind, Randomized, Placebo-controlled Trial of Long-Term Doxycycline Therapy on Exacerbation Rate in Patients with Stable Chronic Obstructive Pulmonary Disease.",
+      "journal": "American journal of respiratory and critical care medicine",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37451701",
+      "source_date": "2023-07-14",
+      "tier": "Other trial",
+      "title": "Bisoprolol versus celiprolol on dynamic hyperinflation, cardiopulmonary exercise and domiciliary safety in COPD: a single-centre, randomised, crossover study.",
+      "journal": "BMJ open respiratory research",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37549393",
+      "source_date": "2023-08-07",
+      "tier": "Other trial",
+      "title": "Comparative Effectiveness and Safety of Generic Versus Brand-Name Fluticasone-Salmeterol to Treat Chronic Obstructive Pulmonary Disease.",
+      "journal": "Annals of internal medicine",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't",
+        "Research Support, N.I.H., Extramural"
+      ]
+    },
+    {
+      "id": "pmid:37562641",
+      "source_date": "2023-08-09",
+      "tier": "Other trial",
+      "title": "The effect of bradykinin 1 receptor antagonist BI 1026706 on pulmonary inflammation after segmental lipopolysaccharide challenge in healthy smokers.",
+      "journal": "Pulmonary pharmacology & therapeutics",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase I",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37576161",
+      "source_date": "2023-08-14",
+      "tier": "Other trial",
+      "title": "The Effect of Albuterol Spray on Hypoxia and Bronchospasm in Patients with Chronic Obstructive Pulmonary Disease (COPD) under General Anesthesia: A bouble-Blind Randomized Clinical Trial.",
+      "journal": "Ethiopian journal of health sciences",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article"
+      ]
+    },
+    {
+      "id": "pmid:37640273",
+      "source_date": "2023-08-26",
+      "tier": "Phase III",
+      "title": "Efficacy and safety of aclidinium/formoterol versus monotherapies and aclidinium versus placebo in Chinese and other Asian patients with moderate-to-severe COPD: The AVANT Phase 3 study.",
+      "journal": "Respiratory medicine",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase III",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37703629",
+      "source_date": "2023-09-09",
+      "tier": "Other trial",
+      "title": "Effects of MIdazolam versus MOrphine in acute cardiogenic pulmonary edema and chronic obstructive pulmonary disease: An analysis of MIMO trial.",
+      "journal": "The American journal of emergency medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Comparative Study",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:37978419",
+      "source_date": "2023-11-17",
+      "tier": "Multicenter trial",
+      "title": "The impact of regular, low-dose, sustained-release morphine for chronic breathlessness on caregiver burden: An exploratory analysis of the BEAMS trial.",
+      "journal": "Palliative medicine",
+      "publication_types": [
+        "Journal Article",
+        "Multicenter Study",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:38115209",
+      "source_date": "2023-12-20",
+      "tier": "Other trial",
+      "title": "A Randomized Phase I Study of the Anti-Interleukin-33 Antibody Tozorakimab in Healthy Adults and Patients With Chronic Obstructive Pulmonary Disease.",
+      "journal": "Clinical pharmacology and therapeutics",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase I",
+        "Journal Article",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:38245665",
+      "source_date": "2024-01-20",
+      "tier": "Other trial",
+      "title": "Effect of twice daily inhaled albuterol on cardiopulmonary exercise outcomes, dynamic hyperinflation, and symptoms in secondhand tobacco-exposed persons with preserved spirometry and air trapping: a randomized controlled trial.",
+      "journal": "BMC pulmonary medicine",
+      "publication_types": [
+        "Randomized Controlled Trial",
+        "Journal Article"
+      ]
+    },
+    {
+      "id": "pmid:38477675",
+      "source_date": "2024-03-13",
+      "tier": "Other trial",
+      "title": "Low-Dose Morphine Does Not Cause Sleepiness in Chronic Obstructive Pulmonary Disease: A Secondary Analysis of a Randomized Clinical Trial.",
+      "journal": "American journal of respiratory and critical care medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:38581325",
+      "source_date": "2024-04-06",
+      "tier": "Other trial",
+      "title": "The Clinical Efficacy of Combining Ambroxol Hydrochloride with Antibiotics for the Treatment of Chronic Bronchitis.",
+      "journal": "Alternative therapies in health and medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:38729884",
+      "source_date": "2024-04-25",
+      "tier": "Multicenter trial",
+      "title": "Triple Therapy and Clinical Control in B+ COPD Patients: A Pragmatic, Prospective, Randomized Trial.",
+      "journal": "Archivos de bronconeumologia",
+      "publication_types": [
+        "Journal Article",
+        "Multicenter Study",
+        "Pragmatic Clinical Trial",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:38663359",
+      "source_date": "2024-04-25",
+      "tier": "Other trial",
+      "title": "Long-Term Erythromycin Treatment Alters the Airway and Gut Microbiota: Data from Chronic Obstructive Pulmonary Disease Patients and Mice with Emphysema.",
+      "journal": "Respiration; international review of thoracic diseases",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:38724168",
+      "source_date": "2024-05-09",
+      "tier": "Phase III",
+      "title": "A Phase 3 Trial of Dupilumab for People With Chronic Obstructive Pulmonary Disease and Elevated Peripheral Blood Eosinophil Counts.",
+      "journal": "The journal of allergy and clinical immunology. In practice",
+      "publication_types": [
+        "Clinical Trial, Phase III",
+        "Journal Article",
+        "Multicenter Study",
+        "Randomized Controlled Trial",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:38758149",
+      "source_date": "2024-05-17",
+      "tier": "Other trial",
+      "title": "Impact of Indacaterol/Glycopyrrolate on Pulmonary Function and St. George's Respiratory Questionnaire Score in Individuals with Stable Chronic Obstructive Pulmonary Disease.",
+      "journal": "Alternative therapies in health and medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:38762800",
+      "source_date": "2024-05-19",
+      "tier": "Multicenter trial",
+      "title": "Bisoprolol in Patients With Chronic Obstructive Pulmonary Disease at High Risk of Exacerbation: The BICS Randomized Clinical Trial.",
+      "journal": "JAMA",
+      "publication_types": [
+        "Journal Article",
+        "Multicenter Study",
+        "Randomized Controlled Trial",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:38767614",
+      "source_date": "2024-05-20",
+      "tier": "Phase III",
+      "title": "Dupilumab for COPD with Blood Eosinophil Evidence of Type 2 Inflammation.",
+      "journal": "The New England journal of medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase III",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:38803412",
+      "source_date": "2024-05-23",
+      "tier": "Multicenter trial",
+      "title": "Phase 1 Study of MK-5475, an Inhaled Soluble Guanylate Cyclase Stimulator, in Participants with Pulmonary Hypertension Associated with Chronic Obstructive Pulmonary Disease.",
+      "journal": "International journal of chronic obstructive pulmonary disease",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase I",
+        "Multicenter Study",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:38811045",
+      "source_date": "2024-05-29",
+      "tier": "Multicenter trial",
+      "title": "Inhaled treprostinil in pulmonary hypertension associated with COPD: PERFECT study results.",
+      "journal": "The European respiratory journal",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:38811970",
+      "source_date": "2024-05-29",
+      "tier": "Other trial",
+      "title": "Nebulised interferon beta-1a (SNG001) in the treatment of viral exacerbations of COPD.",
+      "journal": "Respiratory research",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:38844921",
+      "source_date": "2024-06-06",
+      "tier": "Multicenter trial",
+      "title": "Systemic antibiotics for Pseudomonas aeruginosa infection in outpatients with non-hospitalised exacerbations of pre-existing lung diseases: a randomised clinical trial.",
+      "journal": "Respiratory research",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:38981765",
+      "source_date": "2024-07-08",
+      "tier": "Multicenter trial",
+      "title": "Long-term inhaled corticosteroid treatment in patients with chronic obstructive pulmonary disease, cardiovascular disease, and a recent hospitalised exacerbation: The ICSLIFE pragmatic, randomised controlled study.",
+      "journal": "European journal of internal medicine",
+      "publication_types": [
+        "Journal Article",
+        "Multicenter Study",
+        "Pragmatic Clinical Trial",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:38992490",
+      "source_date": "2024-07-09",
+      "tier": "Multicenter trial",
+      "title": "Rethinking Blood Eosinophils for Assessing Inhaled Corticosteroids Response in COPD: A Post Hoc Analysis From the FLAME Trial.",
+      "journal": "Chest",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:39103901",
+      "source_date": "2024-08-05",
+      "tier": "Multicenter trial",
+      "title": "Benefits of budesonide/glycopyrronium/formoterol fumarate dihydrate on lung function and exacerbations of COPD: a post-hoc analysis of the KRONOS study by blood eosinophil level and exacerbation history.",
+      "journal": "Respiratory research",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:39106052",
+      "source_date": "2024-08-06",
+      "tier": "Phase III",
+      "title": "Effect of ensifentrine on dyspnea in patients with moderate-to-severe chronic obstructive pulmonary disease: pooled analysis of the ENHANCE trials.",
+      "journal": "Expert review of respiratory medicine",
+      "publication_types": [
+        "Clinical Trial, Phase III",
+        "Journal Article",
+        "Multicenter Study",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:39183511",
+      "source_date": "2024-08-25",
+      "tier": "Other trial",
+      "title": "Population pharmacokinetic/target engagement modelling of tozorakimab in healthy volunteers and patients with chronic obstructive pulmonary disease.",
+      "journal": "British journal of clinical pharmacology",
+      "publication_types": [
+        "Journal Article",
+        "Clinical Trial, Phase I",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:39197510",
+      "source_date": "2024-08-27",
+      "tier": "Phase III",
+      "title": "Effect of Dual Phosphodiesterase 3 and 4 Inhibitor Ensifentrine on Exacerbation Rate and Risk in Patients With Moderate to Severe COPD.",
+      "journal": "Chest",
+      "publication_types": [
+        "Journal Article",
+        "Clinical Trial, Phase III",
+        "Randomized Controlled Trial",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39213002",
+      "source_date": "2024-08-30",
+      "tier": "Phase III",
+      "title": "Effect of Triple Therapy on Cardiovascular and Severe Cardiopulmonary Events in Chronic Obstructive Pulmonary Disease: A Post Hoc Analysis of a Randomized, Double-Blind, Phase 3 Clinical Trial (ETHOS).",
+      "journal": "American journal of respiratory and critical care medicine",
+      "publication_types": [
+        "Journal Article",
+        "Clinical Trial, Phase III",
+        "Randomized Controlled Trial",
+        "Multicenter Study",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39265600",
+      "source_date": "2024-09-09",
+      "tier": "Phase III",
+      "title": "Mirtazapine to alleviate severe breathlessness in patients with COPD or interstitial lung diseases (BETTER-B): an international, multicentre, double-blind, randomised, placebo-controlled, phase 3 mixed-method trial.",
+      "journal": "The Lancet. Respiratory medicine",
+      "publication_types": [
+        "Journal Article",
+        "Multicenter Study",
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase III",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39266012",
+      "source_date": "2024-09-12",
+      "tier": "Multicenter trial",
+      "title": "Respiratory safety of lemborexant in adult and elderly subjects with moderate-to-severe chronic obstructive pulmonary disease.",
+      "journal": "Journal of sleep research",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39294550",
+      "source_date": "2024-09-18",
+      "tier": "Other trial",
+      "title": "Effect of Perioperative Inhaled Tiotropium for patients with chronic Obstructive Pulmonary disease in Esophageal cancer surgery (EPITOPE): an open-label, randomized, parallel-group pilot study.",
+      "journal": "General thoracic and cardiovascular surgery",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:39316773",
+      "source_date": "2024-09-24",
+      "tier": "Phase II",
+      "title": "Ivacaftor for Chronic Obstructive Pulmonary Disease: Results from a Phase 2, Randomized Controlled Trial.",
+      "journal": "American journal of respiratory and critical care medicine",
+      "publication_types": [
+        "Journal Article",
+        "Clinical Trial, Phase II",
+        "Randomized Controlled Trial",
+        "Research Support, N.I.H., Extramural",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39349461",
+      "source_date": "2024-09-30",
+      "tier": "Multicenter trial",
+      "title": "Effect of high-dose N-acetylcysteine on exacerbations and lung function in patients with mild-to-moderate COPD: a double-blind, parallel group, multicentre randomised clinical trial.",
+      "journal": "Nature communications",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39353752",
+      "source_date": "2024-09-30",
+      "tier": "Other trial",
+      "title": "Impact of Preliminary Bronchodilator Dose in Chronic Obstructive Pulmonary Disease Patients With Suboptimal Peak Inspiratory Flow.",
+      "journal": "Clinical therapeutics",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:39429809",
+      "source_date": "2024-10-16",
+      "tier": "Phase III",
+      "title": "Revefenacin Area Under the Curve Spirometry in Patients with Moderate to Very Severe COPD.",
+      "journal": "International journal of chronic obstructive pulmonary disease",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase III",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39420338",
+      "source_date": "2024-10-17",
+      "tier": "Multicenter trial",
+      "title": "Effects of inhaled beclometasone dipropionate/formoterol fumarate/glycopyrronium vs. beclometasone dipropionate/formoterol fumarate and placebo on lung hyperinflation and exercise endurance in chronic obstructive pulmonary disease: a randomised controlled trial.",
+      "journal": "Respiratory research",
+      "publication_types": [
+        "Clinical Trial, Phase IV",
+        "Comparative Study",
+        "Journal Article",
+        "Multicenter Study",
+        "Randomized Controlled Trial"
+      ]
+    },
+    {
+      "id": "pmid:39427187",
+      "source_date": "2024-10-19",
+      "tier": "Multicenter trial",
+      "title": "CHF6523 data suggest that the phosphoinositide 3-kinase delta isoform is not a suitable target for the management of COPD.",
+      "journal": "Respiratory research",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:39481660",
+      "source_date": "2024-10-30",
+      "tier": "Phase III",
+      "title": "Dupilumab reduces exacerbations and improves lung function in patients with chronic obstructive pulmonary disease and emphysema: Phase 3 randomized trial (BOREAS).",
+      "journal": "Respiratory medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase III",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:39529298",
+      "source_date": "2024-11-11",
+      "tier": "Multicenter trial",
+      "title": "Beclometasone Dipropionate/Formoterol Fumarate is Similarly Effective to Budesonide/Formoterol Fumarate in Chinese Patients with COPD: The FORSYYN Double-Blind, Randomised Study.",
+      "journal": "COPD",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study",
+        "Equivalence Trial",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    },
+    {
+      "id": "pmid:39615502",
+      "source_date": "2024-11-29",
+      "tier": "Phase II",
+      "title": "Treating eosinophilic exacerbations of asthma and COPD with benralizumab (ABRA): a double-blind, double-dummy, active placebo-controlled randomised trial.",
+      "journal": "The Lancet. Respiratory medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Multicenter Study",
+        "Clinical Trial, Phase II"
+      ]
+    },
+    {
+      "id": "pmid:39653044",
+      "source_date": "2024-12-06",
+      "tier": "Phase II",
+      "title": "Efficacy and safety of tezepelumab versus placebo in adults with moderate to very severe chronic obstructive pulmonary disease (COURSE): a randomised, placebo-controlled, phase 2a trial.",
+      "journal": "The Lancet. Respiratory medicine",
+      "publication_types": [
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Clinical Trial, Phase II",
+        "Multicenter Study"
+      ]
+    },
+    {
+      "id": "pmid:39691156",
+      "source_date": "2024-12-12",
+      "tier": "Phase III",
+      "title": "Triple Therapy with Budesonide/Glycopyrronium/Formoterol Fumarate Dihydrate versus Dual Therapies for Patients with COPD and Phenotypic Features of Asthma: A Pooled Post Hoc Analysis of KRONOS and ETHOS.",
+      "journal": "International journal of chronic obstructive pulmonary disease",
+      "publication_types": [
+        "Clinical Trial, Phase III",
+        "Comparative Study",
+        "Journal Article",
+        "Randomized Controlled Trial",
+        "Research Support, Non-U.S. Gov't"
+      ]
+    }
+  ]
+}
