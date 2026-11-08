@@ -19,6 +19,7 @@ The repo uses a src/ layout (one importable package, `frontier`). Map PRD paths 
 | tests/, pitch/, app/, docs/ | same, top level | |
 
 Top-level `data/` holds raw downloads only and is git-ignored. Never commit data, `.env`, or run outputs.
+Exception (team decision, 2026-11-08): `person3/grounded1to8/evidence-store/data/` is committed in full (export, caches, pg_dump) so the repo holds everything from Person 3's grounded1to8. The embedding cache and the pg_dump are in git LFS (`person3/grounded1to8/.gitattributes`): install git-lfs (`brew install git-lfs && git lfs install`) and run `git lfs pull` after cloning. Keep it.
 
 ## Where the repo differs from the PRD
 
