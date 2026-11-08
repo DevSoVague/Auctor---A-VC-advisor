@@ -159,6 +159,10 @@ class Runner:
         if snap.next or any(i for t in snap.tasks for i in t.interrupts):
             return  # still going, or waiting for a human
         info = self.runs.setdefault(run_id, {})
+        if "memo" in snap.values:  # the graph's own a8_memo node already wrote it (and reported it)
+            info["memo"] = snap.values["memo"] or None
+            info["memo_error"] = snap.values.get("memo_error")
+            return
         try:
             from frontier.memo.run_memo import memo_for_run
 
@@ -400,6 +404,20 @@ async def resume(run_id: str, decision: Decision) -> dict:
     payload = decision.model_dump(exclude_none=True)
     runner.launch(run_id, Command(resume=payload))
     return {"run_id": run_id, "status": "running", "action": decision.action}
+
+
+@router.post("/{run_id}/retry")
+async def retry(run_id: str) -> dict:
+    """Continue a run that stopped on an error (for example a model API hiccup).
+
+    The graph's checkpoint holds everything finished so far, so this repeats only the step that
+    failed and carries on; nothing already paid for is run again.
+    """
+    status = await runner.status_of(run_id)
+    if status not in ("error", "stopped"):
+        raise HTTPException(409, f"run {run_id} is {status}; only a stopped or failed run retries")
+    runner.launch(run_id, None)  # input None: resume from the saved checkpoint
+    return {"run_id": run_id, "status": "running", "action": "retry"}
 
 
 @router.get("/{run_id}/citations")

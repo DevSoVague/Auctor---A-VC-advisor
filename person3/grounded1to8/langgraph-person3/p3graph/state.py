@@ -73,6 +73,8 @@ class P3State(TypedDict, total=False):
     # ---- output
     report: str
     workbook_path: str
+    memo: dict  # agent 8: {docx, pdf, xlsx} file names in the run folder
+    memo_error: str | None  # agent 8: why the memo was not written, when it was not
 
 
 Decision = dict[str, Any]  # {"action": approve|approve_all|edit|rerun, "edited_output"?, "comment"?}

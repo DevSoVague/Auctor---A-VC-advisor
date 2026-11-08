@@ -394,6 +394,17 @@ async def report(st: dict) -> tuple[dict, str]:
     return st, st["workbook_path"]
 
 
+async def a8_memo(st: dict) -> tuple[dict, str]:
+    """Agent 8: the investor memo, from the run's own checked output (no search, no web).
+    Reports to the monitor like every other node (what it read, the model call, the files)."""
+    st = copy.deepcopy(st)
+    apply(st, await N.a8_memo(st))
+    files = st.get("memo") or {}
+    if files:
+        return st, "memo written: " + ", ".join(files.values())
+    return st, st.get("memo_error") or "no memo was written"
+
+
 async def execute_custom(st: dict, *, name: str, after: str, node: str, params: str) -> tuple[dict, str]:
     """A node you added on the canvas: your function from custom_nodes.py, run where you put it."""
     st = copy.deepcopy(st)

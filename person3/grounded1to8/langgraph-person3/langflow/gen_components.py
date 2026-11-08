@@ -129,6 +129,42 @@ class {cls}(Component):
 '''
 
 
+A8 = HEAD.replace("from lfx.schema.data import Data", "from lfx.schema.data import Data\nfrom lfx.schema.message import Message") + '''
+
+class P3StepA8Memo(Component):
+    display_name = "P3 · A8 Memo"
+    description = ("Agent 8: writes the investor memo (Word, PDF, Excel) from the run's own checked output. "
+                   "It never searches. It reports to the monitor.")
+    icon = "file-text"
+    name = "P3StepA8Memo"
+
+    inputs = [HandleInput(name="state", display_name="Run state", input_types=["Data"], required=True)]
+    outputs = [
+        Output(display_name="Report + memo", name="summary", method="build_summary"),
+        Output(display_name="Run state", name="state_out", method="build_state"),
+    ]
+
+    async def _done(self):
+        lf_graph = _load_lf()
+
+        if not hasattr(self, "_cache"):
+            self._cache = await lf_graph.a8_memo(self.state.data)
+        return self._cache
+
+    async def build_summary(self) -> Message:
+        st, status = await self._done()
+        self.status = status
+        files = st.get("memo") or {}
+        memo = ("\\n\\n## Memo (agent 8)\\n" + "\\n".join(f"- {k}: runs/{st['run_id']}/{v}" for k, v in files.items())
+                if files else f"\\n\\n## Memo (agent 8)\\nNot written: {st.get('memo_error') or 'unknown reason'}")
+        return Message(text=st.get("report", "") + memo)
+
+    async def build_state(self) -> Data:
+        st, _ = await self._done()
+        return Data(data=st)
+'''
+
+
 SETUP = HEAD + '''
 
 class P3StepSetup(Component):
@@ -301,7 +337,7 @@ def main() -> None:
         for step in ORDER[a]:
             (OUT / f"step_{a}_{step}.py").write_text(step_file(a, step))
             n += 1
-    for name, src in (("step_setup", SETUP), ("step_report", REPORT), ("step_custom", CUSTOM), ("step_join", JOIN)):
+    for name, src in (("step_setup", SETUP), ("step_report", REPORT), ("step_a8_memo", A8), ("step_custom", CUSTOM), ("step_join", JOIN)):
         (OUT / f"{name}.py").write_text(src)
         n += 1
     print(f"wrote {n} components to {OUT}")

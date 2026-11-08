@@ -105,6 +105,7 @@ def build(checkpointer=None, workflow: dict | str | None = None):
                destinations=("next_card", "a6_retrieve"))
     g.add_node("a7_final", N.final_citations)  # cite_mode 'end': one A7 pass over everything
     g.add_node("report", N.report)
+    g.add_node("a8_memo", N.a8_memo)  # agent 8: the investor memo, written last from the checked output
     g.add_edge("a7_final", "report")
 
     g.add_edge(START, "setup")
@@ -119,7 +120,8 @@ def build(checkpointer=None, workflow: dict | str | None = None):
     g.add_node("a6b_judge", S.a6b_judge)
     g.add_edge("a6_commit", W.to("a6_commit", "a6b_judge"))
     g.add_edge("a6b_judge", W.to("a6b_judge", "a6_route"))
-    g.add_edge("report", W.to("report", END))
+    g.add_edge("report", W.to("report", "a8_memo"))
+    g.add_edge("a8_memo", W.to("a8_memo", END))
     W.finish(g)  # adds your inserted nodes from workflow.yaml
     return g.compile(checkpointer=checkpointer, name="person3_analysis")
 

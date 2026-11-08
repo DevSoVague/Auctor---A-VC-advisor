@@ -336,6 +336,40 @@ def _verdict_line(v: dict, j: dict, revised: bool) -> str:
     return out
 
 
+async def a8_memo(state: P3State) -> dict:
+    """Agent 8 (person 5): the investor memo, written last from the run's own checked output.
+
+    It reads the saved agent outputs only: no search, no web. It reports to the monitor like every
+    other agent: what it read, what the code picked, the model call (when the run is live), the
+    rules it applied and the files it wrote. A memo problem never fails the run.
+    """
+    import time
+
+    send = live.observer(state, "a8_memo", agent="a8_orchestrator")
+    send("start")
+    t0 = time.time()
+    try:
+        from frontier.memo.run_memo import memo_for_run
+    except ImportError as exc:  # the frontier package is not installed in this environment
+        msg = f"memo skipped: the frontier package is not installed here ({exc}). Run: pip install -e <repo>"
+        send("end", {"detail": msg, "skipped": True})
+        return {"memo": {}, "memo_error": msg}
+    try:
+        run_dir = Path(state["workbook_path"]).parent
+        files = await memo_for_run(dict(state), run_dir, send=send)
+    except Exception as exc:  # noqa: BLE001 - observability and the memo must not fail the run
+        msg = f"{type(exc).__name__}: {exc}"
+        send("error", {"error": msg})
+        return {"memo": {}, "memo_error": msg}
+    ms = int((time.time() - t0) * 1000)
+    detail = "memo written: " + ", ".join(files.values())
+    NR.say(_writer(), state["run_id"], "Memo", "📝", "a8_memo",
+           f"The investor memo is written ({', '.join(files.values())}) in {Path(state['workbook_path']).parent}.", ms)
+    send("end", {"detail": detail, "result": {"files": files}})
+    return {"memo": files, "memo_error": None,
+            "steps": [{"node": "a8_memo", "agent": "a8_orchestrator", "hid": None, "ms": ms, "detail": detail}]}
+
+
 def report_md(state: P3State) -> str:
     """The run's answer, written for a reader: the hypotheses first (verdict, product bar, competition,
     licensable assets, biggest risk), then why now, then run details. Plumbing stays in the workbook/logs."""

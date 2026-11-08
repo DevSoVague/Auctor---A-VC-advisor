@@ -144,7 +144,7 @@ def test_a_finished_run_gets_the_memo_files(client):
 def test_a_memo_failure_never_fails_the_run(client, monkeypatch):
     import frontier.memo.run_memo as M
 
-    async def boom(values, run_dir, pdf=True):
+    async def boom(values, run_dir, pdf=True, send=None):
         raise RuntimeError("renderer exploded")
 
     monkeypatch.setattr(M, "memo_for_run", boom)
@@ -159,3 +159,37 @@ def test_no_memo_while_a_guided_run_is_paused(client):
     body = wait(client, run_id)
     assert body["status"] == "paused" and body["memo"] is None
     assert "memo.docx" not in {f["name"] for f in client.get(f"/runs/{run_id}/files").json()}
+
+
+def test_a_failed_run_can_be_retried_from_its_checkpoint(client):
+    """A run that stopped on an error continues from its checkpoint; a healthy run refuses."""
+    run_id = client.post("/runs", json={**STUB, "mode": "single_shot"}).json()["run_id"]
+    wait(client, run_id)
+    assert client.post(f"/runs/{run_id}/retry").status_code == 409  # done, nothing to retry
+
+    R.runner.runs[run_id]["error"] = "APIError: Unable to process request."  # a failure
+    assert client.get(f"/runs/{run_id}").json()["status"] == "error"
+    assert client.post(f"/runs/{run_id}/retry").status_code == 200
+    body = wait(client, run_id)
+    assert body["status"] == "done" and body["error"] is None
+    assert client.post("/runs/nope/retry").status_code == 404
+
+
+def test_agent_8_reports_to_the_monitor_like_the_other_agents(client):
+    """The a8_memo node writes the memo inside the graph and emits live events the monitor shows."""
+    import json
+
+    run_id = client.post("/runs", json={**STUB, "mode": "single_shot"}).json()["run_id"]
+    body = wait(client, run_id)
+    assert body["status"] == "done" and body["memo"]["docx"] == "memo.docx"
+    live = client.get(f"/runs/{run_id}/files/live.jsonl").text.splitlines()
+    events = [json.loads(line) for line in live if line.strip()]
+    a8 = [e for e in events if e.get("node") == "a8_memo"]
+    kinds = [e["event"] for e in a8]
+    assert kinds[0] == "start" and kinds[-1] == "end", kinds
+    assert kinds.count("inputs") == 3  # what it read, the rules applied, the files written
+    reads = next(e for e in a8 if e["event"] == "inputs")["inputs"]
+    assert reads["agent 8 reads"].endswith("no search, no web)")
+    assert {"hypotheses", "claims checked", "code picked"} <= reads.keys()
+    assert a8[-1]["result"]["files"]["docx"] == "memo.docx"
+    assert all(e.get("agent") == "a8_orchestrator" for e in a8)

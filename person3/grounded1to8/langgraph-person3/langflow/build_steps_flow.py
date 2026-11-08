@@ -72,15 +72,18 @@ def build(llm_mode: str = "stub", as_of: str = "today", model: str = "profile de
     report = _cls("step_report", "P3StepReport")(_id="p3-report")
     report.set(state=last)
     pos["p3-report"] = (1, len(ROWS) + 1.5)
+    a8 = _cls("step_a8_memo", "P3StepA8Memo")(_id="p3-a8")
+    a8.set(state=report.build_state)  # agent 8 runs last, from the run's own checked output
+    pos["p3-a8"] = (2, len(ROWS) + 1.5)
     chat = ChatOutput(_id="p3-chat")
-    chat.set(input_value=report.build_report)
-    pos["p3-chat"] = (2, len(ROWS) + 1.5)
+    chat.set(input_value=a8.build_summary)
+    pos["p3-chat"] = (3, len(ROWS) + 1.5)
     return Graph(start=chat_in, end=chat, flow_name=NAME, description="Person 3, every agent step as a node."), pos
 
 
 def export(graph: Graph, pos: dict) -> Path:
     dump = graph.dump(name=NAME, description="UPMC Frontier Hypothesis Engine, person 3. Every step of A1, A2, A3 "
-                      "A4, A5 and A6 is its own node; A3, A4 and A5 run side by side after A2, then join for A6: edit a prompt, swap a model, "
+                      "A4, A5 and A6 is its own node, and A8 writes the memo last; A3, A4 and A5 run side by side after A2, then join for A6: edit a prompt, swap a model, "
                       "or add a Custom Node.")
     data = dump if isinstance(dump, dict) else json.loads(json.dumps(dump, default=lambda o: o.__dict__))
     g = data["data"]
