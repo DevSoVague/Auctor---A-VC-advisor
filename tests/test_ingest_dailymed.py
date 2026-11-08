@@ -69,7 +69,16 @@ def test_spl_from_zip_reads_the_xml():
     assert dailymed.spl_from_zip(buf.getvalue()) == SPL
 
 
-def test_rows_keep_window_versions_with_a_copd_indication():
+def test_wanted_adds_the_version_in_force_on_2023_01_01():
+    assert dailymed.wanted(dailymed.versions(HISTORY)) == [
+        (2, date(2021, 9, 26), date(2023, 1, 1)),  # in force on 2023-01-01, dated then
+        (4, date(2023, 6, 2), date(2023, 6, 2)),
+        (5, date(2024, 3, 15), date(2024, 3, 15)),
+        (7, date(2025, 11, 3), date(2025, 11, 3)),
+    ]
+
+
+def test_rows_keep_wanted_versions_with_a_copd_indication():
     no_copd = {
         "sections": {"indications_and_usage": "Made-up: asthma only."},
         "label_effective": None,
@@ -77,12 +86,17 @@ def test_rows_keep_window_versions_with_a_copd_indication():
     spls = {2: dailymed.parse_spl(SPL), 4: no_copd, 5: dailymed.parse_spl(SPL)}
     rows, report = dailymed.rows_for(CURRENT, dailymed.versions(HISTORY), spls)
     assert [(r["version_label"], r["source_date"]) for r in rows] == [
-        ("dailymed-v5", date(2024, 3, 15))  # v2 is before 2023; v7 was not downloaded
+        ("dailymed-v2", date(2023, 1, 1)),  # published 2021, never dated earlier than 2023
+        ("dailymed-v5", date(2024, 3, 15)),  # v7 was not downloaded
     ]
     assert report == ["FIXTUREBRAND A v4 (2023-06-02): no COPD indication, skipped"]
-    (row,) = rows
+    in_force, row = rows
+    assert in_force["fields"]["dailymed_published"] == "2021-09-26"
+    assert in_force["fields"]["dated"].startswith("in force on 2023-01-01")
+    assert "in force on 2023-01-01" in in_force["body"]
     assert row["id"] == "fda:NDAFIXTURE0401"
     assert row["fields"]["spl_version"] == 5 and row["fields"]["set_id"] == "fixture-set-0401"
+    assert row["fields"]["dated"] == "DailyMed publication date"
     assert "medicare_part_d" not in row["fields"]  # market data stays on fda.py's row
     assert "inhibits fixture enzymes" in row["body"]
     assert "version=5" in row["url"]

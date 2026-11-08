@@ -11,10 +11,14 @@ indications mention COPD, as another version of the same document:
     id fda:<application number>, version_label dailymed-v<n>, source_date = the date
     DailyMed published that version, fields.sections = that version's label text.
 
-A version published on the same day as a row fda.py wrote is skipped (fda.py's row
-holds the same label and more). Versions before 2023 are not stored (team whiteboard:
-2023-2025 only), and nor are versions before a drug's COPD approval, since their
-indications don't mention COPD. Raw files are kept in data/fda/dailymed/ (git-ignored).
+The version in force on 2023-01-01 (the newest one published before then) is stored
+too, dated 2023-01-01: it was public by that day, so this date is later than its real
+publication, never earlier, and a backtest cannot see it too soon. Its real publication
+date is kept in fields.dailymed_published. Older versions are not stored (team
+whiteboard: 2023-2025). A version published on the same day as a row fda.py wrote is
+skipped (fda.py's row holds the same label and more). Versions before a drug's COPD
+approval are not stored, since their indications don't mention COPD. Raw files are kept
+in data/fda/dailymed/ (git-ignored).
 
     uv run python -m frontier.ingest.dailymed      (after fda)
 """
@@ -33,7 +37,7 @@ import httpx
 
 from frontier.core.config import REPO_ROOT, Settings
 from frontier.ingest import fda
-from frontier.ingest.window import in_window
+from frontier.ingest.window import START, in_window
 
 HISTORY = "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/{setid}/history.json"
 VERSION_ZIP = "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm"
@@ -101,6 +105,14 @@ def spl_from_zip(data: bytes) -> bytes:
         return z.read(name)
 
 
+def wanted(history: list[tuple[int, date]]) -> list[tuple[int, date, date]]:
+    """(version, published, dated) for the version in force on START and every version
+    published in the window; the in-force one is dated START."""
+    before = [(v, p) for v, p in history if p < START]
+    out = [(before[-1][0], before[-1][1], START)] if before else []
+    return out + [(v, p, p) for v, p in history if in_window(p)]
+
+
 def rows_for(current: dict, history: list[tuple[int, date]], spls: dict[int, dict]) -> tuple:
     """Rows for one drug's earlier label versions, and a report line per skipped version.
 
@@ -108,8 +120,8 @@ def rows_for(current: dict, history: list[tuple[int, date]], spls: dict[int, dic
     spls: version -> parse_spl() result, for the versions that were downloaded."""
     f = current["fields"]
     rows, report = [], []
-    for version, published in history:
-        if not in_window(published) or version not in spls:
+    for version, published, dated in wanted(history):
+        if version not in spls:
             continue
         spl = spls[version]
         if not fda.COPD.search(spl["sections"].get("indications_and_usage", "")):
@@ -138,6 +150,9 @@ def rows_for(current: dict, history: list[tuple[int, date]], spls: dict[int, dic
                 "label_effective": spl["label_effective"],
                 "spl_version": version,
                 "dailymed_published": published.isoformat(),
+                "dated": "in force on 2023-01-01, published earlier"
+                if dated != published
+                else "DailyMed publication date",
                 "sections": spl["sections"],
                 "source_urls": [url],
             }
@@ -145,12 +160,13 @@ def rows_for(current: dict, history: list[tuple[int, date]], spls: dict[int, dic
         title = f"{f['brand']} ({f['generic']}): FDA label"
         body = (
             fda.body_of(label, None, f.get("drug_class") or "")
-            + f"\nDailyMed label version {version}, published {published.isoformat()}."
+            + f"\nDailyMed label version {version}, published {published.isoformat()}"
+            + (f"; in force on {dated.isoformat()}." if dated != published else ".")
         )
         rows.append(
             {
                 "id": current["id"],
-                "source_date": published,
+                "source_date": dated,
                 "version_label": f"dailymed-v{version}",
                 "title": title,
                 "body": body,
@@ -221,9 +237,10 @@ def main() -> int:
             if not setid:
                 print(f"{doc_id}: no set id, skipped")
                 continue
-            history = [(v, p) for v, p in client.history(setid) if in_window(p)]
-            spls = {v: s for v, _ in history if (s := client.spl(setid, v)) is not None}
-            missing = [v for v, _ in history if v not in spls]
+            history = client.history(setid)
+            todo = wanted(history)
+            spls = {v: s for v, _, _ in todo if (s := client.spl(setid, v)) is not None}
+            missing = [v for v, _, _ in todo if v not in spls]
             rows, report = rows_for(current, history, spls)
             rows = [r for r in rows if (r["id"], r["source_date"]) not in taken]
             fda.upsert(conn, rows)
@@ -231,7 +248,8 @@ def main() -> int:
             for line in report:
                 print(line)
             print(
-                f"{current['fields']['brand']}: {len(history)} versions in 2023-2025,"
+                f"{current['fields']['brand']}: {len(todo)} versions (in force on 2023-01-01"
+                " or published 2023-2025),"
                 f" {len(rows)} stored"
                 + (f", {len(missing)} not downloadable: {missing}" if missing else "")
                 + (f", earliest {min(r['source_date'] for r in rows)}" if rows else "")
