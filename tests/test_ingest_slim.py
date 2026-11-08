@@ -16,7 +16,8 @@ PAPERS = next(s for s in collections.load_sets() if s["name"] == slim.KEEP)["ids
 
 def test_pubmed_keeps_only_curated_papers_by_default():
     ids = pubmed.curated_ids()
-    assert len(ids) == 50 and set(PAPERS) == ids
+    every_set = {i for s in collections.load_sets() for i in s["ids"] if i.startswith("pmid:")}
+    assert len(PAPERS) == 50 and set(PAPERS) <= ids and ids == every_set
 
 
 def test_archive_merges_and_never_shrinks(tmp_path):
@@ -73,18 +74,20 @@ def test_slim_archives_then_deletes_rolled_back(tmp_path, monkeypatch):
             _trial(conn, "FIXTURE-0702", "Fixture inhaler")  # linked to nothing
             assert slim.check(conn) == []
             archived = slim.archive(conn)
-            assert archived["pubmed"] >= 1 and archived["news"] >= 1 and archived["ctgov"] >= 1
+            assert archived["pubmed"] >= 1 and archived["ctgov"] >= 1
             saved = json.loads(gzip.decompress((tmp_path / "ctgov-2023-2025.json.gz").read_bytes()))
             assert "nct:FIXTURE-0702" in {r["id"] for r in saved}
             slim.delete(conn)
             left = {
                 r[0]
                 for r in conn.execute(
-                    "SELECT id FROM documents WHERE source IN ('pubmed', 'news')"
-                    " OR id LIKE 'nct:FIXTURE-07%'"
+                    "SELECT id FROM documents WHERE id = ANY(%s) OR id LIKE '%%FIXTURE%%07%%'",
+                    (PAPERS,),
                 )
             }
-            assert left == set(PAPERS) | {"nct:FIXTURE-0701"}
+            # news stays in the store (Person 3's request); untagged papers and
+            # unlinked trials go
+            assert left == set(PAPERS) | {"nct:FIXTURE-0701", "news:FIXTURE0701"}
         finally:
             conn.rollback()  # leave the real store as it was
 

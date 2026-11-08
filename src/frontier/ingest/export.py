@@ -7,9 +7,9 @@ Writes data/export/frontier-store/ (git-ignored) and a zip of it:
   FRONTIER_FIXTURES_DIR=<unzipped folder> makes agents read it instead of the fixtures.
   Full text (where stored) is in fields.full_text.
 * retrieval/records-other-sources.json: rows whose source Record does not accept yet
-  (curated: shelved drugs and market context). Same shape; not loaded by the stub.
+  (curated: shelved drugs and market context; news). Same shape; not loaded by the stub.
 * tables/<table>.json: the structured tables (drugs, market_stats, shelved_programs,
-  trials) and parent_chunks.
+  trials, targets) and parent_chunks.
 * README.txt: what is in it, with row counts.
 
     uv run python -m frontier.ingest.export
@@ -27,7 +27,7 @@ from frontier.core.config import REPO_ROOT, Settings
 from frontier.core.retrieval import Record, Source
 
 OUT = REPO_ROOT / "data" / "export" / "frontier-store"
-TABLES = ("drugs", "market_stats", "shelved_programs", "trials", "parent_chunks")
+TABLES = ("drugs", "market_stats", "shelved_programs", "trials", "targets", "parent_chunks")
 ACCEPTED = set(typing.get_args(Source))
 
 
@@ -92,8 +92,8 @@ def write(conn, out: Path = OUT) -> dict[str, int]:
         "  Use with StubRetrievalClient: FRONTIER_FIXTURES_DIR=<this folder>.",
         f"  Papers with full text (fields.full_text): {with_text}.",
         "  Free-to-read PDF text is for the team's own analysis, not for republishing.",
-        "retrieval/records-other-sources.json: curated rows (shelved drugs, market context);",
-        "  'curated' is not yet a retrieval Source, so the stub does not load them.",
+        "retrieval/records-other-sources.json: curated rows (shelved drugs, market context)",
+        "  and news; 'curated' and 'news' are not retrieval Sources yet, so the stub skips them.",
         "tables/: structured tables and parent_chunks (full-text sections).",
         "",
         "Rows by source: " + ", ".join(f"{k} {v}" for k, v in sorted(by_source.items())),
