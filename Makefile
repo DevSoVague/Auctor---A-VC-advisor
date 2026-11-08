@@ -2,7 +2,7 @@
 UV ?= uv
 COMPOSE ?= docker compose
 
-.PHONY: help setup rebuild up down schema reset-db ingest test lint run backtest api
+.PHONY: help setup rebuild up down schema reset-db restore-evidence ingest test lint run backtest api
 
 help:
 	@echo "setup     install the locked environment (uv sync --locked)"
@@ -11,6 +11,7 @@ help:
 	@echo "down      stop Postgres (data is kept in the pgdata volume)"
 	@echo "schema    apply src/frontier/store/schema.sql (safe to rerun)"
 	@echo "reset-db  drop and recreate the evidence tables (keeps paid tables)"
+	@echo "restore-evidence  load Person 3's evidence store (pg_dump) into database frontier_evidence"
 	@echo "ingest    load COPD data            (not built yet)"
 	@echo "test      ruff + pytest with LLM_MODE=stub"
 	@echo "run       live COPD run, guided      (not built yet)"
@@ -31,6 +32,20 @@ up:
 
 down:
 	$(COMPOSE) down
+
+# Person 3's live evidence store (grounded1to8): 120 documents, 1,802 embedded chunks, trials,
+# drugs, labels. The dump is in git LFS: run `git lfs install && git lfs pull` first. Loads into
+# its own database, frontier_evidence, so the team database is untouched; then point .env at it:
+#   DATABASE_URL=postgresql://frontier:frontier@localhost:5433/frontier_evidence
+# Rerunning drops and reloads frontier_evidence (anything written to it since is lost).
+EVIDENCE_DUMP := person3/grounded1to8/evidence-store/data/dump/frontier.sql.gz
+restore-evidence:
+	@gzip -t $(EVIDENCE_DUMP) 2>/dev/null || { echo "$(EVIDENCE_DUMP) is not the real file: run git lfs pull"; exit 1; }
+	$(COMPOSE) exec -T db dropdb -U frontier --if-exists frontier_evidence
+	$(COMPOSE) exec -T db createdb -U frontier frontier_evidence
+	gunzip -c $(EVIDENCE_DUMP) | $(COMPOSE) exec -T db psql -q -v ON_ERROR_STOP=1 -U frontier -d frontier_evidence
+	$(COMPOSE) exec -T db psql -q -v ON_ERROR_STOP=1 -U frontier -d frontier_evidence < src/frontier/store/schema.sql
+	@$(COMPOSE) exec -T db psql -U frontier -d frontier_evidence -Atc "select 'documents: ' || count(*) from documents union all select 'chunks: ' || count(*) from chunks"
 
 schema:
 	$(COMPOSE) exec -T db psql -v ON_ERROR_STOP=1 -U frontier -d frontier < src/frontier/store/schema.sql
