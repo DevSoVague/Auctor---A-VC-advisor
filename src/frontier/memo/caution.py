@@ -4,7 +4,8 @@ We run one disease, so pursuits cannot be compared with other diseases. Per docs
 checked against absolute bars instead, and the memo says so. Plain code makes the call so it is
 repeatable; agent 8 only turns the returned reasons into prose.
 
-Agent 8 builds one PursuitSignals per pursuit from the other agents' outputs:
+Agent 8 builds one PursuitSignals per chosen pursuit with PursuitSignals.from_pursuit(scorecard,
+candidate) (memo/scoring.py, memo/candidates.py). The fields come from:
 - validation_level, evidence_tier: the hypothesis card (agent 2)
 - crowding_score: the landscape (agent 5)
 - best_profile_fit: highest Asset.profile_fit (agent 4) or Program.profile_fit (agent 5, map
@@ -44,12 +45,31 @@ class PursuitSignals:
     form: str  # invest | access | build
     validation_level: str  # gold | silver | bronze
     evidence_tier: int  # 1 (strongest) to 4
-    crowding_score: float
+    crowding_score: float | None  # None when A5 produced no landscape
     best_profile_fit: float | None  # None for build pursuits
     revised: bool  # survived the Red Teamer only after a revise round
     risks_without_cheap_test: int
     claims_total: int
     claims_supported: int
+
+    @classmethod
+    def from_pursuit(cls, scorecard, candidate) -> PursuitSignals:
+        """From a scoring.Scorecard and the candidates.PursuitCandidate A8 chose for it.
+
+        Duck-typed to avoid a circular import (candidates.py reads CautionBars from here).
+        """
+        return cls(
+            name=candidate.name,
+            form=candidate.form,
+            validation_level=scorecard.level,
+            evidence_tier=scorecard.tier,
+            crowding_score=scorecard.crowding,
+            best_profile_fit=candidate.fit,
+            revised=scorecard.revised,
+            risks_without_cheap_test=scorecard.risks_without_cheap_test,
+            claims_total=scorecard.claims_checked,
+            claims_supported=scorecard.claims_supported,
+        )
 
 
 @dataclass(frozen=True)
@@ -76,7 +96,7 @@ def _hard_failures(p: PursuitSignals, bars: CautionBars) -> list[str]:
 
 def _soft_failures(p: PursuitSignals, bars: CautionBars) -> list[str]:
     out = []
-    if p.crowding_score > bars.max_crowding_score:
+    if p.crowding_score is not None and p.crowding_score > bars.max_crowding_score:
         out.append(
             f"{p.name}: crowded mechanism, score {p.crowding_score:.2f} "
             f"(bar: {bars.max_crowding_score:.2f})"
