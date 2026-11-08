@@ -1,5 +1,6 @@
 """Run API over Person 3's pipeline, end to end in stub mode (0 tokens)."""
 
+import io
 import time
 from contextlib import asynccontextmanager
 
@@ -106,3 +107,38 @@ def test_result_json_carries_everything_the_memo_reads(client):
     result = client.get(f"/runs/{run_id}/files/result.json").json()
     assert {"assets", "judgments", "revise_used", "verdicts", "killed", "signals"} <= result.keys()
     assert result["assets"]  # A4/A5 outputs, keyed '<hid>:inactive' and '<hid>:landscape'
+
+
+def test_a_finished_run_gets_the_memo_files(client):
+    """Step 5: when a run finishes, agent 8's memo is written next to the report and workbook."""
+    from docx import Document
+
+    run_id = client.post("/runs", json={**STUB, "mode": "single_shot"}).json()["run_id"]
+    body = wait(client, run_id)
+    assert body["status"] == "done" and body["memo_error"] is None
+    assert body["memo"]["docx"] == "memo.docx" and body["memo"]["xlsx"] == "programs.xlsx"
+    names = {f["name"] for f in client.get(f"/runs/{run_id}/files").json()}
+    assert {"memo.docx", "programs.xlsx", "result.json", "report.md"} <= names
+    memo = client.get(f"/runs/{run_id}/files/memo.docx")
+    assert memo.status_code == 200 and memo.content[:2] == b"PK"  # a real .docx (zip)
+    assert Document(io.BytesIO(memo.content)).paragraphs
+
+
+def test_a_memo_failure_never_fails_the_run(client, monkeypatch):
+    import frontier.memo.run_memo as M
+
+    async def boom(values, run_dir, pdf=True):
+        raise RuntimeError("renderer exploded")
+
+    monkeypatch.setattr(M, "memo_for_run", boom)
+    run_id = client.post("/runs", json={**STUB, "mode": "single_shot"}).json()["run_id"]
+    body = wait(client, run_id)
+    assert body["status"] == "done" and body["error"] is None
+    assert "renderer exploded" in body["memo_error"] and body["memo"] is None
+
+
+def test_no_memo_while_a_guided_run_is_paused(client):
+    run_id = client.post("/runs", json={**STUB, "mode": "guided"}).json()["run_id"]
+    body = wait(client, run_id)
+    assert body["status"] == "paused" and body["memo"] is None
+    assert "memo.docx" not in {f["name"] for f in client.get(f"/runs/{run_id}/files").json()}

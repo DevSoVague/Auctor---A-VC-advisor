@@ -8,7 +8,7 @@
                                      action: approve | approve_all | rerun | edit
     GET  /runs/{id}/citations        every A7 citation ledger in the run
     GET  /runs/{id}/report           the run's report (markdown)
-    GET  /runs/{id}/files            files the run wrote (report, workbook; A8's memo when built)
+    GET  /runs/{id}/files            files the run wrote (report, workbook, A8's memo and sheet)
     GET  /runs/{id}/files/{name}     download one
 
 A run executes in the background until it finishes or pauses at a review (guided mode).
@@ -125,8 +125,29 @@ class Runner:
             async for chunk in self.graph.astream(inp, self.cfg(run_id), stream_mode="updates"):
                 if any(node in COMMIT_NODES for node in chunk):  # keep the workbook current
                     N.write_workbook((await self.graph.aget_state(self.cfg(run_id))).values)
+            await self._write_memo(run_id)
         except Exception as exc:  # noqa: BLE001 - surfaced to the app as status 'error'
             self.runs[run_id]["error"] = f"{type(exc).__name__}: {exc}"
+
+    async def _write_memo(self, run_id: str) -> None:
+        """Agent 8: when the run has finished (not paused for a review), write the memo files.
+
+        A memo problem is recorded as `memo_error` and never fails the run itself.
+        """
+        snap = await self.graph.aget_state(self.cfg(run_id))
+        if snap.next or any(i for t in snap.tasks for i in t.interrupts):
+            return  # still going, or waiting for a human
+        info = self.runs.setdefault(run_id, {})
+        try:
+            from frontier.memo.run_memo import memo_for_run
+
+            d = _run_dir(snap.values)
+            if d is None:
+                raise RuntimeError("the run has no output folder")
+            info["memo"] = await memo_for_run(snap.values, d)
+            info["memo_error"] = None
+        except Exception as exc:  # noqa: BLE001
+            info["memo_error"] = f"{type(exc).__name__}: {exc}"
 
     async def snapshot(self, run_id: str):
         snap = await self.graph.aget_state(self.cfg(run_id))
@@ -310,6 +331,8 @@ async def get_run(run_id: str) -> dict:
         "run_id": run_id,
         "status": await runner.status_of(run_id),
         "error": runner.runs.get(run_id, {}).get("error"),
+        "memo": runner.runs.get(run_id, {}).get("memo"),
+        "memo_error": runner.runs.get(run_id, {}).get("memo_error"),
         "settings": runner.runs.get(run_id, {}).get("settings"),
         "next": list(snap.next),
         "current_hypothesis": v.get("current"),
