@@ -142,6 +142,28 @@ def test_429_once_then_success_stays_on_the_primary():
     assert [c["model"] for c in llm.calls] == ["openai/model-a", "openai/model-a"]
 
 
+def test_call_that_hangs_times_out_and_is_retried(monkeypatch):
+    import frontier.core.router as router_module
+
+    monkeypatch.setattr(router_module, "TIMEOUT_GRACE_SECONDS", 0.0)
+    calls = []
+
+    async def hangs_once(**kwargs):
+        calls.append(kwargs)
+        if len(calls) == 1:
+            await asyncio.sleep(5)  # far past the 0.05 s limit
+        return await FakeLLM()(**kwargs)
+
+    router = make_router(hangs_once, request_timeout_seconds=0.05)
+    assert call(router) == GOOD
+    assert len(calls) == 2  # timed out, then retried on the same model
+    assert calls[0]["timeout"] == 0.05  # LiteLLM gets the limit too
+
+
+def test_timeouts_are_retryable():
+    assert is_retryable(TimeoutError())  # also covers asyncio.TimeoutError on 3.11+
+
+
 def test_5xx_is_retryable_but_4xx_is_not():
     assert is_retryable(StatusError(503)) and is_retryable(StatusError(429))
     assert not is_retryable(StatusError(400)) and not is_retryable(StatusError(401))

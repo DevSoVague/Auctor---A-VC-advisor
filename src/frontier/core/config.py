@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     max_calls_per_run: int = 300
     max_output_tokens: int = 8000
     temperature: float = 0.0  # deterministic by default, so reruns reproduce
+    # Per model call. Long enough for slow reasoning models (Person 3 measured up to
+    # ~195 s for one agent call on GLM-5.1), short enough that a stuck call can't
+    # hold a run for LiteLLM's default 10 minutes. A timeout counts as retryable.
+    request_timeout_seconds: float = 300.0
 
 
 @lru_cache
