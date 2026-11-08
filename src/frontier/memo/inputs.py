@@ -205,6 +205,7 @@ def from_graph_state(state: dict) -> MemoInput:
         pub_counts=signals.get("pub_counts") or {},
         usage=state.get("usage") or {},
         gaps=gaps,
+        test_data=(state.get("llm") or {}).get("mode") == "stub",
     )
 
 

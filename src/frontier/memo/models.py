@@ -10,7 +10,8 @@ LoggedDecision accepts any actor or action string. It is deliberately looser tha
 schemas.Decision, so that a new kind of log row can never stop the memo from being written.
 """
 
-from datetime import datetime
+import os
+from datetime import date, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -101,6 +102,11 @@ class HypothesisBundle(BaseModel):
     revised: bool = False  # used its one red-team revise round
 
 
+def evidence_floor() -> date:
+    """First day of the evidence window: the pipeline's DATA_FLOOR (2023-01-01 by default)."""
+    return date.fromisoformat(os.getenv("DATA_FLOOR", "2023-01-01"))
+
+
 class MemoInput(BaseModel):
     """The single input to A8: the whole run after every hypothesis branch has joined."""
 
@@ -115,6 +121,15 @@ class MemoInput(BaseModel):
     pub_counts: dict[str, int] = Field(default_factory=dict)  # A2: documents per target
     usage: dict[str, dict[str, Any]] = Field(default_factory=dict)  # tokens per agent
     gaps: list[str] = Field(default_factory=list)  # missing upstream pieces, stated in the memo
+    test_data: bool = False  # built from fixtures / a stub run: not a real recommendation
+
+    @property
+    def evidence_window(self) -> str:
+        """'January 1, 2023 to November 8, 2026'; just the cutoff when it is not after the floor."""
+        floor, end = evidence_floor(), self.config.as_of
+        if floor < end:
+            return f"{floor:%B %-d, %Y} to {end:%B %-d, %Y}"
+        return f"up to {end:%B %-d, %Y}"
 
     def all_claims(self) -> dict[str, Claim]:
         """Every claim any agent made about this run, by id."""

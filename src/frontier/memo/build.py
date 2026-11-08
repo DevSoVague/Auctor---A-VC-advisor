@@ -34,8 +34,12 @@ def write_memo(
 
 
 if __name__ == "__main__":
-    src = Path(sys.argv[1])
-    out = Path(sys.argv[2]) if len(sys.argv) > 2 else src.parent
-    files = write_memo(from_result_json(src), out)
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    src = Path(args[0])
+    out = Path(args[1]) if len(args) > 1 else src.parent
+    memo_input = from_result_json(src)
+    if "--test-data" in sys.argv:  # label a memo built from fixtures
+        memo_input = memo_input.model_copy(update={"test_data": True})
+    files = write_memo(memo_input, out)
     for key in ("docx", "pdf", "xlsx"):
         print(f"{key}: {files[key]}")

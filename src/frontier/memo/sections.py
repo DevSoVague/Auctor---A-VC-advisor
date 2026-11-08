@@ -101,6 +101,17 @@ def _stmt(s: Statement, src: Sources) -> list[Run]:
 
 def _front(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Sources) -> list[Block]:
     b: list[Block] = []
+    if inp.test_data:
+        b.append(
+            Callout(
+                "Test data: not a recommendation",
+                [
+                    "This memo was built from test fixtures or a test-mode run. The companies, "
+                    "drugs, trials and dates are made up, so nothing here is a real finding."
+                ],
+                tone="note",
+            )
+        )
     if d.proceed_with_caution:
         b.append(
             Callout(
@@ -414,8 +425,8 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
                 [
                     (
                         "",
-                        "Eight agents; hypotheses run in parallel and join before the "
-                        "citation check and this memo.",
+                        "Eight agents. The memo agent runs last, after every hypothesis has "
+                        "finished and its citations have been checked.",
                     )
                 ],
                 [
@@ -428,8 +439,8 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
                 [
                     (
                         "",
-                        f"Evidence cutoff: {inp.config.as_of:%B %-d, %Y}. Scores and ratings are "
-                        "computed by code from the agents' output.",
+                        f"Evidence window: {inp.evidence_window}; nothing dated outside it is "
+                        "used. Scores and ratings are computed by code from the agents' output.",
                     )
                 ],
             ]
@@ -542,7 +553,7 @@ def build_outline(inp: MemoInput, draft: MemoDraft, charts: dict[str, Path]) -> 
     front = _front(inp, draft, charts, src)
     back = _appendix(inp, draft, charts, src)
     subtitle = (
-        f"Biopharma R&D analysis · {inp.config.disease} · evidence as of "
-        f"{inp.config.as_of:%B %-d, %Y} · run {inp.run_id or 'n/a'}"
+        f"Biopharma R&D analysis · {inp.config.disease} · evidence {inp.evidence_window}"
+        f" · run {inp.run_id or 'n/a'}"
     )
     return Outline(title=draft.title, subtitle=subtitle, blocks=front + back)

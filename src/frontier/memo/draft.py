@@ -241,7 +241,7 @@ def _write(
         else "No red-team risks in this run."
     )
     mech = h.card.mechanism
-    hook = f"Imagine {_an(h.card.modality)} targeting {mech} that delivers " + _sentence(
+    hook = f"Imagine {_an(h.card.modality)} working through {mech} that delivers " + _sentence(
         profile.must_haves[0] if profile else "the product profile"
     )
     return PursuitWriteup(

@@ -9,6 +9,7 @@
 import asyncio
 import copy
 import json
+from datetime import date
 from pathlib import Path
 
 import psycopg
@@ -136,3 +137,45 @@ def test_mirroring_is_written_once_per_agent_and_replaced_on_a_rerun():
     finally:
         with psycopg.connect(url) as conn:
             conn.execute("DELETE FROM llm_calls WHERE run_id = %s::uuid", (run_uuid(run_id),))
+
+
+def _everything(doc) -> str:
+    """Paragraph and table-cell text (callouts are drawn as one-cell tables)."""
+    cells = (c.text for t in doc.tables for r in t.rows for c in r.cells)
+    return "\n".join([*(p.text for p in doc.paragraphs), *cells])
+
+
+# ---- dates and labels ------------------------------------------------------------------------
+def test_the_memo_states_the_evidence_window_not_just_a_cutoff(inp, tmp_path, monkeypatch):
+    monkeypatch.delenv("DATA_FLOOR", raising=False)
+    inp = inp.model_copy(
+        update={"config": inp.config.model_copy(update={"as_of": date(2026, 11, 8)})}
+    )
+    assert inp.evidence_window == "January 1, 2023 to November 8, 2026"
+    doc = Document(write_memo(inp, tmp_path / "m", pdf=False)["docx"])
+    text = "\n".join(p.text for p in doc.paragraphs)
+    assert "evidence January 1, 2023 to November 8, 2026" in text
+    assert "Evidence window: January 1, 2023 to November 8, 2026" in text
+
+
+def test_a_cutoff_before_the_floor_is_not_shown_as_a_window(inp):
+    assert inp.config.as_of < date(2023, 1, 1)  # the fixture is a 2021 test run
+    assert inp.evidence_window == "up to January 1, 2021"
+
+
+def test_test_data_memos_say_so(inp, tmp_path):
+    assert not inp.test_data
+    marked = inp.model_copy(update={"test_data": True})
+    doc = Document(write_memo(marked, tmp_path / "t", pdf=False)["docx"])
+    assert "test data: not a recommendation" in _everything(doc).lower()
+    plain = Document(write_memo(inp, tmp_path / "p", pdf=False)["docx"])
+    assert "test data" not in _everything(plain).lower()
+
+
+def test_a_stub_run_is_marked_as_test_data():
+    state = copy.deepcopy(STATE)
+    assert not from_graph_state(copy.deepcopy(state)).test_data
+    state["llm"] = {"mode": "stub"}
+    assert from_graph_state(state).test_data
+    state["llm"] = {"mode": "live"}
+    assert not from_graph_state(state).test_data
