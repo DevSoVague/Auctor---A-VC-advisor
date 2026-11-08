@@ -1,0 +1,3981 @@
+{
+ "run_id": "fa882ef3-f241-4b2b-90f8-98a0fae16df7",
+ "config": {
+  "disease": "COPD",
+  "disease_id": "EFO_0000341",
+  "as_of": "2021-01-01",
+  "mode": "single_shot",
+  "profile": "dev",
+  "modality": "therapeutic",
+  "risk_level": "medium",
+  "audience": "generalist",
+  "constraints": ""
+ },
+ "why_now": {
+  "shifts": [
+   {
+    "on": "2018-11-15",
+    "type": "segment",
+    "effect_on": [
+     "selection"
+    ],
+    "summary": "GOLD 2019 made blood eosinophils (>=300 cells/uL) a treatment-defining biomarker, creating a biomarker-selectable COPD segment.",
+    "claims": [
+     {
+      "id": "a1-001",
+      "agent": "a1_disease",
+      "text": "GOLD 2019 uses eosinophils >=300 to identify ICS responders",
+      "kind": "evidence",
+      "confidence": 0.85,
+      "source_ids": [
+       "fx:pm-gold2019"
+      ]
+     }
+    ]
+   },
+   {
+    "on": "2019-03-10",
+    "type": "endpoint",
+    "effect_on": [
+     "time",
+     "cost"
+    ],
+    "summary": "Annualised moderate/severe exacerbation rate is the accepted primary endpoint for add-on biologics; eosinophil enrichment shrinks sample size.",
+    "claims": [
+     {
+      "id": "a1-002",
+      "agent": "a1_disease",
+      "text": "Exacerbation rate is the accepted primary endpoint; enrichment lowers N",
+      "kind": "evidence",
+      "confidence": 0.75,
+      "source_ids": [
+       "fx:pm-endpoint-exac-2019"
+      ]
+     }
+    ]
+   },
+   {
+    "on": "2018-08-02",
+    "type": "trial_tool",
+    "effect_on": [
+     "selection"
+    ],
+    "summary": "Quantitative CT subtyping offers enrichment for airway-predominant disease.",
+    "claims": [
+     {
+      "id": "a1-003",
+      "agent": "a1_disease",
+      "text": "Quantitative CT measures identify progression-prone subtypes",
+      "kind": "evidence",
+      "confidence": 0.6,
+      "source_ids": [
+       "fx:pm-ct-imaging-2018"
+      ]
+     }
+    ]
+   },
+   {
+    "on": "2020-06-24",
+    "type": "negative",
+    "effect_on": [
+     "cost",
+     "time"
+    ],
+    "summary": "Triple therapy cut exacerbations and showed a mortality signal (ETHOS), so new agents must beat triple therapy as add-on, raising trial size and cost.",
+    "claims": [
+     {
+      "id": "a1-004",
+      "agent": "a1_disease",
+      "text": "ETHOS: triple therapy reduced exacerbations with lower all-cause mortality",
+      "kind": "evidence",
+      "confidence": 0.85,
+      "source_ids": [
+       "fx:pm-ethos-2020"
+      ]
+     }
+    ]
+   },
+   {
+    "on": "2019-05-20",
+    "type": "negative",
+    "effect_on": [
+     "selection"
+    ],
+    "summary": "Anti-IL5 programs failed in eosinophilic COPD: eosinophil count alone is not a sufficient selection biomarker for biologics.",
+    "claims": [
+     {
+      "id": "a1-005",
+      "agent": "a1_disease",
+      "text": "Benralizumab did not reduce exacerbations despite eosinophil depletion",
+      "kind": "evidence",
+      "confidence": 0.85,
+      "source_ids": [
+       "fx:pm-galathea-2019"
+      ]
+     },
+     {
+      "id": "a1-006",
+      "agent": "a1_disease",
+      "text": "FDA declined mepolizumab for COPD",
+      "kind": "evidence",
+      "confidence": 0.85,
+      "source_ids": [
+       "fx:pm-crl-mepo-2018"
+      ]
+     }
+    ]
+   }
+  ],
+  "segments": [
+   {
+    "name": "Type 2 / eosinophilic exacerbator on triple therapy",
+    "inclusion_criteria": [
+     "blood eosinophils >=300 cells/uL",
+     ">=2 moderate or >=1 severe exacerbation in prior year",
+     "on ICS/LAMA/LABA triple therapy",
+     "FeNO >=25 ppb (optional enrichment)"
+    ],
+    "claims": [
+     {
+      "id": "a1-007",
+      "agent": "a1_disease",
+      "text": "20-40% of COPD shows type 2 inflammation linked to exacerbations",
+      "kind": "evidence",
+      "confidence": 0.7,
+      "source_ids": [
+       "fx:pm-type2-copd-2019"
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Former-smoker frequent exacerbator, non-type-2",
+    "inclusion_criteria": [
+     "former smoker >=10 pack-years",
+     "blood eosinophils <300 cells/uL",
+     ">=2 moderate exacerbations in prior year"
+    ],
+    "claims": [
+     {
+      "id": "a1-008",
+      "agent": "a1_disease",
+      "text": "Smoke-driven IL-33 release is type-2-independent",
+      "kind": "reasoning",
+      "confidence": 0.5,
+      "source_ids": []
+     }
+    ]
+   },
+   {
+    "name": "Symptomatic moderate COPD needing better bronchodilation",
+    "inclusion_criteria": [
+     "FEV1 30-70% predicted",
+     "mMRC >=2 despite LAMA or LAMA/LABA"
+    ],
+    "claims": [
+     {
+      "id": "a1-009",
+      "agent": "a1_disease",
+      "text": "Dual PDE3/4 inhibition improved FEV1 on top of LAMA",
+      "kind": "evidence",
+      "confidence": 0.7,
+      "source_ids": [
+       "fx:pm-pde3-4-ph2-2018"
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "cards": [
+  {
+   "id": "h1",
+   "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)",
+   "target_ids": [
+    "hgnc:PDE3A",
+    "hgnc:PDE4B",
+    "hgnc:PDE4D"
+   ],
+   "direction": "inhibit",
+   "evidence_tier": 1,
+   "validation_level": "gold",
+   "modality": "inhaled small molecule",
+   "tractability": "PDE3A/PDE4B small-molecule tractable; oral PDE4 precedent approved",
+   "safety_clues": [
+    "oral PDE4 GI intolerance; inhaled route may avoid it"
+   ],
+   "biggest_uncertainty": "Whether bronchodilation + anti-inflammatory effect translates into exacerbation reduction",
+   "rationale_other_conditions": "PDE4 inhibition approved in psoriasis/atopic dermatitis",
+   "claims": [
+    {
+     "id": "a2-h1-001",
+     "agent": "a2_mechanism",
+     "text": "Ensifentrine improved FEV1 on top of LAMA",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    },
+    {
+     "id": "a2-h1-002",
+     "agent": "a2_mechanism",
+     "text": "Oral PDE4 inhibition is approved for COPD exacerbations",
+     "kind": "evidence",
+     "confidence": 0.9,
+     "source_ids": [
+      "fx:fda-roflumilast-2011"
+     ]
+    },
+    {
+     "id": "a2-h1-003",
+     "agent": "a2_mechanism",
+     "text": "Oral PDE4 causes GI intolerance",
+     "kind": "evidence",
+     "confidence": 0.8,
+     "source_ids": [
+      "fx:pm-roflu-safety-2016"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "h2",
+   "mechanism": "IL-4Ra blockade in type 2 COPD",
+   "target_ids": [
+    "hgnc:IL4R",
+    "hgnc:IL13"
+   ],
+   "direction": "inhibit",
+   "evidence_tier": 1,
+   "validation_level": "gold",
+   "modality": "monoclonal antibody",
+   "tractability": "Antibody-tractable; approved antibody in asthma",
+   "safety_clues": [
+    "conjunctivitis",
+    "transient eosinophilia"
+   ],
+   "biggest_uncertainty": "Whether type 2 COPD responds like type 2 asthma, given anti-IL5 failures",
+   "rationale_other_conditions": "IL-4Ra blockade effective in asthma and atopic dermatitis",
+   "claims": [
+    {
+     "id": "a2-h2-001",
+     "agent": "a2_mechanism",
+     "text": "Type 2 inflammation in 20-40% of COPD",
+     "kind": "evidence",
+     "confidence": 0.7,
+     "source_ids": [
+      "fx:pm-type2-copd-2019"
+     ]
+    },
+    {
+     "id": "a2-h2-002",
+     "agent": "a2_mechanism",
+     "text": "IL4R antibody reduced asthma exacerbations, more with eos>=300",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    },
+    {
+     "id": "a2-h2-003",
+     "agent": "a2_mechanism",
+     "text": "Phase 3 in eosinophilic COPD on triple therapy is under way",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    }
+   ]
+  },
+  {
+   "id": "h3",
+   "mechanism": "IL-33 / ST2 alarmin blockade in former smokers",
+   "target_ids": [
+    "hgnc:IL33",
+    "hgnc:IL1RL1"
+   ],
+   "direction": "inhibit",
+   "evidence_tier": 2,
+   "validation_level": "silver",
+   "modality": "monoclonal antibody",
+   "tractability": "Antibody-tractable ligand and receptor",
+   "safety_clues": [
+    "none found in evidence"
+   ],
+   "biggest_uncertainty": "Whether the effect is limited to former smokers and replicates",
+   "rationale_other_conditions": "IL33/IL1RL1 genetics in asthma",
+   "claims": [
+    {
+     "id": "a2-h3-001",
+     "agent": "a2_mechanism",
+     "text": "IL33 and IL1RL1 variants associate with airway disease",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    },
+    {
+     "id": "a2-h3-002",
+     "agent": "a2_mechanism",
+     "text": "Smoke drives IL-33 release, type-2-independent",
+     "kind": "evidence",
+     "confidence": 0.65,
+     "source_ids": [
+      "fx:pm-il33-smoke-2020"
+     ]
+    },
+    {
+     "id": "a2-h3-003",
+     "agent": "a2_mechanism",
+     "text": "Anti-IL33 and anti-ST2 Phase 2 programs active",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    }
+   ]
+  },
+  {
+   "id": "h4",
+   "mechanism": "TSLP blockade upstream of type 2 and non-type 2",
+   "target_ids": [
+    "hgnc:TSLP"
+   ],
+   "direction": "inhibit",
+   "evidence_tier": 2,
+   "validation_level": "silver",
+   "modality": "monoclonal antibody",
+   "tractability": "Antibody-tractable",
+   "safety_clues": [
+    "none found in evidence"
+   ],
+   "biggest_uncertainty": "COPD efficacy unknown; asthma data may not transfer",
+   "rationale_other_conditions": "Anti-TSLP reduced asthma exacerbations regardless of eosinophils",
+   "claims": [
+    {
+     "id": "a2-h4-001",
+     "agent": "a2_mechanism",
+     "text": "Anti-TSLP reduced asthma exacerbations independent of eosinophils",
+     "kind": "evidence",
+     "confidence": 0.75,
+     "source_ids": [
+      "fx:pm-tslp-asthma-2017"
+     ]
+    },
+    {
+     "id": "a2-h4-002",
+     "agent": "a2_mechanism",
+     "text": "TSLP blockade reduced smoke-induced inflammation in mice",
+     "kind": "reasoning",
+     "confidence": 0.4,
+     "source_ids": []
+    }
+   ]
+  },
+  {
+   "id": "h5",
+   "mechanism": "IL-5 / eosinophil depletion",
+   "target_ids": [
+    "hgnc:IL5",
+    "hgnc:IL5RA"
+   ],
+   "direction": "inhibit",
+   "evidence_tier": 3,
+   "validation_level": "bronze",
+   "modality": "monoclonal antibody",
+   "tractability": "Antibody-tractable; approved in asthma",
+   "safety_clues": [
+    "none found in evidence"
+   ],
+   "biggest_uncertainty": "Eosinophils may be a marker, not a driver, in COPD",
+   "rationale_other_conditions": "Effective in eosinophilic asthma",
+   "claims": [
+    {
+     "id": "a2-h5-001",
+     "agent": "a2_mechanism",
+     "text": "Mepolizumab modest, inconsistent in eosinophilic COPD",
+     "kind": "evidence",
+     "confidence": 0.6,
+     "source_ids": [
+      "fx:pm-metrex-2017"
+     ]
+    },
+    {
+     "id": "a2-h5-002",
+     "agent": "a2_mechanism",
+     "text": "Eosinophil depletion reverses emphysema in mice",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    }
+   ]
+  }
+ ],
+ "grades": {
+  "h1": {
+   "tier": 1,
+   "level": "gold",
+   "lines": 3,
+   "genetic": 0.2,
+   "phase_in_disease": 4,
+   "human_docs": 1,
+   "failed_precedent": [],
+   "reject": null,
+   "rank": 1,
+   "pub_count": 6
+  },
+  "h2": {
+   "tier": 1,
+   "level": "gold",
+   "lines": 3,
+   "genetic": 0.2,
+   "phase_in_disease": 3,
+   "human_docs": 1,
+   "failed_precedent": [],
+   "reject": null,
+   "rank": 2,
+   "pub_count": 3
+  },
+  "h3": {
+   "tier": 2,
+   "level": "silver",
+   "lines": 3,
+   "genetic": 0.45,
+   "phase_in_disease": 2,
+   "human_docs": 1,
+   "failed_precedent": [],
+   "reject": null,
+   "rank": 3,
+   "pub_count": 4
+  },
+  "h4": {
+   "tier": 2,
+   "level": "silver",
+   "lines": 3,
+   "genetic": 0.25,
+   "phase_in_disease": 2,
+   "human_docs": 1,
+   "failed_precedent": [],
+   "reject": null,
+   "rank": 4,
+   "pub_count": 2
+  },
+  "h5": {
+   "tier": 3,
+   "level": "bronze",
+   "lines": 2,
+   "genetic": 0.05,
+   "phase_in_disease": 3,
+   "human_docs": 2,
+   "failed_precedent": [
+    "fx:pm-metrex-2017",
+    "fx:pm-crl-mepo-2018",
+    "fx:pm-galathea-2019"
+   ],
+   "reject": null,
+   "rank": 5,
+   "pub_count": 5
+  }
+ },
+ "profiles": {
+  "h1": {
+   "hypothesis_id": "h1",
+   "soc_gap_at_launch": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.",
+   "minimum_specs": [
+    "FEV1 AUC0-12h improvement >=100 mL vs placebo on top of LAMA",
+    "GI AE rate within 5% of placebo"
+   ],
+   "holy_grail_specs": [
+    "once-daily dry-powder inhaler",
+    ">=30% exacerbation reduction"
+   ],
+   "must_haves": [
+    ">=100 mL FEV1 improvement on top of LAMA",
+    "GI adverse-event rate within 5% of placebo"
+   ],
+   "expansion_opportunity": "Non-CF bronchiectasis and asthma via the same dual mechanism",
+   "claims": [
+    {
+     "id": "a3-h1-001",
+     "agent": "a3_profile",
+     "text": "Ensifentrine Phase 3 under way",
+     "kind": "evidence",
+     "confidence": 0.8,
+     "source_ids": [
+      "fx:nct-enhance1"
+     ]
+    },
+    {
+     "id": "a3-h1-002",
+     "agent": "a3_profile",
+     "text": "Oral PDE4 GI intolerance limits use",
+     "kind": "evidence",
+     "confidence": 0.8,
+     "source_ids": [
+      "fx:pm-roflu-safety-2016"
+     ]
+    }
+   ]
+  },
+  "h2": {
+   "hypothesis_id": "h2",
+   "soc_gap_at_launch": "At launch, eosinophilic exacerbators on triple therapy still exacerbate; anti-IL5 failed, so no approved biologic is expected for this segment.",
+   "minimum_specs": [
+    ">=25% reduction in moderate/severe exacerbations vs placebo on top of triple therapy in eos>=300"
+   ],
+   "holy_grail_specs": [
+    ">=40% exacerbation reduction plus >=100 mL FEV1 gain",
+    "dosing every 4 weeks or less often"
+   ],
+   "must_haves": [
+    ">=25% reduction in annualised moderate/severe exacerbations on triple therapy, eos>=300"
+   ],
+   "expansion_opportunity": "Asthma-COPD overlap and chronic rhinosinusitis comorbidity",
+   "claims": [
+    {
+     "id": "a3-h2-001",
+     "agent": "a3_profile",
+     "text": "Phase 3 in eos>=300 on triple therapy",
+     "kind": "evidence",
+     "confidence": 0.85,
+     "source_ids": [
+      "fx:nct-boreas"
+     ]
+    },
+    {
+     "id": "a3-h2-002",
+     "agent": "a3_profile",
+     "text": "Anti-IL5 failed in eosinophilic COPD",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    }
+   ]
+  },
+  "h3": {
+   "hypothesis_id": "h3",
+   "soc_gap_at_launch": "Former smokers with low eosinophils have no targeted biologic; type 2 agents will not cover them.",
+   "minimum_specs": [
+    ">=20% reduction in exacerbations in former smokers"
+   ],
+   "holy_grail_specs": [
+    ">=30% exacerbation reduction across smoking status"
+   ],
+   "must_haves": [
+    ">=20% reduction in annualised exacerbations in patients with eos<300 cells/uL"
+   ],
+   "expansion_opportunity": "Asthma; idiopathic pulmonary fibrosis exploratory",
+   "claims": [
+    {
+     "id": "a3-h3-001",
+     "agent": "a3_profile",
+     "text": "IL-33 is type-2-independent",
+     "kind": "evidence",
+     "confidence": 0.6,
+     "source_ids": [
+      "fx:pm-il33-smoke-2020"
+     ]
+    }
+   ]
+  },
+  "h4": {
+   "hypothesis_id": "h4",
+   "soc_gap_at_launch": "No biologic covers both type 2 and non-type 2 COPD at launch.",
+   "minimum_specs": [
+    ">=20% exacerbation reduction regardless of eosinophil count"
+   ],
+   "holy_grail_specs": [
+    ">=30% reduction, dosing every 4 weeks"
+   ],
+   "must_haves": [
+    ">=20% reduction in annualised exacerbations independent of eosinophil count"
+   ],
+   "expansion_opportunity": "Asthma (precedent); nasal polyps",
+   "claims": [
+    {
+     "id": "a3-h4-001",
+     "agent": "a3_profile",
+     "text": "Anti-TSLP asthma effect independent of eosinophils",
+     "kind": "reasoning",
+     "confidence": 0.5,
+     "source_ids": []
+    }
+   ]
+  },
+  "h5": {
+   "hypothesis_id": "h5",
+   "soc_gap_at_launch": "Eosinophilic COPD remains uncovered after anti-IL5 failures.",
+   "minimum_specs": [
+    ">=20% exacerbation reduction in eos>=300"
+   ],
+   "holy_grail_specs": [
+    ">=35% reduction"
+   ],
+   "must_haves": [
+    ">=20% reduction in annualised exacerbations in eos>=300 on triple therapy"
+   ],
+   "expansion_opportunity": "Hypereosinophilic syndromes",
+   "claims": [
+    {
+     "id": "a3-h5-001",
+     "agent": "a3_profile",
+     "text": "Anti-IL5 effect in COPD inconsistent",
+     "kind": "evidence",
+     "confidence": 0.6,
+     "source_ids": [
+      "fx:pm-metrex-2017"
+     ]
+    }
+   ]
+  }
+ },
+ "assets": {
+  "h1:inactive": {
+   "hypothesis_id": "h1",
+   "repurposing": [
+    {
+     "name": "fixremilast",
+     "entity_id": "chembl:FIXTURE-D701",
+     "owner": "Fixture Derm Inc",
+     "stage": "Approved (plaque psoriasis)",
+     "last_activity": "2014-03-21",
+     "limitations": "Oral dosing brings systemic PDE4 GI effects.",
+     "profile_fit": 0.5,
+     "claims": [
+      {
+       "id": "a4-h1-c1",
+       "agent": "a4_inactive",
+       "text": "Latest stage of fixremilast (Fixture Derm Inc): Approved (plaque psoriasis).",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "fda:FIXTURE-A701"
+       ]
+      },
+      {
+       "id": "a4-h1-c2",
+       "agent": "a4_inactive",
+       "text": "Approved in plaque psoriasis.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "fda:FIXTURE-A701"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "fixostazol",
+     "entity_id": "chembl:FIXTURE-D703",
+     "owner": "Unknown",
+     "stage": "Approved (intermittent claudication)",
+     "last_activity": null,
+     "limitations": "PDE3 only; no anti-inflammatory PDE4 activity.",
+     "profile_fit": 0.2,
+     "claims": [
+      {
+       "id": "a4-h1-c3",
+       "agent": "a4_inactive",
+       "text": "Latest stage of fixostazol (Unknown): Approved (intermittent claudication).",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "chembl:FIXTURE-D703"
+       ]
+      }
+     ]
+    }
+   ],
+   "shelved": [
+    {
+     "name": "FIX-404",
+     "entity_id": "chembl:FIXTURE-D404",
+     "owner": "Fixture Therapeutics",
+     "stage": "Phase 2, terminated (COPD)",
+     "last_activity": "2020-03-15",
+     "limitations": "Stopped for business reasons; inhaled formulation exists.",
+     "profile_fit": 0.7,
+     "claims": [
+      {
+       "id": "a4-h1-c4",
+       "agent": "a4_inactive",
+       "text": "Latest stage of FIX-404 (Fixture Therapeutics): Phase 2, terminated (COPD).",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a4-h1-c5",
+       "agent": "a4_inactive",
+       "text": "FIX-404 looks inactive: nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "FIX-702",
+     "entity_id": "chembl:FIXTURE-D702",
+     "owner": "Fixture Biotech",
+     "stage": "Phase 2, terminated (atopic dermatitis)",
+     "last_activity": "2019-10-01",
+     "limitations": "Failed on efficacy in atopic dermatitis; untested in the lung.",
+     "profile_fit": 0.6,
+     "claims": [
+      {
+       "id": "a4-h1-c6",
+       "agent": "a4_inactive",
+       "text": "Latest stage of FIX-702 (Fixture Biotech): Phase 2, terminated (atopic dermatitis).",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C702"
+       ]
+      },
+      {
+       "id": "a4-h1-c7",
+       "agent": "a4_inactive",
+       "text": "FIX-702 looks inactive: nct:FIXTURE-C702 terminated (efficacy): Lack of efficacy at interim analysis.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C702"
+       ]
+      },
+      {
+       "id": "a4-h1-c8",
+       "agent": "a4_inactive",
+       "text": "Terminated for lack of efficacy.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C702"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "fixozolast",
+     "entity_id": "chembl:FIXTURE-D802",
+     "owner": "Fixture Airways",
+     "stage": "Phase 2, terminated (asthma)",
+     "last_activity": "2019-05-01",
+     "limitations": "Stopped for liver toxicity in asthma; oral exposure.",
+     "profile_fit": 0.8,
+     "claims": [
+      {
+       "id": "a4-h1-c9",
+       "agent": "a4_inactive",
+       "text": "Latest stage of fixozolast (Fixture Airways): Phase 2, terminated (asthma).",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h1-c10",
+       "agent": "a4_inactive",
+       "text": "fixozolast looks inactive: No registry update since 2019-05-01.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h1-c11",
+       "agent": "a4_inactive",
+       "text": "Terminated for hepatic adverse events.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h1-c12",
+       "agent": "a4_inactive",
+       "text": "Reasoning: fixozolast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ]
+  },
+  "h1:landscape": {
+   "hypothesis_id": "h1",
+   "programs": [
+    {
+     "asset": "fixtafilast",
+     "owner": "Fixture Bio Inc",
+     "owner_type": "startup",
+     "mechanism": "PDE3/PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C101",
+     "novel_edge": "Inhaled dual PDE3/PDE4 inhibition adds bronchodilation without systemic PDE4 exposure.",
+     "profile_fit": "yes",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": "Form D filed 2019-04-02",
+     "claims": [
+      {
+       "id": "a5-h1-c1",
+       "agent": "a5_active",
+       "text": "fixtafilast (Fixture Bio Inc) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      },
+      {
+       "id": "a5-h1-c2",
+       "agent": "a5_active",
+       "text": "Fixture Bio Inc filed a Form D on 2019-04-02.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E1"
+       ]
+      },
+      {
+       "id": "a5-h1-c3",
+       "agent": "a5_active",
+       "text": "Phase 3 trial on top of maintenance therapy.",
+       "kind": "evidence",
+       "confidence": 0.7,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "fixomilast",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Approved",
+     "lead_trial": null,
+     "novel_edge": "Oral PDE4 inhibitor; the standard of care this hypothesis must beat.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h1-c4",
+       "agent": "a5_active",
+       "text": "fixomilast (Fixture Pharma) is at Approved in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "fda:FIXTURE-A111"
+       ]
+      },
+      {
+       "id": "a5-h1-c5",
+       "agent": "a5_active",
+       "text": "Reasoning: oral dosing implies systemic GI side effects.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    },
+    {
+     "asset": "fixodilast",
+     "owner": "Fixture Respiratory",
+     "owner_type": "startup",
+     "mechanism": "Phosphodiesterase 4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C801",
+     "novel_edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h1-c6",
+       "agent": "a5_active",
+       "text": "fixodilast (Fixture Respiratory) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h1-c7",
+       "agent": "a5_active",
+       "text": "Phase 2 inhaled study in COPD.",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h1-c8",
+       "agent": "a5_active",
+       "text": "Reasoning: fixodilast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    },
+    {
+     "asset": "FIX-404",
+     "owner": "Fixture Therapeutics",
+     "owner_type": "startup",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C404",
+     "novel_edge": "Inhaled PDE4 inhibitor, stopped in Phase 2.",
+     "profile_fit": "no",
+     "deprioritized": true,
+     "flag_reason": "nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns",
+     "funding_signal": "Form D filed 2018-01-10",
+     "claims": [
+      {
+       "id": "a5-h1-c9",
+       "agent": "a5_active",
+       "text": "FIX-404 (Fixture Therapeutics) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h1-c10",
+       "agent": "a5_active",
+       "text": "FIX-404 looks deprioritized: nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h1-c11",
+       "agent": "a5_active",
+       "text": "Fixture Therapeutics filed a Form D on 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E3"
+       ]
+      }
+     ]
+    }
+   ],
+   "orthogonal": [
+    {
+     "asset": "fixolumab",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "IL-4R alpha antagonist",
+     "modality": "Antibody",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C202",
+     "novel_edge": "Biologic for the eosinophilic segment.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h1-c12",
+       "agent": "a5_active",
+       "text": "fixolumab (Fixture Pharma) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      },
+      {
+       "id": "a5-h1-c13",
+       "agent": "a5_active",
+       "text": "Enrolls patients with blood eosinophils >= 300 cells/uL.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-505",
+     "owner": "University of Fixture",
+     "owner_type": "academic",
+     "mechanism": "PDE4B inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C505",
+     "novel_edge": "PDE4B-selective, which may spare PDE4D-driven nausea.",
+     "profile_fit": "partly",
+     "deprioritized": true,
+     "flag_reason": "No registry update since 2018-01-10",
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h1-c14",
+       "agent": "a5_active",
+       "text": "FIX-505 (University of Fixture) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      },
+      {
+       "id": "a5-h1-c15",
+       "agent": "a5_active",
+       "text": "FIX-505 looks deprioritized: No registry update since 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      }
+     ]
+    }
+   ],
+   "crowding_score": 0.975,
+   "catalysts": [
+    {
+     "on": "2021-06-30",
+     "what": "fixtafilast: Phase 3 primary completion",
+     "source_ids": [
+      "nct:FIXTURE-C101"
+     ]
+    }
+   ]
+  },
+  "h2:inactive": {
+   "hypothesis_id": "h2",
+   "repurposing": [],
+   "shelved": [
+    {
+     "name": "fixozolast",
+     "entity_id": "chembl:FIXTURE-D802",
+     "owner": "Fixture Airways",
+     "stage": "Phase 2, terminated (asthma)",
+     "last_activity": "2019-05-01",
+     "limitations": "Stopped for liver toxicity in asthma; oral exposure.",
+     "profile_fit": 0.8,
+     "claims": [
+      {
+       "id": "a4-h2-c1",
+       "agent": "a4_inactive",
+       "text": "Latest stage of fixozolast (Fixture Airways): Phase 2, terminated (asthma).",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h2-c2",
+       "agent": "a4_inactive",
+       "text": "fixozolast looks inactive: No registry update since 2019-05-01.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h2-c3",
+       "agent": "a4_inactive",
+       "text": "Terminated for hepatic adverse events.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h2-c4",
+       "agent": "a4_inactive",
+       "text": "Reasoning: fixozolast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ]
+  },
+  "h2:landscape": {
+   "hypothesis_id": "h2",
+   "programs": [
+    {
+     "asset": "fixodilast",
+     "owner": "Fixture Respiratory",
+     "owner_type": "startup",
+     "mechanism": "Phosphodiesterase 4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C801",
+     "novel_edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h2-c1",
+       "agent": "a5_active",
+       "text": "fixodilast (Fixture Respiratory) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h2-c2",
+       "agent": "a5_active",
+       "text": "Phase 2 inhaled study in COPD.",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h2-c3",
+       "agent": "a5_active",
+       "text": "Reasoning: fixodilast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ],
+   "orthogonal": [
+    {
+     "asset": "fixtafilast",
+     "owner": "Fixture Bio Inc",
+     "owner_type": "startup",
+     "mechanism": "PDE3/PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C101",
+     "novel_edge": "Inhaled dual PDE3/PDE4 inhibition adds bronchodilation without systemic PDE4 exposure.",
+     "profile_fit": "yes",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": "Form D filed 2019-04-02",
+     "claims": [
+      {
+       "id": "a5-h2-c4",
+       "agent": "a5_active",
+       "text": "fixtafilast (Fixture Bio Inc) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      },
+      {
+       "id": "a5-h2-c5",
+       "agent": "a5_active",
+       "text": "Fixture Bio Inc filed a Form D on 2019-04-02.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E1"
+       ]
+      },
+      {
+       "id": "a5-h2-c6",
+       "agent": "a5_active",
+       "text": "Phase 3 trial on top of maintenance therapy.",
+       "kind": "evidence",
+       "confidence": 0.7,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "fixomilast",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Approved",
+     "lead_trial": null,
+     "novel_edge": "Oral PDE4 inhibitor; the standard of care this hypothesis must beat.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h2-c7",
+       "agent": "a5_active",
+       "text": "fixomilast (Fixture Pharma) is at Approved in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "fda:FIXTURE-A111"
+       ]
+      },
+      {
+       "id": "a5-h2-c8",
+       "agent": "a5_active",
+       "text": "Reasoning: oral dosing implies systemic GI side effects.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    },
+    {
+     "asset": "fixolumab",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "IL-4R alpha antagonist",
+     "modality": "Antibody",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C202",
+     "novel_edge": "Biologic for the eosinophilic segment.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h2-c9",
+       "agent": "a5_active",
+       "text": "fixolumab (Fixture Pharma) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      },
+      {
+       "id": "a5-h2-c10",
+       "agent": "a5_active",
+       "text": "Enrolls patients with blood eosinophils >= 300 cells/uL.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-505",
+     "owner": "University of Fixture",
+     "owner_type": "academic",
+     "mechanism": "PDE4B inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C505",
+     "novel_edge": "PDE4B-selective, which may spare PDE4D-driven nausea.",
+     "profile_fit": "partly",
+     "deprioritized": true,
+     "flag_reason": "No registry update since 2018-01-10",
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h2-c11",
+       "agent": "a5_active",
+       "text": "FIX-505 (University of Fixture) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      },
+      {
+       "id": "a5-h2-c12",
+       "agent": "a5_active",
+       "text": "FIX-505 looks deprioritized: No registry update since 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-404",
+     "owner": "Fixture Therapeutics",
+     "owner_type": "startup",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C404",
+     "novel_edge": "Inhaled PDE4 inhibitor, stopped in Phase 2.",
+     "profile_fit": "no",
+     "deprioritized": true,
+     "flag_reason": "nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns",
+     "funding_signal": "Form D filed 2018-01-10",
+     "claims": [
+      {
+       "id": "a5-h2-c13",
+       "agent": "a5_active",
+       "text": "FIX-404 (Fixture Therapeutics) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h2-c14",
+       "agent": "a5_active",
+       "text": "FIX-404 looks deprioritized: nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h2-c15",
+       "agent": "a5_active",
+       "text": "Fixture Therapeutics filed a Form D on 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E3"
+       ]
+      }
+     ]
+    }
+   ],
+   "crowding_score": 0.495,
+   "catalysts": [
+    {
+     "on": "2021-06-30",
+     "what": "fixtafilast: Phase 3 primary completion",
+     "source_ids": [
+      "nct:FIXTURE-C101"
+     ]
+    }
+   ]
+  },
+  "h3:inactive": {
+   "hypothesis_id": "h3",
+   "repurposing": [],
+   "shelved": [
+    {
+     "name": "fixozolast",
+     "entity_id": "chembl:FIXTURE-D802",
+     "owner": "Fixture Airways",
+     "stage": "Phase 2, terminated (asthma)",
+     "last_activity": "2019-05-01",
+     "limitations": "Stopped for liver toxicity in asthma; oral exposure.",
+     "profile_fit": 0.8,
+     "claims": [
+      {
+       "id": "a4-h3-c1",
+       "agent": "a4_inactive",
+       "text": "Latest stage of fixozolast (Fixture Airways): Phase 2, terminated (asthma).",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h3-c2",
+       "agent": "a4_inactive",
+       "text": "fixozolast looks inactive: No registry update since 2019-05-01.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h3-c3",
+       "agent": "a4_inactive",
+       "text": "Terminated for hepatic adverse events.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C802"
+       ]
+      },
+      {
+       "id": "a4-h3-c4",
+       "agent": "a4_inactive",
+       "text": "Reasoning: fixozolast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ]
+  },
+  "h3:landscape": {
+   "hypothesis_id": "h3",
+   "programs": [
+    {
+     "asset": "fixodilast",
+     "owner": "Fixture Respiratory",
+     "owner_type": "startup",
+     "mechanism": "Phosphodiesterase 4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C801",
+     "novel_edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h3-c1",
+       "agent": "a5_active",
+       "text": "fixodilast (Fixture Respiratory) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h3-c2",
+       "agent": "a5_active",
+       "text": "Phase 2 inhaled study in COPD.",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h3-c3",
+       "agent": "a5_active",
+       "text": "Reasoning: fixodilast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ],
+   "orthogonal": [
+    {
+     "asset": "fixtafilast",
+     "owner": "Fixture Bio Inc",
+     "owner_type": "startup",
+     "mechanism": "PDE3/PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C101",
+     "novel_edge": "Inhaled dual PDE3/PDE4 inhibition adds bronchodilation without systemic PDE4 exposure.",
+     "profile_fit": "yes",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": "Form D filed 2019-04-02",
+     "claims": [
+      {
+       "id": "a5-h3-c4",
+       "agent": "a5_active",
+       "text": "fixtafilast (Fixture Bio Inc) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      },
+      {
+       "id": "a5-h3-c5",
+       "agent": "a5_active",
+       "text": "Fixture Bio Inc filed a Form D on 2019-04-02.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E1"
+       ]
+      },
+      {
+       "id": "a5-h3-c6",
+       "agent": "a5_active",
+       "text": "Phase 3 trial on top of maintenance therapy.",
+       "kind": "evidence",
+       "confidence": 0.7,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "fixomilast",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Approved",
+     "lead_trial": null,
+     "novel_edge": "Oral PDE4 inhibitor; the standard of care this hypothesis must beat.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h3-c7",
+       "agent": "a5_active",
+       "text": "fixomilast (Fixture Pharma) is at Approved in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "fda:FIXTURE-A111"
+       ]
+      },
+      {
+       "id": "a5-h3-c8",
+       "agent": "a5_active",
+       "text": "Reasoning: oral dosing implies systemic GI side effects.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    },
+    {
+     "asset": "fixolumab",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "IL-4R alpha antagonist",
+     "modality": "Antibody",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C202",
+     "novel_edge": "Biologic for the eosinophilic segment.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h3-c9",
+       "agent": "a5_active",
+       "text": "fixolumab (Fixture Pharma) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      },
+      {
+       "id": "a5-h3-c10",
+       "agent": "a5_active",
+       "text": "Enrolls patients with blood eosinophils >= 300 cells/uL.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-505",
+     "owner": "University of Fixture",
+     "owner_type": "academic",
+     "mechanism": "PDE4B inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C505",
+     "novel_edge": "PDE4B-selective, which may spare PDE4D-driven nausea.",
+     "profile_fit": "partly",
+     "deprioritized": true,
+     "flag_reason": "No registry update since 2018-01-10",
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h3-c11",
+       "agent": "a5_active",
+       "text": "FIX-505 (University of Fixture) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      },
+      {
+       "id": "a5-h3-c12",
+       "agent": "a5_active",
+       "text": "FIX-505 looks deprioritized: No registry update since 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-404",
+     "owner": "Fixture Therapeutics",
+     "owner_type": "startup",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C404",
+     "novel_edge": "Inhaled PDE4 inhibitor, stopped in Phase 2.",
+     "profile_fit": "no",
+     "deprioritized": true,
+     "flag_reason": "nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns",
+     "funding_signal": "Form D filed 2018-01-10",
+     "claims": [
+      {
+       "id": "a5-h3-c13",
+       "agent": "a5_active",
+       "text": "FIX-404 (Fixture Therapeutics) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h3-c14",
+       "agent": "a5_active",
+       "text": "FIX-404 looks deprioritized: nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h3-c15",
+       "agent": "a5_active",
+       "text": "Fixture Therapeutics filed a Form D on 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E3"
+       ]
+      }
+     ]
+    }
+   ],
+   "crowding_score": 0.495,
+   "catalysts": [
+    {
+     "on": "2021-06-30",
+     "what": "fixtafilast: Phase 3 primary completion",
+     "source_ids": [
+      "nct:FIXTURE-C101"
+     ]
+    }
+   ]
+  },
+  "h4:inactive": {
+   "hypothesis_id": "h4",
+   "repurposing": [],
+   "shelved": []
+  },
+  "h4:landscape": {
+   "hypothesis_id": "h4",
+   "programs": [
+    {
+     "asset": "fixodilast",
+     "owner": "Fixture Respiratory",
+     "owner_type": "startup",
+     "mechanism": "Phosphodiesterase 4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C801",
+     "novel_edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h4-c1",
+       "agent": "a5_active",
+       "text": "fixodilast (Fixture Respiratory) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h4-c2",
+       "agent": "a5_active",
+       "text": "Phase 2 inhaled study in COPD.",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h4-c3",
+       "agent": "a5_active",
+       "text": "Reasoning: fixodilast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ],
+   "orthogonal": [
+    {
+     "asset": "fixtafilast",
+     "owner": "Fixture Bio Inc",
+     "owner_type": "startup",
+     "mechanism": "PDE3/PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C101",
+     "novel_edge": "Inhaled dual PDE3/PDE4 inhibition adds bronchodilation without systemic PDE4 exposure.",
+     "profile_fit": "yes",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": "Form D filed 2019-04-02",
+     "claims": [
+      {
+       "id": "a5-h4-c4",
+       "agent": "a5_active",
+       "text": "fixtafilast (Fixture Bio Inc) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      },
+      {
+       "id": "a5-h4-c5",
+       "agent": "a5_active",
+       "text": "Fixture Bio Inc filed a Form D on 2019-04-02.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E1"
+       ]
+      },
+      {
+       "id": "a5-h4-c6",
+       "agent": "a5_active",
+       "text": "Phase 3 trial on top of maintenance therapy.",
+       "kind": "evidence",
+       "confidence": 0.7,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "fixomilast",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Approved",
+     "lead_trial": null,
+     "novel_edge": "Oral PDE4 inhibitor; the standard of care this hypothesis must beat.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h4-c7",
+       "agent": "a5_active",
+       "text": "fixomilast (Fixture Pharma) is at Approved in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "fda:FIXTURE-A111"
+       ]
+      },
+      {
+       "id": "a5-h4-c8",
+       "agent": "a5_active",
+       "text": "Reasoning: oral dosing implies systemic GI side effects.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    },
+    {
+     "asset": "fixolumab",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "IL-4R alpha antagonist",
+     "modality": "Antibody",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C202",
+     "novel_edge": "Biologic for the eosinophilic segment.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h4-c9",
+       "agent": "a5_active",
+       "text": "fixolumab (Fixture Pharma) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      },
+      {
+       "id": "a5-h4-c10",
+       "agent": "a5_active",
+       "text": "Enrolls patients with blood eosinophils >= 300 cells/uL.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-505",
+     "owner": "University of Fixture",
+     "owner_type": "academic",
+     "mechanism": "PDE4B inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C505",
+     "novel_edge": "PDE4B-selective, which may spare PDE4D-driven nausea.",
+     "profile_fit": "partly",
+     "deprioritized": true,
+     "flag_reason": "No registry update since 2018-01-10",
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h4-c11",
+       "agent": "a5_active",
+       "text": "FIX-505 (University of Fixture) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      },
+      {
+       "id": "a5-h4-c12",
+       "agent": "a5_active",
+       "text": "FIX-505 looks deprioritized: No registry update since 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-404",
+     "owner": "Fixture Therapeutics",
+     "owner_type": "startup",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C404",
+     "novel_edge": "Inhaled PDE4 inhibitor, stopped in Phase 2.",
+     "profile_fit": "no",
+     "deprioritized": true,
+     "flag_reason": "nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns",
+     "funding_signal": "Form D filed 2018-01-10",
+     "claims": [
+      {
+       "id": "a5-h4-c13",
+       "agent": "a5_active",
+       "text": "FIX-404 (Fixture Therapeutics) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h4-c14",
+       "agent": "a5_active",
+       "text": "FIX-404 looks deprioritized: nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h4-c15",
+       "agent": "a5_active",
+       "text": "Fixture Therapeutics filed a Form D on 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E3"
+       ]
+      }
+     ]
+    }
+   ],
+   "crowding_score": 0.195,
+   "catalysts": [
+    {
+     "on": "2021-06-30",
+     "what": "fixtafilast: Phase 3 primary completion",
+     "source_ids": [
+      "nct:FIXTURE-C101"
+     ]
+    }
+   ]
+  },
+  "h5:inactive": {
+   "hypothesis_id": "h5",
+   "repurposing": [],
+   "shelved": []
+  },
+  "h5:landscape": {
+   "hypothesis_id": "h5",
+   "programs": [
+    {
+     "asset": "fixodilast",
+     "owner": "Fixture Respiratory",
+     "owner_type": "startup",
+     "mechanism": "Phosphodiesterase 4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C801",
+     "novel_edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h5-c1",
+       "agent": "a5_active",
+       "text": "fixodilast (Fixture Respiratory) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h5-c2",
+       "agent": "a5_active",
+       "text": "Phase 2 inhaled study in COPD.",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "nct:FIXTURE-C801"
+       ]
+      },
+      {
+       "id": "a5-h5-c3",
+       "agent": "a5_active",
+       "text": "Reasoning: fixodilast was placed on the hypothesis mechanism by model judgment (no shared target or ChEMBL mechanism word), so it counts at reduced weight.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ],
+   "orthogonal": [
+    {
+     "asset": "fixtafilast",
+     "owner": "Fixture Bio Inc",
+     "owner_type": "startup",
+     "mechanism": "PDE3/PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C101",
+     "novel_edge": "Inhaled dual PDE3/PDE4 inhibition adds bronchodilation without systemic PDE4 exposure.",
+     "profile_fit": "yes",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": "Form D filed 2019-04-02",
+     "claims": [
+      {
+       "id": "a5-h5-c4",
+       "agent": "a5_active",
+       "text": "fixtafilast (Fixture Bio Inc) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      },
+      {
+       "id": "a5-h5-c5",
+       "agent": "a5_active",
+       "text": "Fixture Bio Inc filed a Form D on 2019-04-02.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E1"
+       ]
+      },
+      {
+       "id": "a5-h5-c6",
+       "agent": "a5_active",
+       "text": "Phase 3 trial on top of maintenance therapy.",
+       "kind": "evidence",
+       "confidence": 0.7,
+       "source_ids": [
+        "nct:FIXTURE-C101"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "fixomilast",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Approved",
+     "lead_trial": null,
+     "novel_edge": "Oral PDE4 inhibitor; the standard of care this hypothesis must beat.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h5-c7",
+       "agent": "a5_active",
+       "text": "fixomilast (Fixture Pharma) is at Approved in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "fda:FIXTURE-A111"
+       ]
+      },
+      {
+       "id": "a5-h5-c8",
+       "agent": "a5_active",
+       "text": "Reasoning: oral dosing implies systemic GI side effects.",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    },
+    {
+     "asset": "fixolumab",
+     "owner": "Fixture Pharma",
+     "owner_type": "mid_size",
+     "mechanism": "IL-4R alpha antagonist",
+     "modality": "Antibody",
+     "stage": "Phase 3",
+     "lead_trial": "nct:FIXTURE-C202",
+     "novel_edge": "Biologic for the eosinophilic segment.",
+     "profile_fit": "partly",
+     "deprioritized": false,
+     "flag_reason": null,
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h5-c9",
+       "agent": "a5_active",
+       "text": "fixolumab (Fixture Pharma) is at Phase 3 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      },
+      {
+       "id": "a5-h5-c10",
+       "agent": "a5_active",
+       "text": "Enrolls patients with blood eosinophils >= 300 cells/uL.",
+       "kind": "evidence",
+       "confidence": 0.8,
+       "source_ids": [
+        "nct:FIXTURE-C202"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-505",
+     "owner": "University of Fixture",
+     "owner_type": "academic",
+     "mechanism": "PDE4B inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C505",
+     "novel_edge": "PDE4B-selective, which may spare PDE4D-driven nausea.",
+     "profile_fit": "partly",
+     "deprioritized": true,
+     "flag_reason": "No registry update since 2018-01-10",
+     "funding_signal": null,
+     "claims": [
+      {
+       "id": "a5-h5-c11",
+       "agent": "a5_active",
+       "text": "FIX-505 (University of Fixture) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      },
+      {
+       "id": "a5-h5-c12",
+       "agent": "a5_active",
+       "text": "FIX-505 looks deprioritized: No registry update since 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C505"
+       ]
+      }
+     ]
+    },
+    {
+     "asset": "FIX-404",
+     "owner": "Fixture Therapeutics",
+     "owner_type": "startup",
+     "mechanism": "PDE4 inhibitor",
+     "modality": "Small molecule",
+     "stage": "Phase 2",
+     "lead_trial": "nct:FIXTURE-C404",
+     "novel_edge": "Inhaled PDE4 inhibitor, stopped in Phase 2.",
+     "profile_fit": "no",
+     "deprioritized": true,
+     "flag_reason": "nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns",
+     "funding_signal": "Form D filed 2018-01-10",
+     "claims": [
+      {
+       "id": "a5-h5-c13",
+       "agent": "a5_active",
+       "text": "FIX-404 (Fixture Therapeutics) is at Phase 2 in COPD.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h5-c14",
+       "agent": "a5_active",
+       "text": "FIX-404 looks deprioritized: nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "nct:FIXTURE-C404"
+       ]
+      },
+      {
+       "id": "a5-h5-c15",
+       "agent": "a5_active",
+       "text": "Fixture Therapeutics filed a Form D on 2018-01-10.",
+       "kind": "evidence",
+       "confidence": 0.9,
+       "source_ids": [
+        "sec:FIXTURE-E3"
+       ]
+      }
+     ]
+    }
+   ],
+   "crowding_score": 0.385,
+   "catalysts": [
+    {
+     "on": "2021-06-30",
+     "what": "fixtafilast: Phase 3 primary completion",
+     "source_ids": [
+      "nct:FIXTURE-C101"
+     ]
+    }
+   ]
+  }
+ },
+ "verdicts": {
+  "h1": {
+   "hypothesis_id": "h1",
+   "verdict": "survives",
+   "revise_target": null,
+   "risks": [
+    {
+     "text": "FEV1 gains may not translate into fewer exacerbations",
+     "kill_criterion": "Phase 3 shows FEV1 benefit but no exacerbation trend",
+     "cheapest_test": "Pre-specified exacerbation analysis pooled across ENHANCE trials",
+     "claims": [
+      {
+       "id": "a6-h1-001",
+       "agent": "a6_redteam",
+       "text": "Phase 3 primary endpoint is FEV1, not exacerbations",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    },
+    {
+     "text": "Nebulised delivery limits adoption vs handheld inhalers",
+     "kill_criterion": "Patient-preference data show <20% acceptance of nebuliser",
+     "cheapest_test": "Survey 200 COPD patients on current inhalers",
+     "claims": [
+      {
+       "id": "a6-h1-002",
+       "agent": "a6_redteam",
+       "text": "Reasoning on delivery burden",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ],
+   "premortem": "[revise cap reached (one round); unresolved] The drug improved lung function but did not cut exacerbations enough to justify a nebulised regimen."
+  },
+  "h2": {
+   "hypothesis_id": "h2",
+   "verdict": "survives",
+   "revise_target": null,
+   "risks": [
+    {
+     "text": "Anti-IL5 failures suggest eosinophils are not the driver in COPD",
+     "kill_criterion": "BOREAS misses exacerbation primary endpoint",
+     "cheapest_test": "Compare IL-13/FeNO-high vs eos-only subgroups in existing Phase 3 data",
+     "claims": [
+      {
+       "id": "a6-h2-001",
+       "agent": "a6_redteam",
+       "text": "Benralizumab failed despite eosinophil depletion",
+       "kind": "evidence",
+       "confidence": 0.85,
+       "source_ids": [
+        "fx:pm-galathea-2019"
+       ]
+      }
+     ]
+    }
+   ],
+   "premortem": "[revise cap reached (one round); unresolved] IL-4Ra blockade worked in asthma but COPD type 2 inflammation was too heterogeneous."
+  },
+  "h3": {
+   "hypothesis_id": "h3",
+   "verdict": "survives",
+   "revise_target": null,
+   "risks": [
+    {
+     "text": "TPP population (all eos<300) is broader than the evidence, which points to former smokers",
+     "kill_criterion": "Effect absent in current smokers in a prospective trial",
+     "cheapest_test": "Restrict the TPP to former smokers and re-check the must-have effect size",
+     "claims": [
+      {
+       "id": "a6-h3-001",
+       "agent": "a6_redteam",
+       "text": "Smoke-driven IL-33 release suggests smoking status matters",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "fx:pm-il33-smoke-2020"
+       ]
+      }
+     ]
+    },
+    {
+     "text": "Benefit may be limited to a former-smoker subgroup",
+     "kill_criterion": "Prospective trial in former smokers shows <15% reduction",
+     "cheapest_test": "Re-analyse Phase 2 by smoking status",
+     "claims": [
+      {
+       "id": "a6-h3-002",
+       "agent": "a6_redteam",
+       "text": "Phase 2 enrolled current and former smokers",
+       "kind": "reasoning",
+       "confidence": 0.5,
+       "source_ids": []
+      }
+     ]
+    }
+   ],
+   "premortem": "[revise cap reached (one round); unresolved] The effect seen in former smokers did not replicate in a prospective trial."
+  },
+  "h4": {
+   "hypothesis_id": "h4",
+   "verdict": "survives",
+   "revise_target": null,
+   "risks": [
+    {
+     "text": "COPD rationale rests on asthma data and a single-lab mouse study",
+     "kill_criterion": "COPD Phase 2 shows no exacerbation effect",
+     "cheapest_test": "Wait for tezepelumab COPD Phase 2 readout; cost zero",
+     "claims": [
+      {
+       "id": "a6-h4-001",
+       "agent": "a6_redteam",
+       "text": "Mouse TSLP study is single-lab, not replicated",
+       "kind": "evidence",
+       "confidence": 0.7,
+       "source_ids": [
+        "fx:pm-tslp-mouse-2019"
+       ]
+      }
+     ]
+    }
+   ],
+   "premortem": "[revise cap reached (one round); unresolved] Upstream alarmin blockade did not move exacerbations in a smoke-driven disease."
+  },
+  "h5": {
+   "hypothesis_id": "h5",
+   "verdict": "kill",
+   "revise_target": null,
+   "risks": [
+    {
+     "text": "The same mechanism already failed in the same population for efficacy",
+     "kill_criterion": "Two or more Phase 3 trials in eosinophilic COPD miss exacerbation endpoint",
+     "cheapest_test": "Already observed: GALATHEA/TERRANOVA and METREX/METREO",
+     "claims": [
+      {
+       "id": "a6-h5-001",
+       "agent": "a6_redteam",
+       "text": "Benralizumab failed in COPD",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "fx:pm-galathea-2019"
+       ]
+      },
+      {
+       "id": "a6-h5-002",
+       "agent": "a6_redteam",
+       "text": "FDA declined mepolizumab for COPD",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "fx:pm-crl-mepo-2018"
+       ]
+      }
+     ]
+    },
+    {
+     "text": "Key preclinical support was retracted",
+     "kill_criterion": "Retraction confirmed",
+     "cheapest_test": "Check Retraction Watch for cited DOIs",
+     "claims": [
+      {
+       "id": "a6-h5-003",
+       "agent": "a6_redteam",
+       "text": "Mouse eosinophil-depletion paper retracted",
+       "kind": "evidence",
+       "confidence": 0.6,
+       "source_ids": [
+        "fx:rw-2020-001"
+       ]
+      }
+     ]
+    }
+   ],
+   "premortem": "Eosinophil depletion was already shown not to reduce COPD exacerbations."
+  }
+ },
+ "judgments": {
+  "h1": {
+   "hypothesis_id": "h1",
+   "red_team_is": "partly_right",
+   "decision": "revise",
+   "rulings": [
+    {
+     "risk": "FEV1 gains may not translate into fewer exacerbations",
+     "holds": true,
+     "severity": "major",
+     "why": "The profile does not address this; the attack cites evidence."
+    },
+    {
+     "risk": "Nebulised delivery limits adoption vs handheld inhalers",
+     "holds": false,
+     "severity": "minor",
+     "why": "The profile's must-haves already cover this."
+    }
+   ],
+   "reasoning": "Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  "h2": {
+   "hypothesis_id": "h2",
+   "red_team_is": "partly_right",
+   "decision": "revise",
+   "rulings": [
+    {
+     "risk": "Anti-IL5 failures suggest eosinophils are not the driver in COPD",
+     "holds": true,
+     "severity": "major",
+     "why": "The profile does not address this; the attack cites evidence."
+    }
+   ],
+   "reasoning": "Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  "h3": {
+   "hypothesis_id": "h3",
+   "red_team_is": "partly_right",
+   "decision": "revise",
+   "rulings": [
+    {
+     "risk": "TPP population (all eos<300) is broader than the evidence, which points to former smokers",
+     "holds": true,
+     "severity": "major",
+     "why": "The profile does not address this; the attack cites evidence."
+    },
+    {
+     "risk": "Benefit may be limited to a former-smoker subgroup",
+     "holds": false,
+     "severity": "minor",
+     "why": "The profile's must-haves already cover this."
+    }
+   ],
+   "reasoning": "Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  "h4": {
+   "hypothesis_id": "h4",
+   "red_team_is": "partly_right",
+   "decision": "revise",
+   "rulings": [
+    {
+     "risk": "COPD rationale rests on asthma data and a single-lab mouse study",
+     "holds": true,
+     "severity": "major",
+     "why": "The profile does not address this; the attack cites evidence."
+    }
+   ],
+   "reasoning": "Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  "h5": {
+   "hypothesis_id": "h5",
+   "red_team_is": "right",
+   "decision": "kill",
+   "rulings": [
+    {
+     "risk": "The same mechanism already failed in the same population for efficacy",
+     "holds": true,
+     "severity": "fatal",
+     "why": "The profile does not address this; the attack cites evidence."
+    },
+    {
+     "risk": "Key preclinical support was retracted",
+     "holds": false,
+     "severity": "minor",
+     "why": "The profile's must-haves already cover this."
+    }
+   ],
+   "reasoning": "Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  }
+ },
+ "killed": [
+  {
+   "hypothesis_id": "h5",
+   "mechanism": "IL-5 / eosinophil depletion",
+   "reason": "The same mechanism already failed in the same population for efficacy",
+   "kill_criterion": "Two or more Phase 3 trials in eosinophilic COPD miss exacerbation endpoint"
+  }
+ ],
+ "decisions": [
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h1",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "red_teamer",
+   "action": "revise",
+   "target": "a3_profile:h1",
+   "reason": "FEV1 gains may not translate into fewer exacerbations"
+  },
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h1",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "orchestrator",
+   "action": "override",
+   "target": "a6_redteam:h1",
+   "reason": "revise cap reached (one round): FEV1 gains may not translate into fewer exacerbations"
+  },
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h2",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "red_teamer",
+   "action": "revise",
+   "target": "a3_profile:h2",
+   "reason": "Anti-IL5 failures suggest eosinophils are not the driver in COPD"
+  },
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h2",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "orchestrator",
+   "action": "override",
+   "target": "a6_redteam:h2",
+   "reason": "revise cap reached (one round): Anti-IL5 failures suggest eosinophils are not the driver in COPD"
+  },
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h3",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "red_teamer",
+   "action": "revise",
+   "target": "a3_profile:h3",
+   "reason": "TPP population (all eos<300) is broader than the evidence, which points to former smokers"
+  },
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h3",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "orchestrator",
+   "action": "override",
+   "target": "a6_redteam:h3",
+   "reason": "revise cap reached (one round): TPP population (all eos<300) is broader than the evidence, which points to former smokers"
+  },
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h4",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "red_teamer",
+   "action": "revise",
+   "target": "a3_profile:h4",
+   "reason": "COPD rationale rests on asthma data and a single-lab mouse study"
+  },
+  {
+   "actor": "judge",
+   "action": "revise",
+   "target": "h4",
+   "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "orchestrator",
+   "action": "override",
+   "target": "a6_redteam:h4",
+   "reason": "revise cap reached (one round): COPD rationale rests on asthma data and a single-lab mouse study"
+  },
+  {
+   "actor": "judge",
+   "action": "kill",
+   "target": "h5",
+   "reason": "red team right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."
+  },
+  {
+   "actor": "red_teamer",
+   "action": "kill",
+   "target": "h5",
+   "reason": "Two or more Phase 3 trials in eosinophilic COPD miss exacerbation endpoint"
+  }
+ ],
+ "revise_used": {
+  "h1": true,
+  "h2": true,
+  "h3": true,
+  "h4": true
+ },
+ "usage": {
+  "a1_disease": {
+   "model": "stub",
+   "calls": 1,
+   "input_tokens": 0,
+   "cached_tokens": 0,
+   "output_tokens": 0,
+   "latency_ms": 0
+  },
+  "a2_mechanism": {
+   "model": "stub",
+   "calls": 1,
+   "input_tokens": 0,
+   "cached_tokens": 0,
+   "output_tokens": 0,
+   "latency_ms": 0
+  },
+  "a3_profile": {
+   "model": "stub",
+   "calls": 9,
+   "input_tokens": 0,
+   "cached_tokens": 0,
+   "output_tokens": 0,
+   "latency_ms": 0
+  },
+  "a4_inactive": {
+   "model": "stub",
+   "calls": 9,
+   "input_tokens": 0,
+   "cached_tokens": 0,
+   "output_tokens": 0,
+   "latency_ms": 0
+  },
+  "a5_active": {
+   "model": "stub",
+   "calls": 9,
+   "input_tokens": 0,
+   "cached_tokens": 0,
+   "output_tokens": 0,
+   "latency_ms": 0
+  },
+  "a6_redteam": {
+   "model": "stub",
+   "calls": 9,
+   "input_tokens": 0,
+   "cached_tokens": 0,
+   "output_tokens": 0,
+   "latency_ms": 0
+  },
+  "a7_judge": {
+   "model": "stub",
+   "calls": 9,
+   "input_tokens": 0,
+   "cached_tokens": 0,
+   "output_tokens": 0,
+   "latency_ms": 0
+  }
+ },
+ "signals": {
+  "postcheck": {
+   "a1_disease": [
+    {
+     "claim_id": "a1-008",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:pm-il33-smoke-2020"
+     ]
+    },
+    {
+     "claim_id": "a1-008",
+     "action": "downgraded_to_reasoning"
+    }
+   ],
+   "a2_mechanism": [
+    {
+     "claim_id": "a2-h1-001",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:pm-pde3-4-ph2-2018"
+     ]
+    },
+    {
+     "claim_id": "a2-h1-001",
+     "action": "downgraded_to_reasoning"
+    },
+    {
+     "claim_id": "a2-h2-002",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:pm-dupi-asthma-2018"
+     ]
+    },
+    {
+     "claim_id": "a2-h2-002",
+     "action": "downgraded_to_reasoning"
+    },
+    {
+     "claim_id": "a2-h2-003",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:nct-boreas"
+     ]
+    },
+    {
+     "claim_id": "a2-h2-003",
+     "action": "downgraded_to_reasoning"
+    },
+    {
+     "claim_id": "a2-h3-001",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:pm-il33-genetics-2019"
+     ]
+    },
+    {
+     "claim_id": "a2-h3-001",
+     "action": "downgraded_to_reasoning"
+    },
+    {
+     "claim_id": "a2-h3-003",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:nct-itepekimab-2",
+      "fx:nct-astegolimab-2"
+     ]
+    },
+    {
+     "claim_id": "a2-h3-003",
+     "action": "downgraded_to_reasoning"
+    },
+    {
+     "claim_id": "a2-h4-002",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:pm-tslp-mouse-2019"
+     ]
+    },
+    {
+     "claim_id": "a2-h4-002",
+     "action": "downgraded_to_reasoning"
+    },
+    {
+     "claim_id": "a2-h5-002",
+     "action": "stripped_sources",
+     "ids": [
+      "fx:pm-il5-mouse-2018"
+     ]
+    },
+    {
+     "claim_id": "a2-h5-002",
+     "action": "downgraded_to_reasoning"
+    }
+   ],
+   "a3_profile": {
+    "h1": [],
+    "h2": [
+     {
+      "claim_id": "a3-h2-002",
+      "action": "stripped_sources",
+      "ids": [
+       "fx:pm-galathea-2019"
+      ]
+     },
+     {
+      "claim_id": "a3-h2-002",
+      "action": "downgraded_to_reasoning"
+     }
+    ],
+    "h3": [],
+    "h4": [
+     {
+      "claim_id": "a3-h4-001",
+      "action": "stripped_sources",
+      "ids": [
+       "fx:pm-tslp-asthma-2017"
+      ]
+     },
+     {
+      "claim_id": "a3-h4-001",
+      "action": "downgraded_to_reasoning"
+     }
+    ],
+    "h5": []
+   },
+   "a6_redteam": {
+    "h1": [
+     {
+      "claim_id": "a6-h1-001",
+      "action": "stripped_sources",
+      "ids": [
+       "fx:nct-enhance1"
+      ]
+     },
+     {
+      "claim_id": "a6-h1-001",
+      "action": "downgraded_to_reasoning"
+     }
+    ],
+    "h2": [],
+    "h3": [
+     {
+      "claim_id": "a6-h3-002",
+      "action": "stripped_sources",
+      "ids": [
+       "fx:nct-itepekimab-2"
+      ]
+     },
+     {
+      "claim_id": "a6-h3-002",
+      "action": "downgraded_to_reasoning"
+     }
+    ],
+    "h4": [],
+    "h5": []
+   }
+  },
+  "citations:a1_disease": {
+   "checked_pairs": 8,
+   "kept": 8,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [
+    {
+     "claim_id": "a1-001",
+     "source_id": "fx:pm-gold2019",
+     "source_date": "2018-11-15",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a1-002",
+     "source_id": "fx:pm-endpoint-exac-2019",
+     "source_date": "2019-03-10",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a1-003",
+     "source_id": "fx:pm-ct-imaging-2018",
+     "source_date": "2018-08-02",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a1-004",
+     "source_id": "fx:pm-ethos-2020",
+     "source_date": "2020-06-24",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a1-005",
+     "source_id": "fx:pm-galathea-2019",
+     "source_date": "2019-05-20",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a1-006",
+     "source_id": "fx:pm-crl-mepo-2018",
+     "source_date": "2018-09-07",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a1-007",
+     "source_id": "fx:pm-type2-copd-2019",
+     "source_date": "2019-06-12",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a1-009",
+     "source_id": "fx:pm-pde3-4-ph2-2018",
+     "source_date": "2018-10-01",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "pub_counts": {
+   "PDE4B": 3,
+   "PDE4D": 2,
+   "PDE3A": 1,
+   "IL4R": 2,
+   "IL13": 1,
+   "IL5": 4,
+   "IL5RA": 1,
+   "IL33": 2,
+   "IL1RL1": 2,
+   "TSLP": 2,
+   "CXCR2": 1,
+   "HHIP": 1,
+   "MMP12": 0
+  },
+  "a2_grades": {
+   "h1": {
+    "tier": 1,
+    "level": "gold",
+    "lines": 3,
+    "genetic": 0.2,
+    "phase_in_disease": 4,
+    "human_docs": 1,
+    "failed_precedent": [],
+    "reject": null,
+    "rank": 1,
+    "pub_count": 6
+   },
+   "h2": {
+    "tier": 1,
+    "level": "gold",
+    "lines": 3,
+    "genetic": 0.2,
+    "phase_in_disease": 3,
+    "human_docs": 1,
+    "failed_precedent": [],
+    "reject": null,
+    "rank": 2,
+    "pub_count": 3
+   },
+   "h3": {
+    "tier": 2,
+    "level": "silver",
+    "lines": 3,
+    "genetic": 0.45,
+    "phase_in_disease": 2,
+    "human_docs": 1,
+    "failed_precedent": [],
+    "reject": null,
+    "rank": 3,
+    "pub_count": 4
+   },
+   "h4": {
+    "tier": 2,
+    "level": "silver",
+    "lines": 3,
+    "genetic": 0.25,
+    "phase_in_disease": 2,
+    "human_docs": 1,
+    "failed_precedent": [],
+    "reject": null,
+    "rank": 4,
+    "pub_count": 2
+   },
+   "h5": {
+    "tier": 3,
+    "level": "bronze",
+    "lines": 2,
+    "genetic": 0.05,
+    "phase_in_disease": 3,
+    "human_docs": 2,
+    "failed_precedent": [
+     "fx:pm-metrex-2017",
+     "fx:pm-crl-mepo-2018",
+     "fx:pm-galathea-2019"
+    ],
+    "reject": null,
+    "rank": 5,
+    "pub_count": 5
+   }
+  },
+  "citations:a2_mechanism": {
+   "checked_pairs": 6,
+   "kept": 6,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [
+    {
+     "claim_id": "a2-h1-002",
+     "source_id": "fx:fda-roflumilast-2011",
+     "source_date": "2011-02-28",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a2-h1-003",
+     "source_id": "fx:pm-roflu-safety-2016",
+     "source_date": "2016-05-10",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a2-h2-001",
+     "source_id": "fx:pm-type2-copd-2019",
+     "source_date": "2019-06-12",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a2-h3-002",
+     "source_id": "fx:pm-il33-smoke-2020",
+     "source_date": "2020-03-03",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a2-h4-001",
+     "source_id": "fx:pm-tslp-asthma-2017",
+     "source_date": "2017-09-07",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a2-h5-001",
+     "source_id": "fx:pm-metrex-2017",
+     "source_date": "2017-09-11",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a3_profile:h1": {
+   "checked_pairs": 2,
+   "kept": 1,
+   "downgraded": 0,
+   "flagged": 1,
+   "entries": [
+    {
+     "claim_id": "a3-h1-001",
+     "source_id": "fx:nct-enhance1",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a3-h1-002",
+     "source_id": "fx:pm-roflu-safety-2016",
+     "source_date": "2016-05-10",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a4_inactive:h1": {
+   "checked_pairs": 11,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 11,
+   "entries": [
+    {
+     "claim_id": "a4-h1-c1",
+     "source_id": "fda:FIXTURE-A701",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c2",
+     "source_id": "fda:FIXTURE-A701",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c3",
+     "source_id": "chembl:FIXTURE-D703",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c4",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c5",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c6",
+     "source_id": "nct:FIXTURE-C702",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c7",
+     "source_id": "nct:FIXTURE-C702",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c8",
+     "source_id": "nct:FIXTURE-C702",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c9",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c10",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h1-c11",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "crowding": {
+   "h1": 0.975,
+   "h2": 0.495,
+   "h3": 0.495,
+   "h4": 0.195,
+   "h5": 0.385
+  },
+  "citations:a5_active:h1": {
+   "checked_pairs": 13,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 13,
+   "entries": [
+    {
+     "claim_id": "a5-h1-c1",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c2",
+     "source_id": "sec:FIXTURE-E1",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c3",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c4",
+     "source_id": "fda:FIXTURE-A111",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c6",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c7",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c9",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c10",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c11",
+     "source_id": "sec:FIXTURE-E3",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c12",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c13",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c14",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h1-c15",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "a6_checklist": {
+   "h1": {
+    "retractions": [],
+    "prior_failures": [
+     "fx:pm-galathea-2019",
+     "fx:pm-danirixin-2019"
+    ],
+    "single_lab_or_unreplicated": [
+     "fx:pm-tslp-mouse-2019"
+    ],
+    "safety": [
+     "fx:pm-roflu-safety-2016",
+     "fx:pm-roflu-safety-2016",
+     "fx:pm-roflu-safety-2016",
+     "fx:pm-danirixin-2019",
+     "fx:pm-roflu-safety-2016"
+    ],
+    "contradictions": [
+     "fx:pm-galathea-2019"
+    ]
+   },
+   "h2": {
+    "retractions": [],
+    "prior_failures": [
+     "fx:pm-galathea-2019",
+     "fx:pm-danirixin-2019",
+     "fx:nct-galathea (completed_negative: no reason given)",
+     "fx:nct-danirixin-2b (terminated: lack of efficacy and exacerbation imbalance)"
+    ],
+    "single_lab_or_unreplicated": [
+     "fx:pm-tslp-mouse-2019",
+     "fx:pm-tslp-mouse-2019",
+     "fx:pm-tslp-mouse-2019",
+     "fx:pm-tslp-mouse-2019"
+    ],
+    "safety": [
+     "fx:pm-roflu-safety-2016",
+     "fx:pm-danirixin-2019"
+    ],
+    "contradictions": [
+     "fx:pm-galathea-2019"
+    ]
+   },
+   "h3": {
+    "retractions": [],
+    "prior_failures": [
+     "fx:pm-galathea-2019",
+     "fx:pm-danirixin-2019"
+    ],
+    "single_lab_or_unreplicated": [
+     "fx:pm-tslp-mouse-2019",
+     "fx:pm-tslp-mouse-2019"
+    ],
+    "safety": [
+     "fx:pm-roflu-safety-2016",
+     "fx:pm-danirixin-2019"
+    ],
+    "contradictions": [
+     "fx:pm-galathea-2019"
+    ]
+   },
+   "h4": {
+    "retractions": [],
+    "prior_failures": [
+     "fx:pm-galathea-2019",
+     "fx:pm-galathea-2019",
+     "fx:pm-danirixin-2019"
+    ],
+    "single_lab_or_unreplicated": [
+     "fx:pm-tslp-mouse-2019",
+     "fx:pm-tslp-mouse-2019",
+     "fx:pm-tslp-mouse-2019",
+     "fx:pm-tslp-mouse-2019"
+    ],
+    "safety": [
+     "fx:pm-roflu-safety-2016",
+     "fx:pm-danirixin-2019"
+    ],
+    "contradictions": [
+     "fx:pm-galathea-2019",
+     "fx:pm-galathea-2019"
+    ]
+   },
+   "h5": {
+    "retractions": [
+     "fx:rw-2020-001 retracts 10.0000/fx.2018.001"
+    ],
+    "prior_failures": [
+     "fx:pm-galathea-2019",
+     "fx:pm-metrex-2017",
+     "fx:pm-galathea-2019",
+     "fx:pm-metrex-2017",
+     "fx:pm-galathea-2019",
+     "fx:pm-metrex-2017",
+     "fx:pm-galathea-2019",
+     "fx:pm-metrex-2017",
+     "fx:pm-crl-mepo-2018",
+     "fx:nct-galathea (completed_negative: no reason given)"
+    ],
+    "single_lab_or_unreplicated": [
+     "fx:pm-tslp-mouse-2019"
+    ],
+    "safety": [
+     "fx:pm-roflu-safety-2016"
+    ],
+    "contradictions": [
+     "fx:pm-galathea-2019",
+     "fx:pm-galathea-2019",
+     "fx:pm-galathea-2019",
+     "fx:pm-galathea-2019"
+    ]
+   }
+  },
+  "citations:a6_redteam:h1": {
+   "checked_pairs": 0,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [],
+   "invalid_claims": []
+  },
+  "citations:a3_profile:h2": {
+   "checked_pairs": 1,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 1,
+   "entries": [
+    {
+     "claim_id": "a3-h2-001",
+     "source_id": "fx:nct-boreas",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a4_inactive:h2": {
+   "checked_pairs": 3,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 3,
+   "entries": [
+    {
+     "claim_id": "a4-h2-c1",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h2-c2",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h2-c3",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a5_active:h2": {
+   "checked_pairs": 13,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 13,
+   "entries": [
+    {
+     "claim_id": "a5-h2-c1",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c2",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c4",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c5",
+     "source_id": "sec:FIXTURE-E1",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c6",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c7",
+     "source_id": "fda:FIXTURE-A111",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c9",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c10",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c11",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c12",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c13",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c14",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h2-c15",
+     "source_id": "sec:FIXTURE-E3",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a6_redteam:h2": {
+   "checked_pairs": 1,
+   "kept": 1,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [
+    {
+     "claim_id": "a6-h2-001",
+     "source_id": "fx:pm-galathea-2019",
+     "source_date": "2019-05-20",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a3_profile:h3": {
+   "checked_pairs": 1,
+   "kept": 1,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [
+    {
+     "claim_id": "a3-h3-001",
+     "source_id": "fx:pm-il33-smoke-2020",
+     "source_date": "2020-03-03",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a4_inactive:h3": {
+   "checked_pairs": 3,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 3,
+   "entries": [
+    {
+     "claim_id": "a4-h3-c1",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h3-c2",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a4-h3-c3",
+     "source_id": "nct:FIXTURE-C802",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a5_active:h3": {
+   "checked_pairs": 13,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 13,
+   "entries": [
+    {
+     "claim_id": "a5-h3-c1",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c2",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c4",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c5",
+     "source_id": "sec:FIXTURE-E1",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c6",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c7",
+     "source_id": "fda:FIXTURE-A111",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c9",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c10",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c11",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c12",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c13",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c14",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h3-c15",
+     "source_id": "sec:FIXTURE-E3",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a6_redteam:h3": {
+   "checked_pairs": 1,
+   "kept": 1,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [
+    {
+     "claim_id": "a6-h3-001",
+     "source_id": "fx:pm-il33-smoke-2020",
+     "source_date": "2020-03-03",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a3_profile:h4": {
+   "checked_pairs": 0,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [],
+   "invalid_claims": []
+  },
+  "citations:a4_inactive:h4": {
+   "checked_pairs": 0,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [],
+   "invalid_claims": []
+  },
+  "citations:a5_active:h4": {
+   "checked_pairs": 13,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 13,
+   "entries": [
+    {
+     "claim_id": "a5-h4-c1",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c2",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c4",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c5",
+     "source_id": "sec:FIXTURE-E1",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c6",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c7",
+     "source_id": "fda:FIXTURE-A111",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c9",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c10",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c11",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c12",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c13",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c14",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h4-c15",
+     "source_id": "sec:FIXTURE-E3",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a6_redteam:h4": {
+   "checked_pairs": 1,
+   "kept": 1,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [
+    {
+     "claim_id": "a6-h4-001",
+     "source_id": "fx:pm-tslp-mouse-2019",
+     "source_date": "2019-11-20",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a3_profile:h5": {
+   "checked_pairs": 1,
+   "kept": 1,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [
+    {
+     "claim_id": "a3-h5-001",
+     "source_id": "fx:pm-metrex-2017",
+     "source_date": "2017-09-11",
+     "supports": "yes",
+     "action": "keep"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a4_inactive:h5": {
+   "checked_pairs": 0,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 0,
+   "entries": [],
+   "invalid_claims": []
+  },
+  "citations:a5_active:h5": {
+   "checked_pairs": 13,
+   "kept": 0,
+   "downgraded": 0,
+   "flagged": 13,
+   "entries": [
+    {
+     "claim_id": "a5-h5-c1",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c2",
+     "source_id": "nct:FIXTURE-C801",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c4",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c5",
+     "source_id": "sec:FIXTURE-E1",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c6",
+     "source_id": "nct:FIXTURE-C101",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c7",
+     "source_id": "fda:FIXTURE-A111",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c9",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c10",
+     "source_id": "nct:FIXTURE-C202",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c11",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c12",
+     "source_id": "nct:FIXTURE-C505",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c13",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c14",
+     "source_id": "nct:FIXTURE-C404",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    },
+    {
+     "claim_id": "a5-h5-c15",
+     "source_id": "sec:FIXTURE-E3",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  },
+  "citations:a6_redteam:h5": {
+   "checked_pairs": 3,
+   "kept": 2,
+   "downgraded": 0,
+   "flagged": 1,
+   "entries": [
+    {
+     "claim_id": "a6-h5-001",
+     "source_id": "fx:pm-galathea-2019",
+     "source_date": "2019-05-20",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a6-h5-002",
+     "source_id": "fx:pm-crl-mepo-2018",
+     "source_date": "2018-09-07",
+     "supports": "yes",
+     "action": "keep"
+    },
+    {
+     "claim_id": "a6-h5-003",
+     "source_id": "fx:rw-2020-001",
+     "source_date": null,
+     "supports": "not_found",
+     "action": "remove"
+    }
+   ],
+   "invalid_claims": []
+  }
+ }
+}
