@@ -3,6 +3,7 @@
 import json
 import xml.etree.ElementTree as ET
 
+import httpx
 import psycopg
 import pytest
 
@@ -32,6 +33,20 @@ def test_oa_link_prefers_pdf_and_skips_closed():
         "license": "cc-by",
     }
     assert europepmc.oa_link({"is_oa": False, "best_oa_location": None}) is None
+
+
+def _client(status: int, body: dict) -> europepmc.Client:
+    client = europepmc.Client()
+    client.http = httpx.Client(
+        transport=httpx.MockTransport(lambda r: httpx.Response(status, json=body))
+    )
+    return client
+
+
+def test_unpaywall_errors_are_not_silent():
+    assert _client(404, {}).unpaywall("10.0000/x", "a@b.org") == {}
+    with pytest.raises(RuntimeError, match="422"):
+        _client(422, {"message": "Please use a real email"}).unpaywall("10.0000/x", "a@b.org")
 
 
 def _parent_chunks_exist() -> bool:

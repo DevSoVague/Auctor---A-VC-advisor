@@ -51,29 +51,41 @@ def unlinked_trials(conn) -> list[str]:
     return sorted({d["id"] for d in docs if not structured.is_linked(d, index)})
 
 
+def _add_to_archive(path, rows: list[dict]) -> int:
+    """Merge rows into an archive file, never dropping what it already holds.
+
+    Returns the number of rows not already in it."""
+    old = json.loads(gzip.decompress(path.read_bytes())) if path.exists() else []
+    key = lambda r: (r["id"], r["source_date"], r["version_label"])  # noqa: E731
+    seen = {key(r) for r in old}
+    added = [r for r in rows if key(r) not in seen]
+    if added:
+        path.write_bytes(gzip.compress(json.dumps(old + added).encode()))
+    return len(added)
+
+
+ROW = (
+    "SELECT json_build_object('id', id, 'source', source, 'source_date', source_date,"
+    " 'version_label', version_label, 'title', title, 'body', body, 'url', url,"
+    " 'fields', fields) FROM documents WHERE "
+)
+
+
 def archive(conn) -> dict[str, int]:
+    """Add every row about to be deleted to data/archive/; returns rows newly archived."""
     ARCHIVE.mkdir(parents=True, exist_ok=True)
     counts = {}
     for source in ("pubmed", "news"):
         rows = conn.execute(
-            "SELECT json_build_object('id', id, 'source', source, 'source_date', source_date,"
-            " 'version_label', version_label, 'title', title, 'body', body, 'url', url,"
-            " 'fields', fields) FROM documents WHERE source = %(source)s AND (" + DROP + ")",
-            {"source": source, "keep": KEEP},
+            ROW + "source = %(source)s AND (" + DROP + ")", {"source": source, "keep": KEEP}
         ).fetchall()
-        path = ARCHIVE / f"{source}-2023-2025.json.gz"
-        path.write_bytes(gzip.compress(json.dumps([r[0] for r in rows]).encode()))
-        counts[source] = len(rows)
+        counts[source] = _add_to_archive(
+            ARCHIVE / f"{source}-2023-2025.json.gz", [r[0] for r in rows]
+        )
     trials = conn.execute(
-        "SELECT json_build_object('id', id, 'source', source, 'source_date', source_date,"
-        " 'version_label', version_label, 'title', title, 'body', body, 'url', url,"
-        " 'fields', fields) FROM documents WHERE source = 'ctgov' AND id = ANY(%s)",
-        (unlinked_trials(conn),),
+        ROW + "source = 'ctgov' AND id = ANY(%s)", (unlinked_trials(conn),)
     ).fetchall()
-    (ARCHIVE / "ctgov-2023-2025.json.gz").write_bytes(
-        gzip.compress(json.dumps([r[0] for r in trials]).encode())
-    )
-    counts["ctgov"] = len(trials)
+    counts["ctgov"] = _add_to_archive(ARCHIVE / "ctgov-2023-2025.json.gz", [r[0] for r in trials])
     return counts
 
 

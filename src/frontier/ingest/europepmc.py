@@ -8,7 +8,8 @@ parent_chunks, through pmc.store. Raw responses go to data/europepmc/ (git-ignor
 Papers still without full text are then looked up in Unpaywall by DOI. Unpaywall only
 gives links to legal free copies (often a publisher PDF); these are not parsed, only
 listed in data/europepmc/unpaywall.json and the printout. Unpaywall needs a contact
-email: UNPAYWALL_EMAIL, or NCBI_EMAIL, from .env. Without one, Unpaywall is skipped.
+email: UNPAYWALL_EMAIL, or NCBI_EMAIL, from .env. Without one, Unpaywall is skipped;
+any other Unpaywall error (such as a rejected email) stops the run.
 
     uv run python -m frontier.ingest.europepmc
 """
@@ -107,8 +108,13 @@ class Client:
         return resp.content
 
     def unpaywall(self, doi: str, email: str) -> dict:
+        """Unpaywall record; 404 (DOI unknown to Unpaywall) gives {}, other errors raise."""
         resp = self.get(UNPAYWALL.format(doi=doi), {"email": email})
-        return resp.json() if resp.status_code == 200 else {}
+        if resp.status_code == 404:
+            return {}
+        if resp.status_code != 200:
+            raise RuntimeError(f"Unpaywall {resp.status_code} for {doi}: {resp.text[:200]}")
+        return resp.json()
 
 
 def main() -> int:

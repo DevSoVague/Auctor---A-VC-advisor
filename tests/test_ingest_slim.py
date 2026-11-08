@@ -19,6 +19,16 @@ def test_pubmed_keeps_only_curated_papers_by_default():
     assert len(ids) == 50 and set(PAPERS) == ids
 
 
+def test_archive_merges_and_never_shrinks(tmp_path):
+    path = tmp_path / "news-2023-2025.json.gz"
+    a = {"id": "news:FIXTURE1", "source_date": "2024-01-01", "version_label": "v"}
+    b = {"id": "news:FIXTURE2", "source_date": "2024-01-01", "version_label": "v"}
+    assert slim._add_to_archive(path, [a]) == 1
+    assert slim._add_to_archive(path, []) == 0  # a later run with nothing left to archive
+    assert slim._add_to_archive(path, [a, b]) == 1
+    assert json.loads(gzip.decompress(path.read_bytes())) == [a, b]
+
+
 def _documents_versioned() -> bool:
     try:
         with psycopg.connect(Settings().database_url, connect_timeout=2) as conn:
