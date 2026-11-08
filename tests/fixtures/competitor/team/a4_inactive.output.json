@@ -1,0 +1,49 @@
+{
+  "hypothesis_id": "h1",
+  "repurposing": [
+    {
+      "name": "FIX-301",
+      "entity_id": "chembl:FIXTURE-0301",
+      "owner": "Fixture Pharma",
+      "stage": "Approved (other indication)",
+      "last_activity": "2020-09-01",
+      "limitations": "Fixture: oral only; systemic exposure.",
+      "profile_fit": 0.4,
+      "claims": [
+        {
+          "id": "a4-c1",
+          "agent": "a4_inactive",
+          "text": "Fixture claim about FIX-301.",
+          "kind": "evidence",
+          "confidence": 0.7,
+          "source_ids": [
+            "chembl:FIXTURE-0001"
+          ]
+        }
+      ]
+    }
+  ],
+  "shelved": [
+    {
+      "name": "FIX-401",
+      "entity_id": "chembl:FIXTURE-0401",
+      "owner": "Fixture Big Pharma",
+      "stage": "Phase 2, terminated",
+      "last_activity": "2019-08-01",
+      "limitations": "Fixture: terminated for business reasons.",
+      "profile_fit": 0.6,
+      "claims": [
+        {
+          "id": "a4-c2",
+          "agent": "a4_inactive",
+          "text": "Fixture claim about FIX-401.",
+          "kind": "evidence",
+          "confidence": 0.7,
+          "source_ids": [
+            "pat:FIXTURE-0001"
+          ]
+        }
+      ]
+    }
+  ]
+}
