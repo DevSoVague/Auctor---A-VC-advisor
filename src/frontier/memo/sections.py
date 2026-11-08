@@ -439,8 +439,8 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
                 [
                     (
                         "",
-                        f"Evidence window: {inp.evidence_window}; nothing dated outside it is "
-                        "used. Scores and ratings are computed by code from the agents' output.",
+                        f"Evidence window: {inp.evidence_window}. {_source_span(inp, src)} "
+                        "Scores and ratings are computed by code from the agents' output.",
                     )
                 ],
             ]
@@ -476,6 +476,22 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
             )
         )
     return b
+
+
+def _source_span(inp: MemoInput, src: Sources) -> str:
+    """What the cited sources' dates actually are (computed, so it can never overstate)."""
+    from frontier.memo.models import evidence_floor
+
+    dates = [src.dates[sid] for sid in src.order if sid in src.dates]
+    if not dates:
+        return "The memo cites no dated sources."
+    early = sum(1 for d in dates if d < evidence_floor())
+    span = (
+        f"Sources cited in this memo are dated {min(dates):%B %-d, %Y} to {max(dates):%B %-d, %Y}"
+    )
+    if early:
+        span += f"; {early} of them predate the window (reference or retraction records)"
+    return span + "."
 
 
 def _screened(inp: MemoInput, d: MemoDraft) -> list[Block]:

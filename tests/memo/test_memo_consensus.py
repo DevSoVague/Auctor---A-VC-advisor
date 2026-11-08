@@ -155,7 +155,8 @@ def test_the_memo_states_the_evidence_window_not_just_a_cutoff(inp, tmp_path, mo
     doc = Document(write_memo(inp, tmp_path / "m", pdf=False)["docx"])
     text = "\n".join(p.text for p in doc.paragraphs)
     assert "evidence January 1, 2023 to November 8, 2026" in text
-    assert "Evidence window: January 1, 2023 to November 8, 2026" in text
+    assert "Evidence window: January 1, 2023 to November 8, 2026." in text
+    assert "Sources cited in this memo are dated" in text
 
 
 def test_a_cutoff_before_the_floor_is_not_shown_as_a_window(inp):
