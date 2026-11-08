@@ -299,11 +299,16 @@ def log_failure(st: dict, agent: str, step: str, hid: str | None, exc: BaseExcep
         st["failed_cards"][hid] = f"{agent}.{step}: {rec['error'][:300]}"
 
 
-def _parallel(st: dict) -> int:
-    try:
-        return max(1, int(st.get("parallel") or MAX_PARALLEL))
-    except (TypeError, ValueError):
-        return MAX_PARALLEL
+def _parallel(st: dict, agent: str | None = None) -> int:
+    """Cards one agent runs at once. P3 · Setup has one field each for A3, A4 and A5 (they run side by side, each
+    with its own limit); 'Cards in parallel' covers the others (A6) and any blank per-agent field."""
+    for v in ((st.get("parallel_by_agent") or {}).get(agent), st.get("parallel"), MAX_PARALLEL):
+        try:
+            if v not in (None, ""):
+                return max(1, int(v))
+        except (TypeError, ValueError):
+            continue
+    return 1
 
 
 async def _run_cards(st: dict, agent: str, step: str) -> None:
@@ -314,7 +319,7 @@ async def _run_cards(st: dict, agent: str, step: str) -> None:
     hids = [h for h in _hids(st, agent) if h not in (st.get("failed_cards") or {})]
     if not hids:
         return
-    n = _parallel(st)
+    n = _parallel(st, agent)
     base = copy.deepcopy(st)
     gate = asyncio.Semaphore(n)
 
@@ -374,7 +379,8 @@ async def setup(config: dict, llm: dict, retrieval: str, message: str = "", sear
     gate = (st["steps"][-1]["detail"] if st.get("pitch") else "no pitch")
     if (st.get("intake") or {}).get("accepted") is False:
         return st, f"PITCH REJECTED, no agent will run: {gate}"
-    flags = " · ".join([k for k in ("tools", "judge") if st.get(k)] + [f"cite {st.get('cite_mode', 'node')}", f"parallel {st.get('parallel')}"])
+    flags = " · ".join([k for k in ("tools", "judge") if st.get(k)] + [f"cite {st.get('cite_mode', 'node')}", f"parallel {st.get('parallel')}"
+             + "".join(f" {a.upper()}={_parallel(st, a)}" for a in ("a3", "a4", "a5"))])
     return st, (f"run {st['run_id'][:8]} · as_of {st['config']['as_of']} · llm {st['llm']['mode']} · "
                 f"search {st['search']} · {flags or 'no tools/cite/judge'} · pitch: {gate}{note}")
 
@@ -384,9 +390,7 @@ async def report(st: dict) -> tuple[dict, str]:
     if (st.get("intake") or {}).get("accepted") is not False:
         apply(st, await N.final_citations(st))  # cite_mode 'end': one A7 pass before the report
     apply(st, await N.report(st))
-    from p3graph import narrate as NR
-
-    st["report"] += "\n\n---\n\n## What happened, node by node\n\n```\n" + NR.transcript(st.get("chat") or []) + "\n```"
+    st["report"] += f"\n\n_Every step in plain language: `runs/{st['run_id'][:8]}…/chat.md`._"
     return st, st["workbook_path"]
 
 

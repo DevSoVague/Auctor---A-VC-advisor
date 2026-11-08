@@ -37,6 +37,8 @@ class P3State(TypedDict, total=False):
     intake: dict | None  # A0 IntakeReport
     cite_mode: str  # A7: 'node' (every node, restarts) | 'end' (once before the report) | 'off'
     cite: bool  # A7 citation check after every node (default on; False = off)
+    parallel: int  # Langflow: cards one step runs at once (A6 and blanks below)
+    parallel_by_agent: dict  # Langflow: {"a3": "3", "a4": "3", "a5": "3"}, each agent's own limit
     judge: bool  # A6b judge decides each card from A3's profile and A6's verdict (drives a6_route)
 
     # ---- agent outputs
