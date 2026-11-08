@@ -15,7 +15,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-from frontier.agents.schemas import Claim
 from frontier.memo.charts import landscape_rows
 from frontier.memo.draft import MemoDraft, Statement
 from frontier.memo.models import MemoInput
@@ -75,30 +74,11 @@ class Outline:
     blocks: list[Block] = field(default_factory=list)
 
 
-def _all_claims(inp: MemoInput) -> dict[str, Claim]:
-    found: dict[str, Claim] = {}
-
-    def walk(obj) -> None:
-        if isinstance(obj, Claim):
-            found.setdefault(obj.id, obj)
-        elif hasattr(obj, "__dict__") and not isinstance(obj, type):
-            for v in vars(obj).values():
-                walk(v)
-        elif isinstance(obj, list | tuple):
-            for v in obj:
-                walk(v)
-
-    walk(inp.why_now)
-    for h in inp.hypotheses:
-        walk([h.card, h.profile, h.inactive, h.landscape, h.verdict])
-    return found
-
-
 class Sources:
     """Numbers sources in order of first citation."""
 
     def __init__(self, inp: MemoInput) -> None:
-        self.claims = _all_claims(inp)
+        self.claims = inp.all_claims()
         self.dates = {r.source_id: r.source_date for r in inp.ledger if r.source_date}
         self.order: list[str] = []
 
@@ -451,6 +431,18 @@ def _appendix(inp: MemoInput, d: MemoDraft, charts: dict[str, Path], src: Source
                     )
                 ],
             ]
+            + [
+                [
+                    (
+                        "",
+                        "Wording: written by the memo agent's model and checked by code "
+                        "(names, numbers and citations must come from the agents' output)."
+                        if d.written_by == "model"
+                        else "Wording: written from templates over the computed scores.",
+                    )
+                ]
+            ]
+            + ([[("i", "Note: "), ("", d.fallback_reason)]] if d.fallback_reason else [])
             + [[("i", "Gap: "), ("", g)] for g in inp.gaps]
         )
     )

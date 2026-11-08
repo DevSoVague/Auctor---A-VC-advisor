@@ -16,6 +16,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 from frontier.agents.schemas import (
+    Claim,
     HypothesisCard,
     InactiveAssets,
     JudgeDecision,
@@ -114,6 +115,46 @@ class MemoInput(BaseModel):
     pub_counts: dict[str, int] = Field(default_factory=dict)  # A2: documents per target
     usage: dict[str, dict[str, Any]] = Field(default_factory=dict)  # tokens per agent
     gaps: list[str] = Field(default_factory=list)  # missing upstream pieces, stated in the memo
+
+    def all_claims(self) -> dict[str, Claim]:
+        """Every claim any agent made about this run, by id."""
+        found: dict[str, Claim] = {}
+
+        def walk(obj) -> None:
+            if isinstance(obj, Claim):
+                found.setdefault(obj.id, obj)
+            elif isinstance(obj, BaseModel):
+                for name in type(obj).model_fields:
+                    walk(getattr(obj, name))
+            elif isinstance(obj, list | tuple):
+                for item in obj:
+                    walk(item)
+
+        walk(self.why_now)
+        for h in self.hypotheses:
+            walk([h.card, h.profile, h.inactive, h.landscape, h.verdict])
+        return found
+
+    def claim_status(self) -> dict[str, str]:
+        """What the Citation Checker says about each checked claim.
+
+        verified   at least one of its sources fully supports it
+        partly     kept with a lower confidence (partly supported)
+        removed    every source failed (not found, after the cutoff, or no support)
+        Claims the checker never saw are absent: callers treat them as 'unchecked'.
+        """
+        rows: dict[str, list[LedgerRow]] = {}
+        for r in self.ledger:
+            rows.setdefault(r.claim_id, []).append(r)
+        out = {}
+        for cid, rs in rows.items():
+            if any(r.supports == "yes" for r in rs):
+                out[cid] = "verified"
+            elif any(r.action == "downgrade" for r in rs):
+                out[cid] = "partly"
+            else:
+                out[cid] = "removed"
+        return out
 
     @property
     def survivors(self) -> list[HypothesisBundle]:

@@ -5,10 +5,12 @@ draft_from_numbers() fills it from MemoInput, the scorecards and the candidate m
 templates. It is used in three ways:
 - to render a real memo before A8's model step exists, and in stub runs;
 - as the fallback if the model step fails twice;
-- as the structure the model step rewrites. The model may change wording and the choice among
-  candidates; picks, numbers and citations stay checked by code.
+- as the structure the model step rewrites. The model changes wording only: picks, names,
+  numbers and citations are fixed by code and checked again afterwards (memo/a8_memo.py).
 
-Every Statement carries the claim ids it rests on, so the memo can cite each line.
+Every Statement carries the claim ids it rests on, so the memo can cite each line. Only claims the
+Citation Checker did not remove can be cited; a line whose claims were all removed becomes an
+analysis line (kind "reasoning") instead of a cited one.
 """
 
 from datetime import timedelta
@@ -16,7 +18,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from frontier.agents.schemas import Catalyst, Memo, Pursuit
+from frontier.agents.schemas import Catalyst, Claim, Memo, Pursuit
 from frontier.memo.candidates import PursuitCandidate, candidates
 from frontier.memo.caution import CautionResult, PursuitSignals, evaluate_caution
 from frontier.memo.models import HypothesisBundle, MemoInput
@@ -30,6 +32,25 @@ class Statement(BaseModel):
     text: str
     kind: Literal["evidence", "reasoning"] = "evidence"
     claim_ids: list[str] = Field(default_factory=list)  # empty only for reasoning
+
+
+def cited(
+    text: str, claim_ids: list[str], status: dict[str, str], claims: dict[str, Claim]
+) -> Statement:
+    """An evidence line citing only claims that have a source and that the checker kept.
+
+    A claim that is the agent's own reasoning (no source) or that the checker removed cannot back
+    an evidence line; with none left, the line is analysis instead.
+    """
+    keep = [
+        c
+        for c in claim_ids
+        if status.get(c) != "removed" and c in claims and claims[c].kind == "evidence"
+    ]
+    if keep:
+        return Statement(text=text, claim_ids=keep)
+    note = " (not confirmed by the citation check)" if claim_ids else ""
+    return Statement(text=text + note, kind="reasoning")
 
 
 class PursuitWriteup(BaseModel):
@@ -61,6 +82,7 @@ class MemoDraft(BaseModel):
     caution_basis: str
     catalysts: list[Catalyst]
     written_by: Literal["template", "model"] = "template"
+    fallback_reason: str | None = None  # why the model's wording was not used, when it wasn't
 
     def to_memo(self) -> Memo:
         """The team contract (agents/schemas.Memo). Raises if fewer than 2 pursuits."""
@@ -145,34 +167,46 @@ def _next_step(c: PursuitCandidate, h: HypothesisBundle) -> str:
     return f"{first}; run the cheapest test first: {test}" if test else first + "."
 
 
-def _write(s: Scorecard, c: PursuitCandidate, h: HypothesisBundle) -> PursuitWriteup:
+def _write(
+    s: Scorecard,
+    c: PursuitCandidate,
+    h: HypothesisBundle,
+    status: dict[str, str],
+    claims: dict[str, Claim],
+) -> PursuitWriteup:
     profile, verdict = h.profile, h.verdict
     gap = profile.soc_gap_at_launch if profile else "No product profile in this run."
     why = []
     if profile:
         why.append(
-            Statement(
-                text=_sentence(f"Unmet need at launch: {profile.soc_gap_at_launch}"),
-                claim_ids=[x.id for x in profile.claims[:2]],
+            cited(
+                _sentence(f"Unmet need at launch: {profile.soc_gap_at_launch}"),
+                [x.id for x in profile.claims[:2]],
+                status,
+                claims,
             )
         )
     why.append(
-        Statement(
-            text=f"Evidence: tier {s.tier}, {s.level} validation"
+        cited(
+            f"Evidence: tier {s.tier}, {s.level} validation"
             + (f", {s.evidence_lines} converging human lines" if s.evidence_lines else "")
             + f". {h.card.mechanism} ({h.card.direction}).",
-            claim_ids=[x.id for x in h.card.claims[:2]],
+            [x.id for x in h.card.claims[:2]],
+            status,
+            claims,
         )
     )
-    why.append(Statement(text=_sentence(f"Path in: {c.why_listed}"), claim_ids=c.claim_ids[:2]))
+    why.append(cited(_sentence(f"Path in: {c.why_listed}"), c.claim_ids[:2], status, claims))
 
     wrong = []
     for r in (verdict.risks if verdict else [])[:2]:
         wrong.append(
-            Statement(
-                text=f"{_sentence(r.text)} Kill if: {_sentence(r.kill_criterion)} "
+            cited(
+                f"{_sentence(r.text)} Kill if: {_sentence(r.kill_criterion)} "
                 f"Cheapest test: {_sentence(r.cheapest_test)}",
-                claim_ids=[x.id for x in r.claims],
+                [x.id for x in r.claims],
+                status,
+                claims,
             )
         )
     held = [r for r in (h.judgment.rulings if h.judgment else []) if r.holds]
@@ -251,7 +285,8 @@ def draft_from_numbers(inp: MemoInput) -> MemoDraft:
     menu = candidates(inp)
     picks = choose(inp, cards, menu)
     hyp = _by_id(inp)
-    writeups = [_write(s, c, hyp[s.hypothesis_id]) for s, c in picks]
+    status, claims = inp.claim_status(), inp.all_claims()
+    writeups = [_write(s, c, hyp[s.hypothesis_id], status, claims) for s, c in picks]
     caution = caution_for(inp, picks)
 
     forms = ", ".join(f"{p.form} in {p.name}" for p in writeups) or "no pursuit"
