@@ -72,14 +72,15 @@ def _date_of(study: dict, struct: str) -> str | None:
     return _get(study, f"protocolSection.statusModule.{struct}.date")
 
 
-def versions(study: dict) -> list[dict]:
-    """The rows to store for one study: registration and current, oldest first."""
+def snapshot(study: dict) -> dict | None:
+    """What one record of a study says: title, registration fields, current fields, summary.
+    None if the record has no NCT id or first-posted date."""
     p = study.get("protocolSection", {})
     nct = _get(p, "identificationModule.nctId")
     first_posted = to_date(_date_of(study, "studyFirstPostDateStruct"))
     last_update = to_date(_date_of(study, "lastUpdatePostDateStruct")) or first_posted
     if not (nct and first_posted):
-        return []
+        return None
 
     title = (
         _get(p, "identificationModule.briefTitle")
@@ -121,12 +122,32 @@ def versions(study: dict) -> list[dict]:
             o.get("measure") for o in _get(p, "outcomesModule.primaryOutcomes", []) or []
         ],
     }
-    summary = _get(p, "descriptionModule.briefSummary") or ""
+    return {
+        "nct": nct,
+        "title": title,
+        "first_posted": first_posted,
+        "last_update": last_update,
+        "registration": registration,
+        "current": current,
+        "summary": _get(p, "descriptionModule.briefSummary") or "",
+    }
 
+
+def versions(study: dict) -> list[dict]:
+    """The rows to store for one study: registration and current, oldest first."""
+    s = snapshot(study)
+    if s is None:
+        return []
     rows = []
-    if last_update > first_posted:
-        rows.append(_row(nct, first_posted, "ctgov-registration", title, registration, ""))
-    rows.append(_row(nct, last_update, "ctgov-live", title, current, summary))
+    if s["last_update"] > s["first_posted"]:
+        rows.append(
+            _row(
+                s["nct"], s["first_posted"], "ctgov-registration", s["title"], s["registration"], ""
+            )
+        )
+    rows.append(
+        _row(s["nct"], s["last_update"], "ctgov-live", s["title"], s["current"], s["summary"])
+    )
     return rows
 
 
@@ -156,6 +177,11 @@ def _body(fields: dict, summary: str) -> str:
         summary,
     ]
     return "\n".join(line for line in lines if line)
+
+
+def row(nct: str, when: date, label: str, title: str, fields: dict, summary: str) -> dict:
+    """One documents row for a study version."""
+    return _row(nct, when, label, title, fields, summary)
 
 
 def _row(nct: str, when: date, label: str, title: str, fields: dict, summary: str) -> dict:

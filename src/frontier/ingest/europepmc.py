@@ -27,7 +27,7 @@ import httpx
 from dotenv import dotenv_values
 
 from frontier.core.config import REPO_ROOT, Settings
-from frontier.ingest import pmc
+from frontier.ingest import pmc, pubmed
 
 RAW_DIR = REPO_ROOT / "data" / "europepmc"
 SEARCH = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
@@ -122,7 +122,7 @@ def main() -> int:
 
     env = {**dotenv_values(REPO_ROOT / ".env"), **os.environ}
     email = env.get("UNPAYWALL_EMAIL") or env.get("NCBI_EMAIL") or ""
-    pmids = [p["id"].removeprefix("pmid:") for p in json.loads(pmc.CURATED.read_text())["papers"]]
+    pmids = sorted(i.removeprefix("pmid:") for i in pubmed.curated_ids())  # every curated set
     client = Client()
     stored, links, none = 0, {}, []
     with psycopg.connect(Settings().database_url) as conn:
