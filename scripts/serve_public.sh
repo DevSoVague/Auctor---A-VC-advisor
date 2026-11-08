@@ -17,7 +17,9 @@ if [ -z "$TOKEN" ]; then
 fi
 PORT="${PORT:-8000}"
 
-APP_API_TOKEN="$TOKEN" uv run --locked uvicorn frontier.api.main:app --port "$PORT" &
+# --env-file: Person 3's grounded1to8 (kept exactly as in their repo) reads the Nebius key and
+# DATABASE_URL from the environment and does not load our .env itself.
+APP_API_TOKEN="$TOKEN" uv run --locked --env-file .env uvicorn frontier.api.main:app --port "$PORT" &
 API_PID=$!
 trap 'kill $API_PID $LT_PID 2>/dev/null || true' EXIT INT TERM
 
