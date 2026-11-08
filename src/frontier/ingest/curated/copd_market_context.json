@@ -1,0 +1,21 @@
+{
+  "name": "copd-market-context",
+  "note": "Market-level context from consulting and analyst sources. No McKinsey report on COPD was found in a public, dated source. Facts copied from the sources; no 2026 sources.",
+  "facts": [
+    {
+      "type": "consulting",
+      "date": "2023-12-31",
+      "date_note": "report labelled 'Technical Report (2023)'; no exact day given, so read as the last day of 2023",
+      "title": "Asthma + Lung UK: Investing in Breath, technical report (2023), supported by PwC analysis",
+      "url": "https://asthmaandlung.org.uk/investing-breath-measuring-economic-cost-asthma-copd-uk-identifying-ways-reduce-it-through-better",
+      "fact": "Estimated annual economic cost of COPD in the UK: GBP 9 billion in 2023 (asthma: GBP 6 billion). The report says it 'was supported by PwC analysis'."
+    },
+    {
+      "type": "analyst",
+      "date": "2024-10-17",
+      "title": "Rapid rise of COPD market predicted, despite barriers to growth (The Pharma Letter, reporting a GlobalData forecast)",
+      "url": "https://thepharmaletter.com/rapid-rise-of-copd-market-predicted-despite-barriers-to-growth",
+      "fact": "GlobalData: COPD market in the seven major markets to grow from USD 11.5 billion in 2023 to USD 30.8 billion in 2033, driven by the launch of the first biologic for COPD and other pipeline agents."
+    }
+  ]
+}

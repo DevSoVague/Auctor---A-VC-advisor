@@ -1,6 +1,6 @@
 {
   "name": "copd-shelved-drugs",
-  "note": "COPD drug programs that failed a primary endpoint or were judged not worth pursuing in COPD. Every fact is from the cited source; 'not stated in sources' marks gaps. Company is given only where a cited source names it. No source after 2025. phase_reached is null where the source doesn't state a phase.",
+  "note": "COPD drug programs that failed a primary endpoint or were judged not worth pursuing in COPD. Every fact is from the cited source; 'not stated in sources' marks gaps. Company is given only where a cited source names it. No source after 2025. phase_reached is null where the source doesn't state a phase. Each source has a type: academic, company, regulatory_filing or news.",
   "drugs": [
     {
       "drug": "danirixin",
@@ -16,7 +16,8 @@
         {
           "date": "2020-06-12",
           "title": "CXCR2 antagonist for patients with COPD with chronic mucus hypersecretion: a phase 2b trial (Respiratory Research)",
-          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7291447/"
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7291447/",
+          "type": "academic"
         }
       ],
       "phase_reached": "phase2",
@@ -37,12 +38,14 @@
         {
           "id": "pmid:29206629",
           "date": "2017-07-04",
-          "title": "Biological effects of p38 MAPK inhibitor losmapimod does not translate to clinical benefits in COPD"
+          "title": "Biological effects of p38 MAPK inhibitor losmapimod does not translate to clinical benefits in COPD",
+          "type": "academic"
         },
         {
           "id": "pmid:29566026",
           "date": "2018-03-22",
-          "title": "The p38 MAPK inhibitor losmapimod in COPD patients with systemic inflammation, stratified by fibrinogen (PLOS ONE)"
+          "title": "The p38 MAPK inhibitor losmapimod in COPD patients with systemic inflammation, stratified by fibrinogen (PLOS ONE)",
+          "type": "academic"
         }
       ],
       "phase_reached": "phase2",
@@ -62,7 +65,8 @@
         {
           "id": "pmid:34113095",
           "date": "2021-06-03",
-          "title": "Nemiralisib in Patients with an Acute Exacerbation of COPD: Placebo-Controlled, Dose-Ranging Study"
+          "title": "Nemiralisib in Patients with an Acute Exacerbation of COPD: Placebo-Controlled, Dose-Ranging Study",
+          "type": "academic"
         }
       ],
       "phase_reached": "phase2",
@@ -82,7 +86,8 @@
         {
           "id": "pmid:39427187",
           "date": "2024-10-19",
-          "title": "CHF6523 data suggest that the PI3K delta isoform is not a suitable target for the management of COPD"
+          "title": "CHF6523 data suggest that the PI3K delta isoform is not a suitable target for the management of COPD",
+          "type": "academic"
         }
       ],
       "phase_reached": null,
@@ -92,23 +97,33 @@
       "drug": "benralizumab (in COPD)",
       "company": "AstraZeneca",
       "pathway": "IL-5 receptor alpha-directed cytolytic antibody: depletes eosinophils",
-      "status": "Phase 3 GALATHEA and TERRANOVA missed primary endpoint; COPD development after that: not stated in sources",
-      "reason": "No dose significantly reduced annualized exacerbations vs placebo at week 56 in patients with eosinophils >=220/uL (rate ratios 0.83-1.04).",
-      "side_effects": "Types and frequencies of adverse events similar to placebo.",
+      "status": "Three phase 3 trials missed their primary endpoint: GALATHEA and TERRANOVA (2018-2019) and RESOLUTE (2025); AstraZeneca said it will analyse the full RESOLUTE data",
+      "reason": "No dose significantly reduced annualized exacerbations vs placebo at week 56 in patients with eosinophils >=220/uL (rate ratios 0.83-1.04). RESOLUTE (n=689, eosinophils >=300/uL, 3 or more exacerbations in the prior year): numerical improvement but no statistically significant reduction in exacerbations.",
+      "side_effects": "Types and frequencies of adverse events similar to placebo. RESOLUTE: safety and tolerability consistent with the known profile.",
       "trials": [
         "GALATHEA (phase 3)",
-        "TERRANOVA (phase 3)"
+        "TERRANOVA (phase 3)",
+        "RESOLUTE (phase 3)"
       ],
       "sources": [
         {
           "date": "2018-05-15",
           "title": "Phase 3 trial of benralizumab for COPD misses primary endpoint (HCPLive)",
-          "url": "https://hcplive.com/view/phase-3-trial-of-benralizumab-for-copd-misses-primary-endpoint"
+          "url": "https://hcplive.com/view/phase-3-trial-of-benralizumab-for-copd-misses-primary-endpoint",
+          "type": "news"
         },
         {
           "id": "pmid:31112385",
           "date": "2019-05-20",
-          "title": "Benralizumab for the Prevention of COPD Exacerbations (NEJM)"
+          "title": "Benralizumab for the Prevention of COPD Exacerbations (NEJM)",
+          "type": "academic"
+        },
+        {
+          "date": "2025-09-17",
+          "title": "AstraZeneca: Update on the RESOLUTE Phase III trial for Fasenra in COPD",
+          "url": "https://www.astrazeneca.com/media-centre/press-releases/2025/update-on-resolute-phase-iii-trial.html",
+          "id": "news:4064096041e929ff",
+          "type": "company"
         }
       ],
       "phase_reached": "phase3",
@@ -129,7 +144,14 @@
         {
           "date": "2025-07-21",
           "title": "Roche provides update on astegolimab in COPD",
-          "url": "https://www.roche.com/media/releases/med-cor-2025-07-21"
+          "url": "https://www.roche.com/media/releases/med-cor-2025-07-21",
+          "type": "company"
+        },
+        {
+          "date": "2025-07-21",
+          "title": "Genentech (Roche)'s Astegolimab Shows Mixed Data for COPD (HCPLive)",
+          "url": "https://www.hcplive.com/view/genentech-roche-s-astegolimab-shows-mixed-data-for-copd",
+          "type": "news"
         }
       ],
       "phase_reached": "phase3",
@@ -150,7 +172,14 @@
         {
           "date": "2025-05-30",
           "title": "Sanofi Form 6-K exhibit: itepekimab phase 3 COPD results",
-          "url": "https://www.sec.gov/Archives/edgar/data/1121404/000119312525131697/d947351dex993.htm"
+          "url": "https://www.sec.gov/Archives/edgar/data/1121404/000119312525131697/d947351dex993.htm",
+          "type": "regulatory_filing"
+        },
+        {
+          "date": "2025-07-09",
+          "title": "Itepekimab Shows Mixed Results in Phase 3 COPD Trials (AJMC)",
+          "url": "https://www.ajmc.com/view/itepekimab-shows-mixed-results-in-phase-3-copd-trials",
+          "type": "news"
         }
       ],
       "phase_reached": "phase3",
@@ -170,7 +199,8 @@
         {
           "id": "pmid:37411039",
           "date": "2023-07-06",
-          "title": "Icenticaftor, a CFTR Potentiator, in COPD: A Multicenter, Parallel-Group, Double-Blind Clinical Trial"
+          "title": "Icenticaftor, a CFTR Potentiator, in COPD: A Multicenter, Parallel-Group, Double-Blind Clinical Trial",
+          "type": "academic"
         }
       ],
       "phase_reached": "phase2",
@@ -190,7 +220,8 @@
         {
           "id": "pmid:39316773",
           "date": "2024-09-24",
-          "title": "Ivacaftor for COPD: Results from a Phase 2, Randomized Controlled Trial"
+          "title": "Ivacaftor for COPD: Results from a Phase 2, Randomized Controlled Trial",
+          "type": "academic"
         }
       ],
       "phase_reached": "phase2",

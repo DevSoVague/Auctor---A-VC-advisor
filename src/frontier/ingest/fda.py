@@ -158,7 +158,16 @@ def body_of(label: dict, stats: dict | None, drug_class: str) -> str:
     return "\n".join(lines)
 
 
-def rows_for(label: dict, stats: dict | None, drug_class: str) -> list[dict]:
+def industry_lines(industry: list[dict]) -> list[str]:
+    return [f"[{s['type']}, {s['date']}] {s['title']}: {s['fact']}" for s in industry]
+
+
+def rows_for(
+    label: dict, stats: dict | None, drug_class: str, industry: list[dict] | None = None
+) -> list[dict]:
+    """Label-only version, then a market version (Part D stats and/or industry sources)
+    dated by the latest of the label, the CMS release and the industry sources."""
+    industry = industry or []
     label_date = date.fromisoformat(label["label_effective"])
     fields = {k: v for k, v in label.items() if k != "sections"}
     fields.update({"drug_class": drug_class, "sections": label["sections"]})
@@ -166,17 +175,19 @@ def rows_for(label: dict, stats: dict | None, drug_class: str) -> list[dict]:
         f"https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid={label['set_id']}"
     ]
     out = [("fda-label", label_date, fields, body_of(label, None, drug_class))]
-    if stats:
-        with_stats = {**fields, "medicare_part_d": stats, "cms_release": CMS_RELEASED.isoformat()}
-        with_stats["source_urls"] = fields["source_urls"] + [CMS_CSV]
-        out.append(
-            (
-                "fda-label+cms",
-                max(label_date, CMS_RELEASED),
-                with_stats,
-                body_of(label, stats, drug_class),
-            )
+    if stats or industry:
+        market = {**fields, "industry_sources": industry}
+        dates = [label_date] + [date.fromisoformat(s["date"]) for s in industry]
+        if stats:
+            market.update({"medicare_part_d": stats, "cms_release": CMS_RELEASED.isoformat()})
+            dates.append(CMS_RELEASED)
+        market["source_urls"] = (
+            fields["source_urls"]
+            + ([CMS_CSV] if stats else [])
+            + [s["url"] for s in industry if s.get("url")]
         )
+        body = "\n".join([body_of(label, stats, drug_class), *industry_lines(industry)])
+        out.append(("fda-label+cms" if stats else "fda-label+market", max(dates), market, body))
     title = f"{label['brand']} ({label['generic']}): FDA label"
     return [
         {
@@ -255,7 +266,7 @@ def build(labels: dict, cms_rows: list[dict]) -> tuple[list[dict], list[str]]:
             report.append(f"{brand}: label has no application number or date, skipped")
             continue
         stats = cms_stats(cms_rows, drug["cms_brand"])
-        rows += rows_for(label, stats, drug["class"])
+        rows += rows_for(label, stats, drug["class"], drug.get("industry_sources"))
         report.append(
             f"{brand}: label {label['label_effective']}, "
             + (

@@ -42,11 +42,13 @@ def test_build_tables():
     assert roflu["published_date"] == date(2025, 5, 31)  # the stats version, not the 2020 label
     assert roflu["side_effects"] == ["Made-up: diarrhea, weight decrease."]
     assert roflu["insurance"] == "unknown" and "Medicare Part D 2023" in roflu["coverage_notes"]
+    assert roflu["industry_notes"].startswith("[news, 2017-06-27]")
+    assert "news:eac662c4fb4f51e7" in roflu["source_ids"]
 
     programs = {p["drug_id"]: p for p in tables["shelved_programs"]}
     benra = programs["drug:benralizumab"]
     assert benra["shelved_date"] == date(2018, 5, 15)  # first public report
-    assert benra["published_date"] == date(2019, 5, 20)  # latest source in the row
+    assert benra["published_date"] == date(2025, 9, 17)  # latest source in the row
     assert benra["phase_reached"] == "phase3" and benra["reason_category"] == "efficacy"
 
     trials = {(t["trial_id"], t["version_label"]): t for t in tables["trials"]}

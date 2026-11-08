@@ -79,8 +79,14 @@ def from_fda(doc: dict) -> tuple[dict, dict]:
         "warnings": [
             sections[k] for k in ("contraindications", "warnings_and_cautions") if k in sections
         ],
+        "industry_notes": "\n".join(
+            f"[{x['type']}, {x['date']}] {x['title']}: {x['fact']}"
+            for x in f.get("industry_sources", [])
+        )
+        or None,
         "published_date": doc["source_date"],
-        "source_ids": [doc["id"]],
+        "source_ids": [doc["id"]]
+        + [x.get("id") or x["url"] for x in f.get("industry_sources", [])],
     }
     return drug, stats
 
@@ -198,6 +204,7 @@ COLUMNS = {
         "usage",
         "side_effects",
         "warnings",
+        "industry_notes",
         "published_date",
         "source_ids",
     ],

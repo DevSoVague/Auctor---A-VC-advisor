@@ -151,3 +151,6 @@ CREATE TABLE IF NOT EXISTS parent_chunks (
   published_date  date NOT NULL              -- when this full text was public (as-of filter)
 );
 CREATE INDEX IF NOT EXISTS parent_chunks_doc ON parent_chunks (doc_id);
+
+-- Industry facts (company reports, filings, news) for marketed drugs, from the curated list.
+ALTER TABLE market_stats ADD COLUMN IF NOT EXISTS industry_notes text;

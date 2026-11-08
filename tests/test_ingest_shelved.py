@@ -24,7 +24,7 @@ def test_records_are_complete_and_sourced():
 
 def test_row_is_dated_by_its_latest_source():
     benra = next(r for r in shelved.rows() if r["id"] == "curated:shelved:benralizumab-in-copd")
-    assert benra["source_date"] == date(2019, 5, 20)  # NEJM, not the 2018 topline
+    assert benra["source_date"] == date(2025, 9, 17)  # RESOLUTE update, the latest source
     assert "pmid:31112385 (2019-05-20)" in benra["body"]
 
 
@@ -53,3 +53,9 @@ def test_upsert_is_idempotent_and_rolled_back():
             assert count == len(records)
         finally:
             conn.rollback()
+
+
+def test_every_source_is_typed():
+    for r in shelved.rows():
+        for s in r["fields"]["sources"]:
+            assert s["type"] in {"academic", "company", "regulatory_filing", "news"}

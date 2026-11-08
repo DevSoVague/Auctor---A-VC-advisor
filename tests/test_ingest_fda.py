@@ -54,6 +54,36 @@ def test_build_checks_copd_and_dates_versions():
     assert "medicare_part_d" not in roflu[0]["fields"]
     assert roflu[1]["fields"]["medicare_part_d"]["total_claims"] == 2000
     assert "Medicare Part D 2023" in roflu[1]["body"]
+    assert roflu[1]["fields"]["industry_sources"][0]["type"] == "news"  # from the curated list
+    assert "[news, 2017-06-27]" in roflu[1]["body"]
+
+
+def test_industry_sources_are_typed_dated_and_pre_2026():
+    drugs = json.loads(fda.DRUGS.read_text())["drugs"]
+    sources = [s for d in drugs for s in d.get("industry_sources", [])]
+    assert sources
+    for s in sources:
+        assert s["type"] in {"company", "regulatory_filing", "news"}
+        assert date.fromisoformat(s["date"]) <= date(2025, 12, 31)
+        assert s["fact"] and (s.get("url") or s.get("id"))
+
+
+def test_industry_only_drug_gets_market_version():
+    label = fda.parse_label(LABELS["OHTUVAYRE"])
+    industry = [
+        {
+            "type": "news",
+            "date": "2024-07-01",
+            "title": "t",
+            "url": "https://x.invalid",
+            "fact": "f",
+        }
+    ]
+    rows = fda.rows_for(label, None, "class", industry)
+    assert [(r["version_label"], r["source_date"]) for r in rows] == [
+        ("fda-label", date(2024, 6, 26)),
+        ("fda-label+market", date(2024, 7, 1)),
+    ]
 
 
 def _documents_versioned() -> bool:
