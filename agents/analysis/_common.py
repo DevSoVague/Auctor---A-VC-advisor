@@ -13,7 +13,7 @@ from agents.analysis.retrieval import _d
 from agents.analysis.schemas import Claim
 
 PROMPTS = Path(__file__).resolve().parents[1] / "prompts"
-PROMPT_VERSION = "p3-v1"
+PROMPT_VERSION = "auctor-v1"
 
 # Confidence caps (calibration): evidence tier -> max confidence on that card's claims.
 TIER_CAP = {1: 0.9, 2: 0.75, 3: 0.6, 4: 0.4}

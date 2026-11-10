@@ -1,4 +1,4 @@
-"""Generate person-3 fixtures: a small COPD retrieval corpus + stub LLM outputs.
+"""Generate analysis-agent fixtures: a small COPD retrieval corpus + stub LLM outputs.
 
 All ids are prefixed `fx:` -- these are FIXTURE records for stub tests, not real PMIDs/NCTs.
 Content is paraphrased from well-known public COPD history; dates are approximate.

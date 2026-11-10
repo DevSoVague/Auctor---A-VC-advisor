@@ -1,0 +1,57 @@
+import os
+import sys
+
+
+def _load_lf():
+    """Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only
+    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).
+    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there."""
+    home = os.getenv("AUCTOR_LANGFLOW_HOME", "")
+    if not home:
+        raise RuntimeError("AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/run_langflow.sh "
+                           "(or workflow/langflow/run_langflow.sh), or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.")
+    if home not in sys.path:
+        sys.path.insert(0, home)
+    import lf_graph
+
+    return lf_graph
+
+from lfx.custom.custom_component.component import Component
+from lfx.io import DropdownInput, HandleInput, MessageTextInput, MultilineInput, Output
+from lfx.schema.data import Data
+
+
+def _default_prompt() -> str:
+    try:
+        lf_graph = _load_lf()
+
+        return lf_graph.default_prompt("a4_inactive")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+class AuctorA4Prompt(Component):
+    display_name = "Auctor · A4.4 Prompt"
+    description = "A4 Inactive assets: Builds the messages: system prompt (editable here) + input + evidence pack + feedback."
+    icon = "message-square"
+    name = "AuctorA4Prompt"
+
+    inputs = [
+        HandleInput(name="state", display_name="Run state", input_types=["Data"], required=True,
+                    info="State from the previous node."),
+        MultilineInput(name="system_prompt", display_name="System prompt (edit me)",
+                       value=_default_prompt(), info="Edit to change this agent's prompt for the run."),
+        MessageTextInput(name="feedback", display_name="Feedback", advanced=True,
+                         info="Optional comment appended to the prompt."),
+        HandleInput(name="a3_state", display_name="A3 profile", input_types=["Data"], required=False,
+                    info="Connect A3's last step: A4 waits for A3's target product profile here."),
+    ]
+    outputs = [Output(display_name="Run state", name="state_out", method="run_step")]
+
+    async def run_step(self) -> Data:
+        lf_graph = _load_lf()
+
+        st, status = await lf_graph.execute(self.state.data, "a4", "prompt", feedback=self.feedback, system_prompt=self.system_prompt, a3_state=self.a3_state.data if self.a3_state else None)
+        # click the node: its status is what happened here, in plain language (full log: runs/<run_id>/log.md)
+        self.status = lf_graph.chat_text(self.state.data, st) or status
+        return Data(data=st)

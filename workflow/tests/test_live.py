@@ -6,8 +6,8 @@ import httpx
 import pytest
 from openai import AsyncOpenAI
 
-from p3graph import engine as E
-from p3graph import live
+from auctor import engine as E
+from auctor import live
 from agents.analysis.context import NebiusLLM
 
 
@@ -77,7 +77,7 @@ def test_truncated_stream_fails_after_emitting_partial_output(monkeypatch):
 
 
 def test_step_monitor_captures_prompts_and_errors(tmp_path, monkeypatch):
-    from p3graph import nodes as N, steps as S
+    from auctor import nodes as N, steps as S
     monkeypatch.setattr(live, "RUNS", tmp_path)
     monkeypatch.setattr(N, "LLM_FACTORY", lambda state: E.StubLLM())
 
@@ -104,7 +104,7 @@ def test_step_monitor_captures_prompts_and_errors(tmp_path, monkeypatch):
 
 
 def test_competitor_live_stream_and_failure_reach_monitor(tmp_path, monkeypatch):
-    from p3graph import nodes as N, competitor as C
+    from auctor import nodes as N, competitor as C
     from test_graph import drive, build, InMemorySaver, inp, cfg
     monkeypatch.setattr(live, 'RUNS', tmp_path)
     monkeypatch.setattr(N, 'LLM_FACTORY', lambda state: E.StubLLM())

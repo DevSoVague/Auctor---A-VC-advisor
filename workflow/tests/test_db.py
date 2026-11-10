@@ -11,9 +11,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from p3graph import engine as E  # noqa: E402
-from p3graph import tools as T  # noqa: E402
-from p3graph.graph import build  # noqa: E402
+from auctor import engine as E  # noqa: E402
+from auctor import tools as T  # noqa: E402
+from auctor.graph import build  # noqa: E402
 from agents.analysis.retrieval_db import DatabaseError, build_select, load_mapping, make_db  # noqa: E402
 from test_graph import cfg, drive, inp, run  # noqa: E402
 

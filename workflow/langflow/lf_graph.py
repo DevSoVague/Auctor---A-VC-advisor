@@ -25,20 +25,20 @@ from pathlib import Path
 from typing import Annotated, Any, get_args, get_origin, get_type_hints
 
 HERE = Path(__file__).resolve().parent
-GRAPH_HOME = Path(os.getenv("P3_LANGGRAPH_HOME", HERE.parent)).resolve()
+GRAPH_HOME = Path(os.getenv("AUCTOR_LANGGRAPH_HOME", HERE.parent)).resolve()
 if str(GRAPH_HOME) not in sys.path:
     sys.path.insert(0, str(GRAPH_HOME))
 
 from langgraph.types import Command  # noqa: E402
 
-from p3graph import engine as E  # noqa: E402
-from p3graph import nodes as N  # noqa: E402
-from p3graph import steps as S  # noqa: E402
-from p3graph import workflow as WF  # noqa: E402
-from p3graph.state import P3State, merge, merge_usage  # noqa: E402
+from auctor import engine as E  # noqa: E402
+from auctor import nodes as N  # noqa: E402
+from auctor import steps as S  # noqa: E402
+from auctor import workflow as WF  # noqa: E402
+from auctor.state import AuctorState, merge, merge_usage  # noqa: E402
 
 SPECS = {"a1": S.A1, "a2": S.A2, "a3": S.A3, "a6": S.A6}
-from p3graph import competitor as C  # noqa: E402
+from auctor import competitor as C  # noqa: E402
 
 COMPETITOR = {"a4": "a4_inactive", "a5": "a5_active"}  # Adam's agents, one node per step
 # Flow shape: A2 → fork → { A3 | A4 gather..establish | A5 gather..establish } ; A4/A5 prompt also wait for A3's
@@ -52,13 +52,13 @@ ORDER = {
     "a6": ["retrieve", "prompt", "toolloop", "llm", "parse", "validate", "postcheck", "cite", "commit", "judge", "route"],
 }
 PER_CARD = {"a3", "a4", "a5", "a6"}
-MAX_PARALLEL = int(os.getenv("P3_MAX_PARALLEL", "1"))  # cards run at once inside a node; 1 = one at a time (V1 is sequential)
+MAX_PARALLEL = int(os.getenv("AUCTOR_MAX_PARALLEL", "1"))  # cards run at once inside a node; 1 = one at a time (V1 is sequential)
 
 
 # ---------------------------------------------------------------------------- state + node lookup
 def _reducers() -> dict:
     out = {}
-    for k, t in get_type_hints(P3State, include_extras=True).items():
+    for k, t in get_type_hints(AuctorState, include_extras=True).items():
         if get_origin(t) is Annotated:
             out[k] = get_args(t)[1]
     return out
@@ -190,7 +190,7 @@ def _status(state: dict, start: int) -> str:
 
 def chat_text(before: dict, after: dict) -> str:
     """What this node did, in plain language (the messages it added to state['chat'])."""
-    from p3graph import narrate as NR
+    from auctor import narrate as NR
 
     return NR.transcript((after.get("chat") or [])[len(before.get("chat") or []):])
 
@@ -300,7 +300,7 @@ def log_failure(st: dict, agent: str, step: str, hid: str | None, exc: BaseExcep
 
 
 def _parallel(st: dict, agent: str | None = None) -> int:
-    """Cards one agent runs at once. P3 · Setup has one field each for A3, A4 and A5 (they run side by side, each
+    """Cards one agent runs at once. Auctor · Setup has one field each for A3, A4 and A5 (they run side by side, each
     with its own limit); 'Cards in parallel' covers the others (A6) and any blank per-agent field."""
     for v in ((st.get("parallel_by_agent") or {}).get(agent), st.get("parallel"), MAX_PARALLEL):
         try:
@@ -312,7 +312,7 @@ def _parallel(st: dict, agent: str | None = None) -> int:
 
 
 async def _run_cards(st: dict, agent: str, step: str) -> None:
-    """One step for every card, up to `parallel` cards at once (P3 · Setup: Cards in parallel). A card that fails
+    """One step for every card, up to `parallel` cards at once (Auctor · Setup: Cards in parallel). A card that fails
     is written to failures.log and skipped from then on; the other cards keep going."""
     if (st.get("intake") or {}).get("accepted") is False:
         return  # A0 rejected the pitch: no agent runs
@@ -365,7 +365,7 @@ def join(base: dict, branches: list[dict]) -> tuple[dict, str]:
 
 async def setup(config: dict, llm: dict, retrieval: str, message: str = "", search: str = "corpus",
                 extras: dict | None = None) -> tuple[dict, str]:
-    """extras: tools, cite, judge, max_cards, pitch, store_pitch (see p3graph/state.py)."""
+    """extras: tools, cite, judge, max_cards, pitch, store_pitch (see auctor/state.py)."""
     st: dict = {"config": config, "llm": llm, "retrieval": retrieval, "search": search, "parallel": MAX_PARALLEL,
                 **(extras or {})}
     note = ""

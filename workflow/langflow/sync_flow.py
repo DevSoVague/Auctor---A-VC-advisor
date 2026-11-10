@@ -1,7 +1,7 @@
-"""Push flows/person3_analysis.json into a running Langflow (create or overwrite), print the URL.
+"""Push flows/auctor_analysis.json into a running Langflow (create or overwrite), print the URL.
 
     conda run -n langflow python sync_flow.py                         # the 7-node flow, server on :7860
-    conda run -n langflow python sync_flow.py flows/person3_steps.json   # the step-by-step flow
+    conda run -n langflow python sync_flow.py flows/auctor_steps.json   # the step-by-step flow
     PORT=7861 conda run -n langflow python sync_flow.py
 """
 
@@ -20,7 +20,7 @@ BASE = f"http://127.0.0.1:{os.getenv('PORT', '7860')}"
 def main() -> None:
     import sys
 
-    path = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "flows" / "person3_analysis.json"
+    path = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "flows" / "auctor_analysis.json"
     flow = json.loads(path.read_text())
     c = httpx.Client(timeout=60)
     try:

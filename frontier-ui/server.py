@@ -42,7 +42,7 @@ def execute(job, args, pitch):
             subprocess.run(['pg_dump', '-Fc', os.environ.get('DATABASE_URL', 'postgresql://frontier:frontier@localhost:5433/frontier'), '-f', str(destination)], check=True, capture_output=True)
         python = os.environ.get('FRONTIER_PYTHON', '/opt/anaconda3/envs/hack/bin/python')
         if not Path(python).exists(): python = 'python3'
-        cmd = [python, '-m', 'p3graph', 'run', '--llm', args['mode'], '--as-of', args['as_of'], '--max-cards', str(args['cards']), '--disease', args['disease'], '--audience', 'specialist', '--compact']
+        cmd = [python, '-m', 'auctor', 'run', '--llm', args['mode'], '--as-of', args['as_of'], '--max-cards', str(args['cards']), '--disease', args['disease'], '--audience', 'specialist', '--compact']
         if args['mode'] == 'live': cmd += ['--search', 'evstore', '--tools']
         if pitch: cmd += ['--pitch', str(pitch)]
         process = subprocess.Popen(cmd, cwd=ENGINE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -146,7 +146,7 @@ def port_open(port):
 
 
 def start_backend(engine, langflow_port):
-    """One command for everything: the evidence-store database (Docker) and Langflow with the Person-3 components.
+    """One command for everything: the evidence-store database (Docker) and Langflow with the Auctor components.
     Anything already running is reused and left alone; only what this process started is stopped on exit."""
     started = []
     store = engine.parent / 'evidence-store'

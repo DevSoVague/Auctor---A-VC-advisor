@@ -1,7 +1,7 @@
 """Single import point for schemas inside agents/analysis.
 
 Uses person 2's agents/schemas.py when it exists, else our PRD-verbatim draft.
-Person-3 additions (A2Output, RedTeamInput) always come from the draft until
+Analysis-agent additions (A2Output, RedTeamInput) always come from the draft until
 person 2 merges them.
 """
 

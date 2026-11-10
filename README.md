@@ -101,7 +101,7 @@ git lfs pull
 
 # 2. Python environments
 conda create -n hack python=3.12 -y && conda activate hack
-pip install -r requirements-person3.txt                     # engine, LangGraph, evidence store
+pip install -r requirements.txt                     # engine, LangGraph, evidence store
 
 conda create -n langflow python=3.11 -y && conda activate langflow
 pip install -r requirements-langflow.txt                    # Langflow 1.8.4 + the above
@@ -128,21 +128,21 @@ All three use the same agent code.
 
 | Front end | Best for | How |
 |---|---|---|
-| **Langflow canvas** | Demos, the fastest runs (A3/A4/A5 in parallel), editing prompts and models per step | Open the **P3 steps** flow, set **P3 · Setup**, open **Playground**, send `run` |
+| **Langflow canvas** | Demos, the fastest runs (A3/A4/A5 in parallel), editing prompts and models per step | Open the **Auctor steps** flow, set **Auctor · Setup**, open **Playground**, send `run` |
 | **Auctor workspace** (`frontier-ui`) | Reading results: overview, hypothesis comparison, evidence library, scientific report (print to PDF), run history | `python3 frontier-ui/server.py --port 7881` |
-| **CLI / LangGraph Studio** | Scripted runs, tests, guided human review | `cd workflow && conda run -n hack python -m p3graph run …` |
+| **CLI / LangGraph Studio** | Scripted runs, tests, guided human review | `cd workflow && conda run -n hack python -m auctor run …` |
 
 **CLI examples**
 
 ```bash
 cd workflow
-conda run -n hack python -m p3graph run                                   # stub: fixtures, 0 tokens
-conda run -n hack python -m p3graph run --llm live --search evstore \
+conda run -n hack python -m auctor run                                   # stub: fixtures, 0 tokens
+conda run -n hack python -m auctor run --llm live --search evstore \
     --tools --max-cards 1                                                 # live, one card, tools + judge
 conda run -n hack python -m pytest -q                                     # tests
 ```
 
-**Watching a run:** the **Node Monitor** at http://127.0.0.1:7872 (`python -m p3graph.live` from `workflow`) shows every step of every card live: prompts, streamed output, timers and errors.
+**Watching a run:** the **Node Monitor** at http://127.0.0.1:7872 (`python -m auctor.live` from `workflow`) shows every step of every card live: prompts, streamed output, timers and errors.
 
 **Main Setup fields (Langflow):**
 
@@ -195,7 +195,7 @@ auctor/
 │   ├── competitor/         A4 inactive assets and A5 active landscape
 │   └── prompts/            One system prompt per agent (markdown)
 ├── workflow/      The workflow
-│   ├── p3graph/            LangGraph state machine, CLI, report, Node Monitor (live.py / live.html)
+│   ├── auctor/            LangGraph state machine, CLI, report, Node Monitor (live.py / live.html)
 │   ├── langflow/           Langflow components and flows (A3/A4/A5 fork + join), launcher
 │   ├── prompts/            Workflow-level prompt overrides
 ├── evidence-store/         COPD evidence store: Postgres + pgvector in Docker
@@ -207,7 +207,7 @@ auctor/
 ├── exports/                Excel workbook writer
 ├── scripts/                Plain async runner, model comparison, tool probe, fixtures
 ├── tests/                  Engine and A4/A5 tests with fixtures
-├── requirements-person3.txt / requirements-langflow.txt
+├── requirements.txt / requirements-langflow.txt
 └── .env.example            Every variable the code reads, with no values
 ```
 

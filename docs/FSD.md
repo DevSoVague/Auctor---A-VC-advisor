@@ -1,7 +1,7 @@
-# Functional Specification (FSD) · Person 3 analysis agents
+# Functional Specification (FSD) · Auctor analysis agents
 
 **Project:** Frontier Hypothesis Engine, UPMC Enterprises MedTech PS #1 (team ctrl+alt+cure)
-**Scope of this document:** person 3's part: agents A1, A2, A3 and A6, plus the workflow that runs them
+**Scope of this document:** the analysis agents A1, A2, A3 and A6, plus the workflow that runs them
 **Disease:** COPD (`EFO_0000341`) · **Backtest cutoff:** 2025-01-01 (data window 2023–2025; 2020–2022 left out because COVID confounds it)
 **Evidence store data window:** 2023–2025 (see §10)
 **Related:** [HOW_TO_RUN.md](HOW_TO_RUN.md) (how to run it) · [TSD.md](TSD.md) (how it works inside)
@@ -14,13 +14,13 @@ A biopharma VC wants therapeutic hypotheses it can act on in a disease area. For
 
 | # | Question | Answered by | Owner |
 |---|---|---|---|
-| Q1 | Why is now the time to work on this disease? | A1 Disease Analysis | **Person 3** |
-| Q2 | Which mechanism(s) should be targeted? | A2 Mechanistic Analysis | **Person 3** |
-| Q3 | What would a winning product look like? | A3 Optimal Solution (TPP) | **Person 3** |
+| Q1 | Why is now the time to work on this disease? | A1 Disease Analysis | **Auctor** |
+| Q2 | Which mechanism(s) should be targeted? | A2 Mechanistic Analysis | **Auctor** |
+| Q3 | What would a winning product look like? | A3 Optimal Solution (TPP) | **Auctor** |
 | Q4 | Which existing assets or companies could get there? | A4 Inactive / A5 Active asset finders | Person 4 (hooks here) |
-| Q5 | What could kill the hypothesis? | A6 Red Teamer | **Person 3** |
+| Q5 | What could kill the hypothesis? | A6 Red Teamer | **Auctor** |
 
-Person 3's part turns a disease and a date into a ranked set of hypothesis cards, each with a product profile and a red-team verdict. Every claim carries a citation, and every confidence value is calibrated. The citation checker (A7) and the memo (A8) consume this output downstream.
+Auctor turns a disease and a date into a ranked set of hypothesis cards, each with a product profile and a red-team verdict. Every claim carries a citation, and every confidence value is calibrated. The citation checker (A7) and the memo (A8) consume this output downstream.
 
 ## 2. Users
 
@@ -29,7 +29,7 @@ Person 3's part turns a disease and a date into a ranked set of hypothesis cards
 | **VC analyst / reviewer** | Runs the workflow and reviews each agent's output at checkpoints (approve, edit, rerun). Reads the report and workbook. |
 | **Demo audience / judges** | Watch a run live (Langflow canvas, chat view, live monitor) and read the final report. |
 | **Teammates (persons 1, 2, 4, 5)** | Call the agents through documented hooks and consume their events, signals and outputs. |
-| **Developer (person 3)** | Edits prompts, inserts nodes, compares models and debugs runs step by step. |
+| **Developer** | Edits prompts, inserts nodes, compares models and debugs runs step by step. |
 
 ## 3. Scope
 
@@ -196,7 +196,7 @@ The team's pre-loaded evidence store (Postgres + pgvector RAG, data 2023–2025)
 | NFR-3 | **Traceability** | Every claim carries the agent that made it, a stable id and its source ids. Every row in the workbook carries `hypothesis_id` and `source_ids`. |
 | NFR-4 | **Determinism** | Retrieval, grading, ranking, gates and the checklist are computed in code. Stub runs are fully reproducible. |
 | NFR-5 | **Cost** | Stub mode spends 0 tokens. Live mode reports tokens and USD per agent and enforces the optional caps. |
-| NFR-6 | **Integration** | Hooks only: teammates plug in without editing person 3's code (env-var hooks, duck-typed `ctx`, automatic schema pick-up). |
+| NFR-6 | **Integration** | Hooks only: teammates plug in without editing the analysis agents' code (env-var hooks, duck-typed `ctx`, automatic schema pick-up). |
 | NFR-7 | **Debuggability** | Every agent is split into visible steps. Every step logs what it changed. |
 | NFR-8 | **Security** | Keys live only in `.env`, never in `.env.example` or git. The database user is read-only. The live monitor listens only on loopback. |
 
@@ -225,7 +225,7 @@ The team's pre-loaded evidence store (Postgres + pgvector RAG, data 2023–2025)
 
 - Person 1: the real retrieval API and corpus. Until then the stub fixtures, whose ids start with `fx:`, are fake.
 - Person 2: merge `A2Output` and `RedTeamInput` into `agents/schemas.py`. The model IDs in the PRD don't exist on Nebius, so person 2 needs the real ones.
-- Person 4: A4 and A5 implementations, through `P3_A4_HOOK` and `P3_A5_HOOK`.
+- Person 4: A4 and A5 implementations, through `AUCTOR_A4_HOOK` and `AUCTOR_A5_HOOK`.
 - Person 5: use the graph as a subgraph, and feed A7 and A8 from the final state.
 - The final model map (`--profile final`) is awaiting sign-off.
 - The final live run and the backtest run are not done yet.
@@ -251,8 +251,8 @@ The monitor at **http://127.0.0.1:7862/** is a local view of workflow activity. 
 
 1. Instrumented steps write start, request, delta, response, completion and error events to `workflow/runs/<run_id>/live.jsonl`. A unique step-attempt ID and hypothesis ID associate events with the correct panel.
 2. For observed live calls, the model client consumes OpenAI-compatible streaming responses and records output and exposed reasoning chunks as they arrive. Actual request messages include schema-fallback instructions when used.
-3. `p3graph/live.py` serves the monitor's HTML and read-only run/event endpoints using Python's standard-library HTTP server, bound to `127.0.0.1`.
-4. The browser polls for new events every **250 ms**, using a byte offset to fetch only unread records, up to 2,000 events per response. `p3graph/live.html` groups them by card and updates the appropriate step.
+3. `auctor/live.py` serves the monitor's HTML and read-only run/event endpoints using Python's standard-library HTTP server, bound to `127.0.0.1`.
+4. The browser polls for new events every **250 ms**, using a byte offset to fetch only unread records, up to 2,000 events per response. `auctor/live.html` groups them by card and updates the appropriate step.
 
 The server reads this checkout's `runs/` directory. Runs without `live.jsonl`, including runs from uninstrumented copies, do not appear. Viewing an old run replays its saved transcript and makes no model calls.
 
@@ -264,7 +264,7 @@ From the repository root, start the standalone monitor in one terminal:
 
 ```bash
 cd workflow
-conda run --no-capture-output -n langflow python -m p3graph.live
+conda run --no-capture-output -n langflow python -m auctor.live
 ```
 
 Open **http://127.0.0.1:7862/**. In another terminal, from the repository root:
@@ -274,7 +274,7 @@ cd workflow
 PORT=7861 ./run_langflow.sh
 ```
 
-Use the Langflow URL printed by the launcher, set **P3 · Setup**, open **Playground**, and send `run`. The monitor fills as steps execute. Use `stub` for a fixture demonstration or `live` for real model streaming.
+Use the Langflow URL printed by the launcher, set **Auctor · Setup**, open **Playground**, and send `run`. The monitor fills as steps execute. Use `stub` for a fixture demonstration or `live` for real model streaming.
 
 Stop each foreground process with **Ctrl+C in its own terminal**. Stopping Langflow does not stop a separately launched monitor. Starting only the monitor displays saved activity and does not restart the workflow server.
 
@@ -360,9 +360,9 @@ The commits behind this update are `36263ae` and `b88f9ef`.
 |---|---|
 | FR-PAR-1 | **A3, A4 and A5 start together as soon as A2 commits** (Langflow step flow). A4 and A5 no longer wait for A3. A join step merges the three branches back into one state, in rank order, and then A6 runs. This replaces FR-WF-1's "A3 → (A4 ∥ A5)" order for the Langflow flow. |
 | FR-PAR-2 | **If A4 or A5 reaches its prompt before A3 has finished a card**, it uses a placeholder product profile for that card. The real profile is merged in at the join. |
-| FR-PAR-3 | **P3 Setup has its own limit for each agent:** *A3 cards in parallel*, *A4 cards in parallel* and *A5 cards in parallel*, each defaulting to 3. A blank field falls back to *Cards in parallel* (default 6), which still applies to the other steps. |
+| FR-PAR-3 | **Auctor Setup has its own limit for each agent:** *A3 cards in parallel*, *A4 cards in parallel* and *A5 cards in parallel*, each defaulting to 3. A blank field falls back to *Cards in parallel* (default 6), which still applies to the other steps. |
 | FR-PAR-4 | **A card that fails is logged and skipped**, and the other cards carry on. Failures are written to `runs/<run_id>/failures.log` and `failures.jsonl`. |
-| FR-CITE-1 | **The A7 citation check defaults to `off`** on P3 Setup. The options are `every node` (check after each agent and restart on a hallucination, up to 2 times), `end only` (one check before the report) or `off`. The citation post-check (NFR-1) still strips citations to documents outside the pack, whatever the setting. |
+| FR-CITE-1 | **The A7 citation check defaults to `off`** on Auctor Setup. The options are `every node` (check after each agent and restart on a hallucination, up to 2 times), `end only` (one check before the report) or `off`. The citation post-check (NFR-1) still strips citations to documents outside the pack, whatever the setting. |
 
 ### Accounts and connections
 

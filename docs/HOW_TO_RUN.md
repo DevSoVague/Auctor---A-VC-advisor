@@ -1,4 +1,4 @@
-# How to run · Person 3 analysis agents
+# How to run · Auctor analysis agents
 
 The workflow runs all six agents on COPD, in order: A1 why now, A2 mechanisms, then per hypothesis A3 product profile, A4 inactive assets, A5 active landscape, A6 red team. A4 and A5 are person 4's (Adam's), fitted to our context in `../agents/competitor/`; they run one after the other, never in parallel. There are two ways to run it, and both use the same step code:
 
@@ -13,7 +13,7 @@ What the workflow does: [FSD.md](FSD.md). How it works inside: [TSD.md](TSD.md).
 
 ```bash
 conda activate hack                      # engine + LangGraph (tests run here)
-pip install -r ../requirements-person3.txt
+pip install -r ../requirements.txt
 ```
 
 Langflow runs in its own env, `langflow` (Python 3.11, Langflow 1.8.4): `conda create -n langflow python=3.11 -y && conda activate langflow && pip install -r ../requirements-langflow.txt`.
@@ -41,9 +41,9 @@ cd workflow
 ./run_langflow.sh                        # http://localhost:7860 · PORT=7861 ./run_langflow.sh for another port
 ```
 
-The script regenerates the components, starts Langflow, loads **Person 3 · Analysis agents (step by step)** and opens it.
+The script regenerates the components, starts Langflow, loads **Auctor · Analysis agents (step by step)** and opens it.
 
-1. On **P3 · Setup**, choose:
+1. On **Auctor · Setup**, choose:
    - **LLM mode**: `stub` (no tokens) or `live`
    - **Model**
    - **As-of date**: `today` (default), or an explicit `YYYY-MM-DD` cutoff for a backtest. The selected date applies in both live and stub mode.
@@ -60,21 +60,21 @@ Restart Langflow after you change code, `.env`, or the step list. Stop it with C
 
 ```bash
 cd workflow
-python -m p3graph run                                            # backtest, stub LLM, current-date cutoff, 0 tokens
-python -m p3graph run --llm live --model openai/gpt-oss-120b      # live backtest
-python -m p3graph run --llm live --as-of today                   # live "today" run
-python -m p3graph run --llm live --profile final                 # per-agent model map
-python -m p3graph run --search web|both|database|database+web    # where search() looks
-python -m p3graph run --mode guided -i                           # pause at each review, answer in the terminal
-python -m p3graph resume <thread> --action approve|approve_all|rerun|edit [--comment ...] [--edited file.json]
-python -m p3graph status <thread>
-python -m p3graph steps <thread>                                 # step table
-python -m p3graph chat [run_id] [-f]                             # the run as plain-language chat (-f follows live)
-python -m p3graph nodes                                          # every node, including inserted ones
-python -m p3graph prompt a3_profile                              # the system prompt in use and where it came from
+python -m auctor run                                            # backtest, stub LLM, current-date cutoff, 0 tokens
+python -m auctor run --llm live --model openai/gpt-oss-120b      # live backtest
+python -m auctor run --llm live --as-of today                   # live "today" run
+python -m auctor run --llm live --profile final                 # per-agent model map
+python -m auctor run --search web|both|database|database+web    # where search() looks
+python -m auctor run --mode guided -i                           # pause at each review, answer in the terminal
+python -m auctor resume <thread> --action approve|approve_all|rerun|edit [--comment ...] [--edited file.json]
+python -m auctor status <thread>
+python -m auctor steps <thread>                                 # step table
+python -m auctor chat [run_id] [-f]                             # the run as plain-language chat (-f follows live)
+python -m auctor nodes                                          # every node, including inserted ones
+python -m auctor prompt a3_profile                              # the system prompt in use and where it came from
 ```
 
-LangGraph Studio: `./run_langgraph.sh`, then pick `person3_analysis` with
+LangGraph Studio: `./run_langgraph.sh`, then pick `auctor_analysis` with
 `{"config": {"as_of": "backtest", "mode": "single_shot"}, "llm": {"mode": "stub"}}`.
 
 ### 3a. Faster backtests (`workflow-fast`)
@@ -83,11 +83,11 @@ Same commands, run from `../workflow-fast`. Cards run in parallel, and A1/A2 are
 
 ```bash
 cd ../workflow-fast
-python -m p3graph run --llm live                       # fast profile: gpt-oss-120b (A1-A3) + Qwen3.5-397B (A6)
-python -m p3graph run --llm live --parallel 5 --top-k 3 --no-revise
-python -m p3graph run --models a6=zai-org/GLM-5.1      # override one agent
-python -m p3graph run --no-reuse-upstream              # ignore the A1/A2 cache (or delete runs/cache/)
-python -m p3graph run --sequential                     # the original one-card-at-a-time loop
+python -m auctor run --llm live                       # fast profile: gpt-oss-120b (A1-A3) + Qwen3.5-397B (A6)
+python -m auctor run --llm live --parallel 5 --top-k 3 --no-revise
+python -m auctor run --models a6=zai-org/GLM-5.1      # override one agent
+python -m auctor run --no-reuse-upstream              # ignore the A1/A2 cache (or delete runs/cache/)
+python -m auctor run --sequential                     # the original one-card-at-a-time loop
 ```
 
 Guided mode always runs cards one at a time and never uses the cache.
@@ -111,7 +111,7 @@ LOCAL_LLM_BASE_URL=http://127.0.0.1:11434/v1
 # LOCAL_LLM_API_KEY=...        # optional, defaults to "local"
 ```
 
-Langflow runs also stream to a live node monitor at http://127.0.0.1:7862. It starts with the first run; set `P3_MONITOR_PORT` to change the port.
+Langflow runs also stream to a live node monitor at http://127.0.0.1:7862. It starts with the first run; set `AUCTOR_MONITOR_PORT` to change the port.
 
 ## 4. What a run leaves behind
 
@@ -141,7 +141,7 @@ cd .. && LLM_MODE=stub conda run -n hack python -m pytest -q      # 21 tests + 2
 
 | Symptom | Cause and fix |
 |---|---|
-| `No module named 'lf_graph'` in Langflow | The flow was built from old components. Run `./run_langflow.sh` again (it regenerates them), or reload the flow with `conda run -n langflow python langflow/sync_flow.py langflow/flows/person3_steps.json` |
+| `No module named 'lf_graph'` in Langflow | The flow was built from old components. Run `./run_langflow.sh` again (it regenerates them), or reload the flow with `conda run -n langflow python langflow/sync_flow.py langflow/flows/auctor_steps.json` |
 | Engine import errors in Langflow | A stale `FRONTIER_ENGINE_PATH` in your shell. `run_langflow.sh` now always sets it to `..`; restart through the script |
 | `finish_reason = length` on an `llm` step | The model hit `max_tokens` (16,000) while reasoning. The step retries once. Use a faster or less verbose model |
 | A stub run on `--search database` stops at A1's citation check | Expected: the stub answers cite the old corpus ids. Use a live model |
@@ -159,7 +159,7 @@ From the repository root:
 
 ```bash
 cd workflow
-conda run --no-capture-output -n langflow python -m p3graph.live
+conda run --no-capture-output -n langflow python -m auctor.live
 ```
 
 Leave that terminal running and open **http://127.0.0.1:7862/**. This works even with Langflow stopped: existing runs with `runs/<run_id>/live.jsonl` can still be viewed. If the monitor is already listening on 7862, use the existing page instead of starting a second copy on that port.
@@ -173,7 +173,7 @@ cd workflow
 PORT=7861 ./run_langflow.sh
 ```
 
-The launcher prints and opens the Langflow flow URL. On **P3 · Setup**, choose the disease/date, model and retrieval settings, then open **Playground** and send `run`.
+The launcher prints and opens the Langflow flow URL. On **Auctor · Setup**, choose the disease/date, model and retrieval settings, then open **Playground** and send `run`.
 
 - **stub:** fixture results, no model calls or simulated reasoning stream.
 - **live:** real streamed responses from the configured provider. For a local server, configure `LOCAL_LLM_BASE_URL` as described in §3c and enter its exact model ID in Setup.
@@ -181,9 +181,9 @@ The launcher prints and opens the Langflow flow URL. On **P3 · Setup**, choose 
 Alternatively, run the instrumented reference CLI from `workflow`:
 
 ```bash
-conda run --no-capture-output -n langflow python -m p3graph run
+conda run --no-capture-output -n langflow python -m auctor run
 # Real model run (uses the configured provider):
-conda run --no-capture-output -n langflow python -m p3graph run --llm live --model YOUR_MODEL_ID
+conda run --no-capture-output -n langflow python -m auctor run --llm live --model YOUR_MODEL_ID
 ```
 
 The standalone monitor reads this checkout's `runs/` directory (`1to6merged/workflow/runs/`); it does not automatically watch the separate `workflow/` or `workflow-fast/` checkouts.
@@ -206,13 +206,13 @@ For a custom monitor port:
 
 ```bash
 # Monitor terminal, from workflow:
-conda run --no-capture-output -n langflow python -m p3graph.live --port 7863
+conda run --no-capture-output -n langflow python -m auctor.live --port 7863
 
 # Workflow terminal, also from workflow:
-P3_MONITOR_PORT=7863 PORT=7861 ./run_langflow.sh
+AUCTOR_MONITOR_PORT=7863 PORT=7861 ./run_langflow.sh
 ```
 
-Open **http://127.0.0.1:7863/**. `PORT` controls Langflow; `P3_MONITOR_PORT` controls the monitor's embedded startup and launcher link. The standalone server accepts either `--port` or `P3_MONITOR_PORT` (default 7862).
+Open **http://127.0.0.1:7863/**. `PORT` controls Langflow; `AUCTOR_MONITOR_PORT` controls the monitor's embedded startup and launcher link. The standalone server accepts either `--port` or `AUCTOR_MONITOR_PORT` (default 7862).
 
 Press **Ctrl+C in the monitor terminal** to stop the standalone monitor, and **Ctrl+C in the workflow terminal** to stop Langflow or the CLI. Stopping either process leaves recorded events on disk. A separately launched monitor remains running when Langflow stops.
 

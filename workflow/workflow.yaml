@@ -2,9 +2,9 @@
 #
 # prompts: put prompts/<agent>.md next to this file to REPLACE an agent's system prompt, or
 #          prompts/<agent>.append.md to ADD to it.  Agents: a1_disease a2_mechanism a3_profile a6_redteam.
-#          Check what is used:  python -m p3graph prompt a3_profile
+#          Check what is used:  python -m auctor prompt a3_profile
 #
-# insert:  splice your own node after any step. `after` is a step name (see: python -m p3graph nodes).
+# insert:  splice your own node after any step. `after` is a step name (see: python -m auctor nodes).
 #          `node` is  file:function  (custom_nodes.py).  `enabled: false` switches one off.
 #          `may_goto` lists nodes your function can jump to (only needed for the diagram).
 

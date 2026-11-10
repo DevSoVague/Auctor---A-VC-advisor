@@ -1,22 +1,22 @@
 # Editing the workflow
 
-Three files change behaviour; you never need to touch `p3graph/`.
+Three files change behaviour; you never need to touch `auctor/`.
 
 | To change | Edit |
 |---|---|
 | A prompt | `prompts/<agent>.md` (replace) or `prompts/<agent>.append.md` (add to it) |
 | The workflow (add a loop, gate, tool call, branch) | `workflow.yaml` (where) + `custom_nodes.py` (what) |
-| A tool the model's evidence can come from | `p3graph/tools.py` (`@tool`) |
+| A tool the model's evidence can come from | `auctor/tools.py` (`@tool`) |
 
-Check what you changed: `python -m p3graph prompt a3_profile` and `python -m p3graph nodes`.
-Use a different file without editing the default: `python -m p3graph --workflow my.yaml run`.
+Check what you changed: `python -m auctor prompt a3_profile` and `python -m auctor nodes`.
+Use a different file without editing the default: `python -m auctor --workflow my.yaml run`.
 
 ## 1. Change a prompt
 
 Agents: `a1_disease`, `a2_mechanism`, `a3_profile`, `a6_redteam`.
 
 ```bash
-python -m p3graph prompt a3_profile > prompts/a3_profile.md     # start from the current prompt, then edit it
+python -m auctor prompt a3_profile > prompts/a3_profile.md     # start from the current prompt, then edit it
 echo "Always state the dosing route in must_haves." > prompts/a3_profile.append.md   # or just add a rule
 ```
 
@@ -29,7 +29,7 @@ The next run uses it. Output must still match the agent's JSON schema, or the `p
 ```yaml
 insert:
   - name: a3_refine              # your node's name (shows in the trace and diagram)
-    after: a3_postcheck          # splice it in after this step; `p3graph nodes` lists them all
+    after: a3_postcheck          # splice it in after this step; `auctor nodes` lists them all
     node: custom_nodes:refine_loop
     may_goto: [a3_prompt]        # nodes it can jump to (for the diagram only)
     params: {field: must_haves, min: 2, max_loops: 2}
@@ -60,7 +60,7 @@ Loops are counted in `state["loops"]`. Always give one a cap. Back-jumps reset t
 
 ## 3. Tools
 
-`run_tools` calls functions from `p3graph/tools.py`:
+`run_tools` calls functions from `auctor/tools.py`:
 
 ```python
 @tool("my_tool")

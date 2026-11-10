@@ -1,8 +1,8 @@
 """HOOK IN (person 2): draft copy of agents/schemas.py, verbatim from the PRD.
 
 When person 2 pushes agents/schemas.py, `agents/analysis/schemas.py` switches to it
-automatically (see that module). Only the models person 3 needs are here, plus the
-person-3-specific models at the bottom (RedTeamInput, A2Output).
+automatically (see that module). Only the models the analysis agents need are here, plus the
+analysis-specific models at the bottom (RedTeamInput, A2Output).
 """
 
 from __future__ import annotations
@@ -140,7 +140,7 @@ class Verdict(BaseModel):
     premortem: str
 
 
-# ---------------------------------------------------------------- person 3 additions
+# ---------------------------------------------------------------- analysis-agent additions
 # These are proposed additions to agents/schemas.py (send to person 2 as a PR).
 
 

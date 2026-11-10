@@ -2,7 +2,7 @@
 import asyncio
 from datetime import date
 import pytest
-from p3graph import nodes as N, live, engine as E
+from auctor import nodes as N, live, engine as E
 
 @pytest.mark.parametrize("mode", ["stub", "live"])
 def test_setup_defaults_to_today(mode, tmp_path, monkeypatch):

@@ -18,7 +18,7 @@ The COPD agents 1–7 with the evidence store wired in as tool calls. This folde
 | A1 ingest | `agents/analysis/db_ingest.py` | A1 searches PubMed and ClinicalTrials.gov, checks for duplicates, downloads, and stores records verbatim with their official date. Undated, out-of-window and duplicate items are rejected. |
 | A6 checkers | `tool_loop.with_checkers` | Four parallel checkers (safety, already-exists, market, evidence) feed the red team. |
 | A6b judge | `agents/analysis/a6b_judge.py`, `agents/prompts/a6b_judge.md` | Sees only A3's and A6's outputs, with no tools. Decides advance, revise or kill, and that decision drives the routing. |
-| LangGraph | `workflow/p3graph/` | A `toolloop` step in each chain and an `a6b_judge` node. CLI flags `--tools`, `--no-judge`, `--max-cards` and `--search evstore`. |
+| LangGraph | `workflow/auctor/` | A `toolloop` step in each chain and an `a6b_judge` node. CLI flags `--tools`, `--no-judge`, `--max-cards` and `--search evstore`. |
 | Workbook | `exports/analysis_workbook.py` | New sheets: ToolCalls, NewEvidence, Judge. |
 | Ports | `live.py`, `run_*.sh` | Monitor 7872, Studio 2034, Langflow 7870, so this copy doesn't collide with 1to6merged. |
 | Tests | `tests/test_db_tools.py`, `workflow/tests/conftest.py` | 150 engine and 50 LangGraph tests pass. Tests no longer write to `runs/`. |
@@ -44,7 +44,7 @@ The COPD agents 1–7 with the evidence store wired in as tool calls. This folde
 | Need | Why | How |
 |---|---|---|
 | macOS/Linux, conda | envs | `conda create -n hack python=3.12` |
-| Python packages (env `hack`) | engine, graph, DB client | `pip install -r requirements-person3.txt "psycopg[binary]" pgvector numpy langgraph langgraph-checkpoint-sqlite pyyaml openpyxl httpx` |
+| Python packages (env `hack`) | engine, graph, DB client | `pip install -r requirements.txt "psycopg[binary]" pgvector numpy langgraph langgraph-checkpoint-sqlite pyyaml openpyxl httpx` |
 | Docker Desktop | runs the evidence-store Postgres | the `evidence-store-db` container on `:5433` |
 | `evidence-store/` folder | the data, `evstore` client, schema, cached embeddings | next to this repo, or set `EVSTORE_PATH` |
 | `frontier-store.zip` | person 1's export, to build the DB | `unzip ../frontier-store.zip -d ../evidence-store/data` |
@@ -52,11 +52,11 @@ The COPD agents 1–7 with the evidence store wired in as tool calls. This folde
 | Tavily key (optional) | `web_search` for A1/A4/A5, and fetching plain web pages | `TAVILY_API_KEY` |
 | NCBI key (optional) | faster PubMed (10 req/s instead of 3) | `NCBI_API_KEY` |
 | Langflow env (optional) | the Langflow view | conda env `langflow` (Langflow 1.8.4), `./run_langflow.sh` |
-| Free ports | monitor, Studio, Langflow | 7872, 2034, 7870 (override with `P3_MONITOR_PORT` / `PORT`) |
+| Free ports | monitor, Studio, Langflow | 7872, 2034, 7870 (override with `AUCTOR_MONITOR_PORT` / `PORT`) |
 
 Checklist:
 
-1. **Conda env `hack`:** `pip install -r requirements-person3.txt psycopg[binary] pgvector numpy langgraph`.
+1. **Conda env `hack`:** `pip install -r requirements.txt psycopg[binary] pgvector numpy langgraph`.
 2. **The evidence store:** the folder `../evidence-store` (or set `EVSTORE_PATH`) and its Postgres running on `localhost:5433`. Start it with `cd ../evidence-store && make db-up`. To rebuild it: `make cache-import && make all`.
 3. **`.env`** (not in git; copy `.env.example`):
    - `NEBIUS_API_KEY`: required.
@@ -77,9 +77,9 @@ Checklist:
 ```bash
 cd workflow
 # offline stub run (0 tokens)
-conda run -n hack python -m p3graph run
+conda run -n hack python -m auctor run
 # live, one card, tools + judge
-conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1
+conda run -n hack python -m auctor run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1
 # tests
 conda run -n hack python -m pytest -q          # also in the repo root
 ```
@@ -111,7 +111,7 @@ conda run -n hack python -m pytest -q          # also in the repo root
 
 ## Prompts must be editable (requirement)
 
-- **System prompts** live in files: `agents/prompts/<agent>.md` (engine default), overridden by `workflow/prompts/` (see `workflow.yaml`), overridden by a prompt typed into a node (`state["prompts"][agent]`, the Langflow/LangGraph view). `python -m p3graph prompt <agent>` shows which file is in use.
+- **System prompts** live in files: `agents/prompts/<agent>.md` (engine default), overridden by `workflow/prompts/` (see `workflow.yaml`), overridden by a prompt typed into a node (`state["prompts"][agent]`, the Langflow/LangGraph view). `python -m auctor prompt <agent>` shows which file is in use.
 - **To do: make user prompts editable the same way.** These are not editable today: the user-message template (`_common.build_messages`), the tool briefs (`tool_loop.BRIEFS`, `CHECKERS`, `gather_brief`, `final_messages`), A1's `NOVELTY_BRIEF` and `ANALYSIS_BRIEF`, and the A7 input template. They are Python strings. Move each into a prompt file, for example `prompts/<agent>.user.md` and `prompts/tools/<name>.md`, with `{placeholders}`. Load them through the same chain (file → workflow.yaml → node override) and show them as editable fields in Langflow/LangGraph Studio.
 - **No hardcoded prompt text in code.** Code only fills placeholders (as_of, window, evidence pack, input JSON).
 - Add `a6b_judge` to the `prompt` CLI choices and to the Langflow components (it is missing there now).
@@ -140,7 +140,7 @@ conda run -n hack python -m pytest -q          # also in the repo root
 ## Update from the parallel session: Node Monitor and date defaults
 
 ### Node Monitor
-- **Name:** the UI is now **Node Monitor** (it was "Person 3 / Live nodes").
+- **Name:** the UI is now **Node Monitor** (it was "Live nodes").
 - **Per-idea panels:** each idea gets its own workflow panel with a clickable focus mode, showing:
   - step names and model names
   - full system and user prompts
@@ -235,7 +235,7 @@ This repo is a copy of `db1to6merged` with everything above, plus the following.
 ```bash
 cd ../evidence-store && make db-up     # start Docker first
 cd ../grounded1to8/workflow
-conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1
+conda run -n hack python -m auctor run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1
 ```
 
 
@@ -280,7 +280,7 @@ Store items cited by the pitch are added to A1's and A2's evidence packs, so the
 
 ### Run
 ```bash
-conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1 --pitch ~/pitch.pdf
+conda run -n hack python -m auctor run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1 --pitch ~/pitch.pdf
 ```
 
 ### Open
@@ -305,13 +305,13 @@ conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search e
   | `pitch.txt` | Only with `--pitch` |
 
 - **Cleanup is never automatic.**
-  - `python -m p3graph clean` lists unfinished runs: no `report.md` and idle for more than 30 minutes.
+  - `python -m auctor clean` lists unfinished runs: no `report.md` and idle for more than 30 minutes.
   - Add `--keep N` to also list finished runs beyond the newest N.
   - Nothing is deleted without `--yes`.
   - Only folders with uuid names are considered. `langflow.log` and `monitor.log` are never touched.
 
 ## Cards in parallel and the failure log (Langflow)
 
-- **Cards in parallel:** a field on the P3 · Setup node, default 6. Each step runs up to N hypothesis cards at once. 1 = one after another, as before. The env var `P3_MAX_PARALLEL` still sets the default.
+- **Cards in parallel:** a field on the Auctor · Setup node, default 6. Each step runs up to N hypothesis cards at once. 1 = one after another, as before. The env var `AUCTOR_MAX_PARALLEL` still sets the default.
 - **Failure log:** `runs/<run_id>/failures.log` (readable) and `failures.jsonl`. For each failure it records the time, the agent and step, the card, the error, the last 5 steps and the full traceback.
 - **A card that fails is isolated:** it is logged and skipped in later steps, and the other cards continue. The run stops only if every card fails, or if A1/A2 fail (they are run-wide, so they are logged first, then the error is raised).

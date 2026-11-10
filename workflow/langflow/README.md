@@ -1,9 +1,9 @@
-# Person 3 · Langflow workflow
+# Auctor · Langflow workflow
 
-This is a Langflow version of person 3's analysis agents: A1 (why now), A2 (mechanism), A3 (TPP) and A6 (red team).
+This is a Langflow version of the Auctor analysis agents: A1 (why now), A2 (mechanism), A3 (TPP) and A6 (red team).
 
 ```
-P3 Run Setup → A1 Disease → A2 Mechanism → A3 TPP → A6 Red Team → Report + Workbook → Chat Output
+Auctor Run Setup → A1 Disease → A2 Mechanism → A3 TPP → A6 Red Team → Report + Workbook → Chat Output
 ```
 
 The nodes **wrap** the tested agents in `../../frontier-engine`; they don't reimplement them. So the evidence grading, citation post-check, revise and kill logic, and Excel workbook are the same code that `pytest` covers there.
@@ -26,10 +26,10 @@ Runs created before this feature do not have a live transcript.
 To start the monitor separately, from `workflow`:
 
 ```bash
-conda run --no-capture-output -n langflow python -m p3graph.live
+conda run --no-capture-output -n langflow python -m auctor.live
 ```
 
-Set `P3_MONITOR_PORT` to change the port. It listens only on loopback.
+Set `AUCTOR_MONITOR_PORT` to change the port. It listens only on loopback.
 Stub runs show fixture output, with no simulated reasoning or token stream.
 
 For an OpenAI-compatible local server, set these in `frontier-engine/.env` and restart:
@@ -51,9 +51,9 @@ stream are labeled accordingly.
 ./run_langflow.sh                     # http://localhost:7860 (PORT=7861 ./run_langflow.sh for another port)
 ```
 
-1. Open Langflow and import `flows/person3_analysis.json`.
-2. The six `P3 ·` components also appear in the sidebar under **frontier_person3**.
-3. In **P3 · Run Setup**, choose:
+1. Open Langflow and import `flows/auctor_analysis.json`.
+2. The six `Auctor ·` components also appear in the sidebar under **auctor**.
+3. In **Auctor · Run Setup**, choose:
 
 | Field | Options |
 |---|---|
@@ -68,7 +68,7 @@ Then run the flow. Chat Output shows the Q1/Q2/Q3/Q5 summary. The full workbook 
 
 ## Step-by-step flow (every LangGraph step is a node)
 
-`flows/person3_steps.json` has 33 nodes: a Chat Input, then one per step of A1, A2, A3 and A6, one row per agent.
+`flows/auctor_steps.json` has 33 nodes: a Chat Input, then one per step of A1, A2, A3 and A6, one row per agent.
 
 ```
 Setup → A1: Retrieve · Prompt · LLM · Parse · Postcheck · Validate · Commit
@@ -81,14 +81,14 @@ Each node runs the **same code as the LangGraph graph** in `..` (`lf_graph.py` c
 
 ```bash
 ./run_langflow.sh                                                    # http://localhost:7860
-conda run -n langflow python sync_flow.py flows/person3_steps.json   # loads it into the running Langflow, prints the URL
+conda run -n langflow python sync_flow.py flows/auctor_steps.json   # loads it into the running Langflow, prints the URL
 ```
 
 **Search source (Setup node):** `corpus` (default: the stub corpus, or person 1's API in **Retrieval**), `web` (Tavily, needs `TAVILY_API_KEY` in `frontier-engine/.env`) or `both`. Details: `../README.md`. Restart Langflow after adding the key.
 
-**Run it:** open the flow, click **Playground** (top right), type a message and press Enter. `run` runs the default analysis; anything else is sent to every agent as an extra instruction (for example `focus on former smokers`). The report appears in the chat, and the Chat Output node shows it on the canvas. Settings (as-of date, stub/live, model) are on the **P3 · Setup** node: set **LLM mode** to `live` to spend tokens.
+**Run it:** open the flow, click **Playground** (top right), type a message and press Enter. `run` runs the default analysis; anything else is sent to every agent as an extra instruction (for example `focus on former smokers`). The report appears in the chat, and the Chat Output node shows it on the canvas. Settings (as-of date, stub/live, model) are on the **Auctor · Setup** node: set **LLM mode** to `live` to spend tokens.
 
-Restart Langflow once after pulling, so the new nodes appear in the sidebar under **frontier_person3**.
+Restart Langflow once after pulling, so the new nodes appear in the sidebar under **auctor**.
 
 **Edit it on the canvas**
 
@@ -96,10 +96,10 @@ Restart Langflow once after pulling, so the new nodes appear in the sidebar unde
 |---|---|
 | Change a prompt | Edit **System prompt** on a `Prompt` node. Left unchanged, it uses the engine prompt (or `prompts/` files in workflow/) |
 | Use another model for one step | **Model for this step** (advanced) on `LLM`, `Parse` or `Validate` |
-| Add a loop, safety gate or tool call | Drag in **P3 · Custom Node**, wire it after a step, set **Sits after step**, **Function** (`custom_nodes:safety_gate`, `refine_loop`, `run_tools`) and **Params** (JSON). Functions live in `../custom_nodes.py` |
+| Add a loop, safety gate or tool call | Drag in **Auctor · Custom Node**, wire it after a step, set **Sits after step**, **Function** (`custom_nodes:safety_gate`, `refine_loop`, `run_tools`) and **Params** (JSON). Functions live in `../custom_nodes.py` |
 | Skip or reorder steps | Rewire. Steps need what earlier steps wrote (for example `Parse` needs `LLM`) |
 
-**Speed:** A3 and A6 nodes run their cards at the same time (3 at once by default; `P3_MAX_PARALLEL=5 ./run_langflow.sh` for more, `1` for one at a time). For the biggest saving, pick a fast model in **Model for this step** on the LLM nodes (gpt-oss-120b is about 5 times faster than Qwen or GLM). Restart Langflow after changing the setting.
+**Speed:** A3 and A6 nodes run their cards at the same time (3 at once by default; `AUCTOR_MAX_PARALLEL=5 ./run_langflow.sh` for more, `1` for one at a time). For the biggest saving, pick a fast model in **Model for this step** on the LLM nodes (gpt-oss-120b is about 5 times faster than Qwen or GLM). Restart Langflow after changing the setting.
 
 Loops run inside the node that needs them (Langflow has no loops): `Parse` and `Validate` retry once, `Route` reruns A3 + A6 once on `revise`, and a Custom Node that jumps back reruns the steps between and then itself (capped). The pause-for-review checkpoints only exist in the LangGraph CLI.
 
@@ -109,7 +109,7 @@ Headless: `conda run -n langflow python build_steps_flow.py --run [--llm live --
 ## Headless
 
 ```bash
-conda run -n langflow python build_flow.py           # re-export flows/person3_analysis.json
+conda run -n langflow python build_flow.py           # re-export flows/auctor_analysis.json
 conda run -n langflow python build_flow.py --run     # run in-process (stub: 0 tokens)
 conda run -n langflow python build_flow.py --run --llm live --model openai/gpt-oss-120b
 ```
@@ -118,11 +118,11 @@ conda run -n langflow python build_flow.py --run --llm live --model openai/gpt-o
 
 | Path | What |
 |---|---|
-| `components/frontier_person3/*.py` | The six custom components. Langflow loads them via `LANGFLOW_COMPONENTS_PATH`. |
-| `lf_graph.py`, `gen_components.py`, `build_steps_flow.py`, `flows/person3_steps.json` | The step-by-step flow (see above) |
+| `components/auctor/*.py` | The six custom components. Langflow loads them via `LANGFLOW_COMPONENTS_PATH`. |
+| `lf_graph.py`, `gen_components.py`, `build_steps_flow.py`, `flows/auctor_steps.json` | The step-by-step flow (see above) |
 | `lf_bridge.py` | Holds the state passed between nodes, rebuilds a `RunContext` per node, merges usage and rewrites the workbook |
 | `build_flow.py` | Builds the graph in code and exports the importable flow JSON |
-| `flows/person3_analysis.json` | The exported flow. It defaults to stub mode, so it is safe to run. |
+| `flows/auctor_analysis.json` | The exported flow. It defaults to stub mode, so it is safe to run. |
 | `run_langflow.sh` | Starts Langflow with the right env vars |
 
 ## Environment
@@ -133,7 +133,7 @@ Env vars:
 
 | Variable | Use |
 |---|---|
-| `P3_LANGFLOW_HOME` | Override this folder's path |
+| `AUCTOR_LANGFLOW_HOME` | This folder's path. `run_langflow.sh` sets it; the components raise a clear error if it is missing |
 | `FRONTIER_ENGINE_PATH` | Override the engine's path |
 | `MAX_*_PER_RUN` | Optional spend caps |
 
@@ -147,4 +147,4 @@ Each node receives one `Data` object holding the run state:
 - agent outputs: `why_now`, `cards`, `grades`, `profiles`, `verdicts`, `revised`, `killed`
 - bookkeeping: `events`, `signals`, `usage`, `workbook_path`
 
-The `events` list is the same event hook the rest of the team consumes (`agent_done`, `claim_added`, `kill`, `revise`, …). See `../../frontier-engine/docs/PERSON3_HOOKS.md`.
+The `events` list is the same event hook the rest of the team consumes (`agent_done`, `claim_added`, `kill`, `revise`, …). See [TSD.md](../../docs/TSD.md).

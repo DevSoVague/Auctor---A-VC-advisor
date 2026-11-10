@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start LangGraph Studio (langgraph dev) on the Person-3 graph.  PORT=2035 ./run_langgraph.sh for another port.
+# Start LangGraph Studio (langgraph dev) on the Auctor graph.  PORT=2035 ./run_langgraph.sh for another port.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 export FRONTIER_ENGINE_PATH="$HERE/.."

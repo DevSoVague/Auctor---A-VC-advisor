@@ -1,4 +1,4 @@
-"""Person 3 tests. Run: LLM_MODE=stub pytest -q"""
+"""Analysis agent tests. Run: LLM_MODE=stub pytest -q"""
 
 from __future__ import annotations
 

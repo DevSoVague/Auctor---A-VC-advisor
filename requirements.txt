@@ -1,0 +1,25 @@
+# Auctor (analysis engine): agents, LangGraph workflow, evidence store, frontier-ui.
+# Python 3.11 or 3.12.  pip install -r requirements.txt
+# Tested 2026-11-09: conda env "hack" (3.12) and "langflow" (3.11, see requirements-langflow.txt).
+
+# core: agents + workflow
+pydantic>=2.11
+openai>=1.109           # Nebius Token Factory is OpenAI-compatible
+httpx>=0.28
+python-dotenv>=1.0
+openpyxl>=3.1           # analysis.xlsx workbook
+langgraph>=0.6          # auctor workflow (CLI and Studio)
+PyYAML>=6.0
+pypdf>=6.0              # A0 intake: PDF pitches
+
+# evidence store (Postgres + pgvector in Docker, port 5433)
+numpy>=1.26
+psycopg[binary]>=3.2
+pgvector>=0.3
+
+# optional
+# pymilvus>=2.6         # only for --search database with DB_BACKEND=live (Milvus)
+# langgraph-cli[inmem]  # only for LangGraph Studio (port 2034)
+
+# tests
+pytest>=8

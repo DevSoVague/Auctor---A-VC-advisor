@@ -1,0 +1,1383 @@
+{
+ "data": {
+  "nodes": [
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "as_of": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "as_of",
+        "value": "today",
+        "display_name": "As-of date",
+        "advanced": false,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "'today' uses the current date (default); YYYY-MM-DD selects an explicit cutoff.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       },
+       "audience": {
+        "tool_mode": false,
+        "trace_as_metadata": true,
+        "options": [
+         "generalist",
+         "specialist"
+        ],
+        "options_metadata": [],
+        "combobox": false,
+        "dialog_inputs": {},
+        "toggle": false,
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "audience",
+        "value": "generalist",
+        "display_name": "Audience",
+        "advanced": false,
+        "dynamic": false,
+        "info": "",
+        "title_case": false,
+        "track_in_telemetry": true,
+        "external_options": {},
+        "type": "str",
+        "_input_type": "DropdownInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n\ndef _bridge():\n    \"\"\"Put langflow/ on sys.path, then import the bridge (inside a function: Langflow runs only imports,\n    assignments and defs from a component's code when it is loaded from a flow, not `if` blocks).\n    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there.\"\"\"\n    home = os.getenv(\"AUCTOR_LANGFLOW_HOME\", \"\")\n    if not home:\n        raise RuntimeError(\"AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/langflow/run_langflow.sh, \"\n                           \"or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.\")\n    if home not in sys.path:\n        sys.path.insert(0, home)\n    import lf_bridge\n\n    return lf_bridge\n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import DropdownInput, MessageTextInput, Output\nfrom lfx.schema.data import Data\n\n\nclass AuctorRunSetup(Component):\n    display_name = \"Auctor \u00b7 Run Setup\"\n    description = \"Start an Auctor analysis run (disease, as-of cutoff, model, retrieval).\"\n    icon = \"settings\"\n    name = \"AuctorRunSetup\"\n\n    inputs = [\n        MessageTextInput(name=\"disease\", display_name=\"Disease\", value=\"COPD\"),\n        MessageTextInput(name=\"disease_id\", display_name=\"Disease ID (EFO/MONDO)\", value=\"EFO_0000341\"),\n        MessageTextInput(name=\"as_of\", display_name=\"As-of date\", value=\"today\",\n                         info=\"'today' uses the current date (default); YYYY-MM-DD selects an explicit cutoff.\"),\n        DropdownInput(name=\"llm_mode\", display_name=\"LLM mode\", options=[\"stub\", \"live\"], value=\"stub\",\n                      info=\"stub = fixture outputs, no tokens. live = Nebius Token Factory.\"),\n        DropdownInput(name=\"model\", display_name=\"Model (all agents)\",\n                      options=[\"profile default\", \"openai/gpt-oss-120b\",\n                               \"deepseek-ai/DeepSeek-V4-Flash-0731\", \"Qwen/Qwen3.5-397B-A17B\",\n                               \"zai-org/GLM-5.1\"], value=\"profile default\"),\n        DropdownInput(name=\"profile\", display_name=\"Profile\", options=[\"dev\", \"final\"], value=\"dev\"),\n        MessageTextInput(name=\"retrieval\", display_name=\"Retrieval\", value=\"stub\",\n                         info=\"'stub' (fixture corpus) or person 1's retrieval API URL.\"),\n        DropdownInput(name=\"audience\", display_name=\"Audience\", options=[\"generalist\", \"specialist\"],\n                      value=\"generalist\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state\", method=\"build_state\")]\n\n    def build_state(self) -> Data:\n        b = _bridge()\n\n        st = b.new_state(disease=self.disease, disease_id=self.disease_id, as_of=self.as_of,\n                         llm_mode=self.llm_mode, model=self.model, profile=self.profile,\n                         retrieval=self.retrieval, audience=self.audience)\n        self.status = f\"run {st['run_id'][:8]} \u00b7 as_of {st['config']['as_of']} \u00b7 {self.llm_mode}\"\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       },
+       "disease": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "disease",
+        "value": "COPD",
+        "display_name": "Disease",
+        "advanced": false,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       },
+       "disease_id": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "disease_id",
+        "value": "EFO_0000341",
+        "display_name": "Disease ID (EFO/MONDO)",
+        "advanced": false,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       },
+       "llm_mode": {
+        "tool_mode": false,
+        "trace_as_metadata": true,
+        "options": [
+         "stub",
+         "live"
+        ],
+        "options_metadata": [],
+        "combobox": false,
+        "dialog_inputs": {},
+        "toggle": false,
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "llm_mode",
+        "value": "stub",
+        "display_name": "LLM mode",
+        "advanced": false,
+        "dynamic": false,
+        "info": "stub = fixture outputs, no tokens. live = Nebius Token Factory.",
+        "title_case": false,
+        "track_in_telemetry": true,
+        "external_options": {},
+        "type": "str",
+        "_input_type": "DropdownInput"
+       },
+       "model": {
+        "tool_mode": false,
+        "trace_as_metadata": true,
+        "options": [
+         "profile default",
+         "openai/gpt-oss-120b",
+         "deepseek-ai/DeepSeek-V4-Flash-0731",
+         "Qwen/Qwen3.5-397B-A17B",
+         "zai-org/GLM-5.1"
+        ],
+        "options_metadata": [],
+        "combobox": false,
+        "dialog_inputs": {},
+        "toggle": false,
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "model",
+        "value": "profile default",
+        "display_name": "Model (all agents)",
+        "advanced": false,
+        "dynamic": false,
+        "info": "",
+        "title_case": false,
+        "track_in_telemetry": true,
+        "external_options": {},
+        "type": "str",
+        "_input_type": "DropdownInput"
+       },
+       "profile": {
+        "tool_mode": false,
+        "trace_as_metadata": true,
+        "options": [
+         "dev",
+         "final"
+        ],
+        "options_metadata": [],
+        "combobox": false,
+        "dialog_inputs": {},
+        "toggle": false,
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "profile",
+        "value": "dev",
+        "display_name": "Profile",
+        "advanced": false,
+        "dynamic": false,
+        "info": "",
+        "title_case": false,
+        "track_in_telemetry": true,
+        "external_options": {},
+        "type": "str",
+        "_input_type": "DropdownInput"
+       },
+       "retrieval": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "retrieval",
+        "value": "stub",
+        "display_name": "Retrieval",
+        "advanced": false,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "'stub' (fixture corpus) or person 1's retrieval API URL.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       }
+      },
+      "description": "Start an Auctor analysis run (disease, as-of cutoff, model, retrieval).",
+      "icon": "settings",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "Auctor \u00b7 Run Setup",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state",
+        "display_name": "Run state",
+        "method": "build_state",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "AuctorRunSetup",
+     "id": "auctor-setup",
+     "display_name": "Auctor \u00b7 Run Setup",
+     "description": "Start an Auctor analysis run (disease, as-of cutoff, model, retrieval)."
+    },
+    "id": "auctor-setup",
+    "type": "genericNode",
+    "position": {
+     "x": 80,
+     "y": 200
+    },
+    "positionAbsolute": {
+     "x": 80,
+     "y": 200
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "input_value": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "input_value",
+        "value": "",
+        "display_name": "Inputs",
+        "advanced": false,
+        "input_types": [
+         "Data",
+         "DataFrame",
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "Message to be passed as output.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "clean_data": {
+        "tool_mode": false,
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "clean_data",
+        "value": true,
+        "display_name": "Basic Clean Data",
+        "advanced": true,
+        "dynamic": false,
+        "info": "Whether to clean data before converting to string.",
+        "title_case": false,
+        "track_in_telemetry": true,
+        "type": "bool",
+        "_input_type": "BoolInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "from collections.abc import Generator\nfrom typing import Any\n\nimport orjson\nfrom fastapi.encoders import jsonable_encoder\n\nfrom lfx.base.io.chat import ChatComponent\nfrom lfx.helpers.data import safe_convert\nfrom lfx.inputs.inputs import BoolInput, DropdownInput, HandleInput, MessageTextInput\nfrom lfx.schema.data import Data\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.message import Message\nfrom lfx.schema.properties import Source\nfrom lfx.template.field.base import Output\nfrom lfx.utils.constants import (\n    MESSAGE_SENDER_AI,\n    MESSAGE_SENDER_NAME_AI,\n    MESSAGE_SENDER_USER,\n)\n\n\nclass ChatOutput(ChatComponent):\n    display_name = \"Chat Output\"\n    description = \"Display a chat message in the Playground.\"\n    documentation: str = \"https://docs.langflow.org/chat-input-and-output\"\n    icon = \"MessagesSquare\"\n    name = \"ChatOutput\"\n    minimized = True\n\n    inputs = [\n        HandleInput(\n            name=\"input_value\",\n            display_name=\"Inputs\",\n            info=\"Message to be passed as output.\",\n            input_types=[\"Data\", \"DataFrame\", \"Message\"],\n            required=True,\n        ),\n        BoolInput(\n            name=\"should_store_message\",\n            display_name=\"Store Messages\",\n            info=\"Store the message in the history.\",\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER],\n            value=MESSAGE_SENDER_AI,\n            advanced=True,\n            info=\"Type of sender.\",\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Name of the sender.\",\n            value=MESSAGE_SENDER_NAME_AI,\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"context_id\",\n            display_name=\"Context ID\",\n            info=\"The context ID of the chat. Adds an extra layer to the local memory.\",\n            value=\"\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"data_template\",\n            display_name=\"Data Template\",\n            value=\"{text}\",\n            advanced=True,\n            info=\"Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key.\",\n        ),\n        BoolInput(\n            name=\"clean_data\",\n            display_name=\"Basic Clean Data\",\n            value=True,\n            advanced=True,\n            info=\"Whether to clean data before converting to string.\",\n        ),\n    ]\n    outputs = [\n        Output(\n            display_name=\"Output Message\",\n            name=\"message\",\n            method=\"message_response\",\n        ),\n    ]\n\n    def _build_source(self, id_: str | None, display_name: str | None, source: str | None) -> Source:\n        source_dict = {}\n        if id_:\n            source_dict[\"id\"] = id_\n        if display_name:\n            source_dict[\"display_name\"] = display_name\n        if source:\n            # Handle case where source is a ChatOpenAI object\n            if hasattr(source, \"model_name\"):\n                source_dict[\"source\"] = source.model_name\n            elif hasattr(source, \"model\"):\n                source_dict[\"source\"] = str(source.model)\n            else:\n                source_dict[\"source\"] = str(source)\n        return Source(**source_dict)\n\n    async def message_response(self) -> Message:\n        # First convert the input to string if needed\n        text = self.convert_to_string()\n\n        # Get source properties\n        source, _, display_name, source_id = self.get_properties_from_source_component()\n\n        # Create or use existing Message object\n        if isinstance(self.input_value, Message) and not self.is_connected_to_chat_input():\n            message = self.input_value\n            # Update message properties\n            message.text = text\n            # Preserve existing session_id from the incoming message if it exists\n            existing_session_id = message.session_id\n        else:\n            message = Message(text=text)\n            existing_session_id = None\n\n        # Set message properties\n        message.sender = self.sender\n        message.sender_name = self.sender_name\n        # Preserve session_id from incoming message, or use component/graph session_id\n        message.session_id = (\n            self.session_id or existing_session_id or (self.graph.session_id if hasattr(self, \"graph\") else None) or \"\"\n        )\n        message.context_id = self.context_id\n        message.flow_id = self.graph.flow_id if hasattr(self, \"graph\") else None\n        message.properties.source = self._build_source(source_id, display_name, source)\n\n        # Store message if needed\n        if message.session_id and self.should_store_message:\n            stored_message = await self.send_message(message)\n            self.message.value = stored_message\n            message = stored_message\n\n        self.status = message\n        return message\n\n    def _serialize_data(self, data: Data) -> str:\n        \"\"\"Serialize Data object to JSON string.\"\"\"\n        # Convert data.data to JSON-serializable format\n        serializable_data = jsonable_encoder(data.data)\n        # Serialize with orjson, enabling pretty printing with indentation\n        json_bytes = orjson.dumps(serializable_data, option=orjson.OPT_INDENT_2)\n        # Convert bytes to string and wrap in Markdown code blocks\n        return \"```json\\n\" + json_bytes.decode(\"utf-8\") + \"\\n```\"\n\n    def _validate_input(self) -> None:\n        \"\"\"Validate the input data and raise ValueError if invalid.\"\"\"\n        if self.input_value is None:\n            msg = \"Input data cannot be None\"\n            raise ValueError(msg)\n        if isinstance(self.input_value, list) and not all(\n            isinstance(item, Message | Data | DataFrame | str) for item in self.input_value\n        ):\n            invalid_types = [\n                type(item).__name__\n                for item in self.input_value\n                if not isinstance(item, Message | Data | DataFrame | str)\n            ]\n            msg = f\"Expected Data or DataFrame or Message or str, got {invalid_types}\"\n            raise TypeError(msg)\n        if not isinstance(\n            self.input_value,\n            Message | Data | DataFrame | str | list | Generator | type(None),\n        ):\n            type_name = type(self.input_value).__name__\n            msg = f\"Expected Data or DataFrame or Message or str, Generator or None, got {type_name}\"\n            raise TypeError(msg)\n\n    def convert_to_string(self) -> str | Generator[Any, None, None]:\n        \"\"\"Convert input data to string with proper error handling.\"\"\"\n        self._validate_input()\n        if isinstance(self.input_value, list):\n            clean_data: bool = getattr(self, \"clean_data\", False)\n            return \"\\n\".join([safe_convert(item, clean_data=clean_data) for item in self.input_value])\n        if isinstance(self.input_value, Generator):\n            return self.input_value\n        return safe_convert(self.input_value)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       },
+       "context_id": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "context_id",
+        "value": "",
+        "display_name": "Context ID",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "The context ID of the chat. Adds an extra layer to the local memory.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       },
+       "data_template": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "data_template",
+        "value": "{text}",
+        "display_name": "Data Template",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       },
+       "sender": {
+        "tool_mode": false,
+        "trace_as_metadata": true,
+        "options": [
+         "Machine",
+         "User"
+        ],
+        "options_metadata": [],
+        "combobox": false,
+        "dialog_inputs": {},
+        "toggle": false,
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "sender",
+        "value": "Machine",
+        "display_name": "Sender Type",
+        "advanced": true,
+        "dynamic": false,
+        "info": "Type of sender.",
+        "title_case": false,
+        "track_in_telemetry": true,
+        "external_options": {},
+        "type": "str",
+        "_input_type": "DropdownInput"
+       },
+       "sender_name": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "sender_name",
+        "value": "AI",
+        "display_name": "Sender Name",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "Name of the sender.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       },
+       "session_id": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "session_id",
+        "value": "",
+        "display_name": "Session ID",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       },
+       "should_store_message": {
+        "tool_mode": false,
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "should_store_message",
+        "value": true,
+        "display_name": "Store Messages",
+        "advanced": true,
+        "dynamic": false,
+        "info": "Store the message in the history.",
+        "title_case": false,
+        "track_in_telemetry": true,
+        "type": "bool",
+        "_input_type": "BoolInput"
+       }
+      },
+      "description": "Display a chat message in the Playground.",
+      "icon": "MessagesSquare",
+      "base_classes": [
+       "Message"
+      ],
+      "display_name": "Chat Output",
+      "documentation": "https://docs.langflow.org/chat-input-and-output",
+      "minimized": true,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Message"
+        ],
+        "selected": "Message",
+        "name": "message",
+        "display_name": "Output Message",
+        "method": "message_response",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "ChatOutput",
+     "id": "auctor-chat",
+     "display_name": "Chat Output",
+     "description": "Display a chat message in the Playground."
+    },
+    "id": "auctor-chat",
+    "type": "genericNode",
+    "position": {
+     "x": 2600,
+     "y": 200
+    },
+    "positionAbsolute": {
+     "x": 2600,
+     "y": 200
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n\ndef _bridge():\n    \"\"\"Put langflow/ on sys.path, then import the bridge (inside a function: Langflow runs only imports,\n    assignments and defs from a component's code when it is loaded from a flow, not `if` blocks).\n    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there.\"\"\"\n    home = os.getenv(\"AUCTOR_LANGFLOW_HOME\", \"\")\n    if not home:\n        raise RuntimeError(\"AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/langflow/run_langflow.sh, \"\n                           \"or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.\")\n    if home not in sys.path:\n        sys.path.insert(0, home)\n    import lf_bridge\n\n    return lf_bridge\n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import HandleInput, Output\nfrom lfx.schema.data import Data\nfrom lfx.schema.message import Message\n\n\nclass AuctorReport(Component):\n    display_name = \"Auctor \u00b7 Report + Workbook\"\n    description = \"Writes runs/<run_id>/analysis.xlsx and a markdown summary of Q1, Q2, Q3, Q5.\"\n    icon = \"file-spreadsheet\"\n    name = \"AuctorReport\"\n\n    inputs = [HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True)]\n    outputs = [\n        Output(display_name=\"Report\", name=\"report\", method=\"build_report\"),\n        Output(display_name=\"Run state\", name=\"state_out\", method=\"build_state\"),\n    ]\n\n    def build_report(self) -> Message:\n        b = _bridge()\n\n        st = self.state.data\n        path = b.write_workbook(st)\n        self.status = path\n        return Message(text=b.report_md(st))\n\n    def build_state(self) -> Data:\n        return Data(data=self.state.data)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       }
+      },
+      "description": "Writes runs/<run_id>/analysis.xlsx and a markdown summary of Q1, Q2, Q3, Q5.",
+      "icon": "file-spreadsheet",
+      "base_classes": [
+       "Data",
+       "Message"
+      ],
+      "display_name": "Auctor \u00b7 Report + Workbook",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Message"
+        ],
+        "selected": "Message",
+        "name": "report",
+        "display_name": "Report",
+        "method": "build_report",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       },
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "build_state",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "AuctorReport",
+     "id": "auctor-report",
+     "display_name": "Auctor \u00b7 Report + Workbook",
+     "description": "Writes runs/<run_id>/analysis.xlsx and a markdown summary of Q1, Q2, Q3, Q5."
+    },
+    "id": "auctor-report",
+    "type": "genericNode",
+    "position": {
+     "x": 2180,
+     "y": 320
+    },
+    "positionAbsolute": {
+     "x": 2180,
+     "y": 320
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n\ndef _bridge():\n    \"\"\"Put langflow/ on sys.path, then import the bridge (inside a function: Langflow runs only imports,\n    assignments and defs from a component's code when it is loaded from a flow, not `if` blocks).\n    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there.\"\"\"\n    home = os.getenv(\"AUCTOR_LANGFLOW_HOME\", \"\")\n    if not home:\n        raise RuntimeError(\"AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/langflow/run_langflow.sh, \"\n                           \"or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.\")\n    if home not in sys.path:\n        sys.path.insert(0, home)\n    import lf_bridge\n\n    return lf_bridge\n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import HandleInput, MessageTextInput, Output\nfrom lfx.schema.data import Data\n\n\nclass AuctorA6RedTeam(Component):\n    display_name = \"Auctor \u00b7 A6 Red Teamer\"\n    description = (\"Q5 What could kill it: verdict per card (survives/revise/kill), risks with kill \"\n                   \"criteria and cheapest test. One revise round (reruns A3 when targeted).\")\n    icon = \"shield-alert\"\n    name = \"AuctorA6RedTeam\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n        MessageTextInput(name=\"feedback\", display_name=\"Reviewer feedback\", advanced=True,\n                         info=\"Optional comment; appended to the prompt (rerun with feedback).\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_agent\")]\n\n    async def run_agent(self) -> Data:\n        b = _bridge()\n        from agents.analysis import a3_profile, a6_redteam\n        from agents.analysis.schemas import HypothesisCard, ProductProfile, RedTeamInput, WhyNow\n\n        st = __import__(\"copy\").deepcopy(self.state.data)\n        if not st.get(\"profiles\"):\n            raise ValueError(\"A6 needs A3's profiles: connect Auctor \u00b7 A3 first\")\n        ctx = b.make_ctx(st, self.feedback)\n        why = WhyNow.model_validate(st[\"why_now\"])\n        for c in st[\"cards\"]:\n            card = HypothesisCard.model_validate(c)\n            prof = ProductProfile.model_validate(st[\"profiles\"][card.id])\n            v = await a6_redteam.run(RedTeamInput(card=card, profile=prof, why_now=why), ctx)\n            if v.verdict == \"revise\":  # exactly one revise round\n                st[\"revised\"].append(card.id)\n                if v.revise_target == \"a3_profile\":\n                    ctx.feedback = \"Red Team requested a revision: \" + (\n                        v.risks[0].text if v.risks else v.premortem)\n                    prof = await a3_profile.run(card, ctx)\n                    ctx.feedback = self.feedback or None\n                    st[\"profiles\"][card.id] = prof.model_dump(mode=\"json\")\n                v = await a6_redteam.run(RedTeamInput(card=card, profile=prof, why_now=why), ctx)\n                if v.verdict == \"revise\":  # cap: survives, flagged\n                    v.verdict, v.revise_target = \"survives\", None\n                    v.premortem = \"[revise cap reached; unresolved] \" + v.premortem\n                    ctx.emit(\"agent_done\", {\"agent\": \"a6_redteam\", \"hypothesis_id\": card.id,\n                                            \"output\": v.model_dump(mode=\"json\")})\n            st[\"verdicts\"][card.id] = v.model_dump(mode=\"json\")\n            if v.verdict == \"kill\":\n                st[\"killed\"].append(f\"{card.id} {card.mechanism}: \"\n                                    + (v.risks[0].kill_criterion if v.risks else v.premortem))\n        b.finish(st, ctx)\n        self.status = \" \u00b7 \".join(f\"{h}:{x['verdict']}\" for h, x in st[\"verdicts\"].items())\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       },
+       "feedback": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "feedback",
+        "value": "",
+        "display_name": "Reviewer feedback",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "Optional comment; appended to the prompt (rerun with feedback).",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       }
+      },
+      "description": "Q5 What could kill it: verdict per card (survives/revise/kill), risks with kill criteria and cheapest test. One revise round (reruns A3 when targeted).",
+      "icon": "shield-alert",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "Auctor \u00b7 A6 Red Teamer",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_agent",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "AuctorA6RedTeam",
+     "id": "auctor-a6",
+     "display_name": "Auctor \u00b7 A6 Red Teamer",
+     "description": "Q5 What could kill it: verdict per card (survives/revise/kill), risks with kill criteria and cheapest test. One revise round (reruns A3 when targeted)."
+    },
+    "id": "auctor-a6",
+    "type": "genericNode",
+    "position": {
+     "x": 1760,
+     "y": 200
+    },
+    "positionAbsolute": {
+     "x": 1760,
+     "y": 200
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n\ndef _bridge():\n    \"\"\"Put langflow/ on sys.path, then import the bridge (inside a function: Langflow runs only imports,\n    assignments and defs from a component's code when it is loaded from a flow, not `if` blocks).\n    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there.\"\"\"\n    home = os.getenv(\"AUCTOR_LANGFLOW_HOME\", \"\")\n    if not home:\n        raise RuntimeError(\"AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/langflow/run_langflow.sh, \"\n                           \"or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.\")\n    if home not in sys.path:\n        sys.path.insert(0, home)\n    import lf_bridge\n\n    return lf_bridge\n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import HandleInput, MessageTextInput, Output\nfrom lfx.schema.data import Data\n\n\nclass AuctorA3Profile(Component):\n    display_name = \"Auctor \u00b7 A3 Target Product Profile\"\n    description = \"Q3 Winning product: one TPP per card; SoC gap at launch; 1-2 measurable must-haves.\"\n    icon = \"target\"\n    name = \"AuctorA3Profile\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n        MessageTextInput(name=\"feedback\", display_name=\"Reviewer feedback\", advanced=True,\n                         info=\"Optional comment; appended to the prompt (rerun with feedback).\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_agent\")]\n\n    async def run_agent(self) -> Data:\n        b = _bridge()\n        from agents.analysis import a3_profile\n        from agents.analysis.schemas import HypothesisCard\n\n        st = __import__(\"copy\").deepcopy(self.state.data)\n        if not st.get(\"cards\"):\n            raise ValueError(\"A3 needs A2's cards: connect Auctor \u00b7 A2 first\")\n        ctx = b.make_ctx(st, self.feedback)\n        for c in st[\"cards\"]:  # one hypothesis at a time\n            prof = await a3_profile.run(HypothesisCard.model_validate(c), ctx)\n            st[\"profiles\"][c[\"id\"]] = prof.model_dump(mode=\"json\")\n        b.finish(st, ctx)\n        self.status = f\"{len(st['profiles'])} TPPs \u00b7 {b.usage_line(st)}\"\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       },
+       "feedback": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "feedback",
+        "value": "",
+        "display_name": "Reviewer feedback",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "Optional comment; appended to the prompt (rerun with feedback).",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       }
+      },
+      "description": "Q3 Winning product: one TPP per card; SoC gap at launch; 1-2 measurable must-haves.",
+      "icon": "target",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "Auctor \u00b7 A3 Target Product Profile",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_agent",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "AuctorA3Profile",
+     "id": "auctor-a3",
+     "display_name": "Auctor \u00b7 A3 Target Product Profile",
+     "description": "Q3 Winning product: one TPP per card; SoC gap at launch; 1-2 measurable must-haves."
+    },
+    "id": "auctor-a3",
+    "type": "genericNode",
+    "position": {
+     "x": 1340,
+     "y": 320
+    },
+    "positionAbsolute": {
+     "x": 1340,
+     "y": 320
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n\ndef _bridge():\n    \"\"\"Put langflow/ on sys.path, then import the bridge (inside a function: Langflow runs only imports,\n    assignments and defs from a component's code when it is loaded from a flow, not `if` blocks).\n    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there.\"\"\"\n    home = os.getenv(\"AUCTOR_LANGFLOW_HOME\", \"\")\n    if not home:\n        raise RuntimeError(\"AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/langflow/run_langflow.sh, \"\n                           \"or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.\")\n    if home not in sys.path:\n        sys.path.insert(0, home)\n    import lf_bridge\n\n    return lf_bridge\n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import HandleInput, MessageTextInput, Output\nfrom lfx.schema.data import Data\n\n\nclass AuctorA2Mechanism(Component):\n    display_name = \"Auctor \u00b7 A2 Mechanistic Analysis\"\n    description = \"Q2 Which mechanism: 3-5 ranked hypothesis cards; tier/level graded in code.\"\n    icon = \"dna\"\n    name = \"AuctorA2Mechanism\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n        MessageTextInput(name=\"feedback\", display_name=\"Reviewer feedback\", advanced=True,\n                         info=\"Optional comment; appended to the prompt (rerun with feedback).\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_agent\")]\n\n    async def run_agent(self) -> Data:\n        b = _bridge()\n        from agents.analysis import a2_mechanism\n        from agents.analysis.schemas import WhyNow\n\n        st = __import__(\"copy\").deepcopy(self.state.data)\n        if not st.get(\"why_now\"):\n            raise ValueError(\"A2 needs A1's output: connect Auctor \u00b7 A1 first\")\n        ctx = b.make_ctx(st, self.feedback)\n        cards = await a2_mechanism.run(WhyNow.model_validate(st[\"why_now\"]), ctx)\n        st[\"cards\"] = [c.model_dump(mode=\"json\") for c in cards]\n        st[\"grades\"] = ctx.signals.get(\"a2_grades\", {})\n        b.finish(st, ctx)\n        self.status = \" \u00b7 \".join(f\"{c.id} t{c.evidence_tier}/{c.validation_level}\" for c in cards)\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       },
+       "feedback": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "feedback",
+        "value": "",
+        "display_name": "Reviewer feedback",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "Optional comment; appended to the prompt (rerun with feedback).",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       }
+      },
+      "description": "Q2 Which mechanism: 3-5 ranked hypothesis cards; tier/level graded in code.",
+      "icon": "dna",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "Auctor \u00b7 A2 Mechanistic Analysis",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_agent",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "AuctorA2Mechanism",
+     "id": "auctor-a2",
+     "display_name": "Auctor \u00b7 A2 Mechanistic Analysis",
+     "description": "Q2 Which mechanism: 3-5 ranked hypothesis cards; tier/level graded in code."
+    },
+    "id": "auctor-a2",
+    "type": "genericNode",
+    "position": {
+     "x": 920,
+     "y": 200
+    },
+    "positionAbsolute": {
+     "x": 920,
+     "y": 200
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   },
+   {
+    "data": {
+     "node": {
+      "template": {
+       "_type": "Component",
+       "state": {
+        "trace_as_metadata": true,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": true,
+        "placeholder": "",
+        "show": true,
+        "name": "state",
+        "value": "",
+        "display_name": "Run state",
+        "advanced": false,
+        "input_types": [
+         "Data"
+        ],
+        "dynamic": false,
+        "info": "State from the previous node.",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "other",
+        "_input_type": "HandleInput"
+       },
+       "code": {
+        "type": "code",
+        "required": true,
+        "placeholder": "",
+        "list": false,
+        "show": true,
+        "multiline": true,
+        "value": "import os\nimport sys\n\n\ndef _bridge():\n    \"\"\"Put langflow/ on sys.path, then import the bridge (inside a function: Langflow runs only imports,\n    assignments and defs from a component's code when it is loaded from a flow, not `if` blocks).\n    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there.\"\"\"\n    home = os.getenv(\"AUCTOR_LANGFLOW_HOME\", \"\")\n    if not home:\n        raise RuntimeError(\"AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/langflow/run_langflow.sh, \"\n                           \"or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.\")\n    if home not in sys.path:\n        sys.path.insert(0, home)\n    import lf_bridge\n\n    return lf_bridge\n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import HandleInput, MessageTextInput, Output\nfrom lfx.schema.data import Data\n\n\nclass AuctorA1Disease(Component):\n    display_name = \"Auctor \u00b7 A1 Disease Analysis\"\n    description = \"Q1 Why now: dated shifts (incl. negative) and patient segments by inclusion criteria.\"\n    icon = \"calendar-clock\"\n    name = \"AuctorA1Disease\"\n\n    inputs = [\n        HandleInput(name=\"state\", display_name=\"Run state\", input_types=[\"Data\"], required=True,\n                    info=\"State from the previous node.\"),\n        MessageTextInput(name=\"feedback\", display_name=\"Reviewer feedback\", advanced=True,\n                         info=\"Optional comment; appended to the prompt (rerun with feedback).\"),\n    ]\n    outputs = [Output(display_name=\"Run state\", name=\"state_out\", method=\"run_agent\")]\n\n    async def run_agent(self) -> Data:\n        b = _bridge()\n        from agents.analysis import a1_disease\n\n        st = __import__(\"copy\").deepcopy(self.state.data)\n        ctx = b.make_ctx(st, self.feedback)\n        out = await a1_disease.run(ctx.config, ctx)\n        st[\"why_now\"] = out.model_dump(mode=\"json\")\n        b.finish(st, ctx)\n        self.status = f\"{len(out.shifts)} shifts, {len(out.segments)} segments \u00b7 {b.usage_line(st)}\"\n        return Data(data=st)\n",
+        "fileTypes": [],
+        "file_path": "",
+        "password": false,
+        "name": "code",
+        "advanced": true,
+        "dynamic": true,
+        "info": "",
+        "load_from_db": false,
+        "title_case": false
+       },
+       "feedback": {
+        "tool_mode": false,
+        "trace_as_input": true,
+        "trace_as_metadata": true,
+        "load_from_db": false,
+        "list": false,
+        "list_add_label": "Add More",
+        "override_skip": false,
+        "required": false,
+        "placeholder": "",
+        "show": true,
+        "name": "feedback",
+        "value": "",
+        "display_name": "Reviewer feedback",
+        "advanced": true,
+        "input_types": [
+         "Message"
+        ],
+        "dynamic": false,
+        "info": "Optional comment; appended to the prompt (rerun with feedback).",
+        "title_case": false,
+        "track_in_telemetry": false,
+        "type": "str",
+        "_input_type": "MessageTextInput"
+       }
+      },
+      "description": "Q1 Why now: dated shifts (incl. negative) and patient segments by inclusion criteria.",
+      "icon": "calendar-clock",
+      "base_classes": [
+       "Data"
+      ],
+      "display_name": "Auctor \u00b7 A1 Disease Analysis",
+      "documentation": "",
+      "minimized": false,
+      "custom_fields": {},
+      "output_types": [],
+      "pinned": false,
+      "conditional_paths": [],
+      "frozen": false,
+      "outputs": [
+       {
+        "types": [
+         "Data"
+        ],
+        "selected": "Data",
+        "name": "state_out",
+        "display_name": "Run state",
+        "method": "run_agent",
+        "value": "__UNDEFINED__",
+        "cache": true,
+        "allows_loop": false,
+        "group_outputs": false,
+        "tool_mode": true
+       }
+      ],
+      "field_order": [],
+      "beta": false,
+      "legacy": false,
+      "edited": false,
+      "metadata": {},
+      "tool_mode": false
+     },
+     "type": "AuctorA1Disease",
+     "id": "auctor-a1",
+     "display_name": "Auctor \u00b7 A1 Disease Analysis",
+     "description": "Q1 Why now: dated shifts (incl. negative) and patient segments by inclusion criteria."
+    },
+    "id": "auctor-a1",
+    "type": "genericNode",
+    "position": {
+     "x": 500,
+     "y": 320
+    },
+    "positionAbsolute": {
+     "x": 500,
+     "y": 320
+    },
+    "dragging": false,
+    "selected": false,
+    "measured": {
+     "width": 320,
+     "height": 360
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "auctor-a2",
+    "target": "auctor-a3",
+    "data": {
+     "sourceHandle": {
+      "dataType": "AuctorA2Mechanism",
+      "id": "auctor-a2",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "auctor-a3",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153AuctorA2Mechanism\u0153,\u0153id\u0153:\u0153auctor-a2\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a3\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-auctor-a2{\u0153dataType\u0153:\u0153AuctorA2Mechanism\u0153,\u0153id\u0153:\u0153auctor-a2\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-auctor-a3{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a3\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "auctor-report",
+    "target": "auctor-chat",
+    "data": {
+     "sourceHandle": {
+      "dataType": "AuctorReport",
+      "id": "auctor-report",
+      "name": "report",
+      "output_types": [
+       "Message"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "input_value",
+      "id": "auctor-chat",
+      "inputTypes": [
+       "Data",
+       "DataFrame",
+       "Message"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153AuctorReport\u0153,\u0153id\u0153:\u0153auctor-report\u0153,\u0153name\u0153:\u0153report\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153auctor-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-auctor-report{\u0153dataType\u0153:\u0153AuctorReport\u0153,\u0153id\u0153:\u0153auctor-report\u0153,\u0153name\u0153:\u0153report\u0153,\u0153output_types\u0153:[\u0153Message\u0153]}-auctor-chat{\u0153fieldName\u0153:\u0153input_value\u0153,\u0153id\u0153:\u0153auctor-chat\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153,\u0153DataFrame\u0153,\u0153Message\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "auctor-a1",
+    "target": "auctor-a2",
+    "data": {
+     "sourceHandle": {
+      "dataType": "AuctorA1Disease",
+      "id": "auctor-a1",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "auctor-a2",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153AuctorA1Disease\u0153,\u0153id\u0153:\u0153auctor-a1\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a2\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-auctor-a1{\u0153dataType\u0153:\u0153AuctorA1Disease\u0153,\u0153id\u0153:\u0153auctor-a1\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-auctor-a2{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a2\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "auctor-setup",
+    "target": "auctor-a1",
+    "data": {
+     "sourceHandle": {
+      "dataType": "AuctorRunSetup",
+      "id": "auctor-setup",
+      "name": "state",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "auctor-a1",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153AuctorRunSetup\u0153,\u0153id\u0153:\u0153auctor-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a1\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-auctor-setup{\u0153dataType\u0153:\u0153AuctorRunSetup\u0153,\u0153id\u0153:\u0153auctor-setup\u0153,\u0153name\u0153:\u0153state\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-auctor-a1{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a1\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "auctor-a3",
+    "target": "auctor-a6",
+    "data": {
+     "sourceHandle": {
+      "dataType": "AuctorA3Profile",
+      "id": "auctor-a3",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "auctor-a6",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153AuctorA3Profile\u0153,\u0153id\u0153:\u0153auctor-a3\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a6\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-auctor-a3{\u0153dataType\u0153:\u0153AuctorA3Profile\u0153,\u0153id\u0153:\u0153auctor-a3\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-auctor-a6{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-a6\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   },
+   {
+    "source": "auctor-a6",
+    "target": "auctor-report",
+    "data": {
+     "sourceHandle": {
+      "dataType": "AuctorA6RedTeam",
+      "id": "auctor-a6",
+      "name": "state_out",
+      "output_types": [
+       "Data"
+      ]
+     },
+     "targetHandle": {
+      "fieldName": "state",
+      "id": "auctor-report",
+      "inputTypes": [
+       "Data"
+      ],
+      "type": "other"
+     }
+    },
+    "sourceHandle": "{\u0153dataType\u0153:\u0153AuctorA6RedTeam\u0153,\u0153id\u0153:\u0153auctor-a6\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}",
+    "targetHandle": "{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "id": "reactflow__edge-auctor-a6{\u0153dataType\u0153:\u0153AuctorA6RedTeam\u0153,\u0153id\u0153:\u0153auctor-a6\u0153,\u0153name\u0153:\u0153state_out\u0153,\u0153output_types\u0153:[\u0153Data\u0153]}-auctor-report{\u0153fieldName\u0153:\u0153state\u0153,\u0153id\u0153:\u0153auctor-report\u0153,\u0153inputTypes\u0153:[\u0153Data\u0153],\u0153type\u0153:\u0153other\u0153}",
+    "className": "",
+    "animated": false,
+    "selected": false
+   }
+  ]
+ },
+ "is_component": false,
+ "name": "Auctor \u00b7 Analysis agents (A1-A2-A3-A6)",
+ "description": "UPMC Frontier Hypothesis Engine, analysis agents: A1 why-now, A2 mechanism cards, A3 TPP, A6 red team. Writes a live analysis.xlsx.",
+ "endpoint_name": "None"
+}

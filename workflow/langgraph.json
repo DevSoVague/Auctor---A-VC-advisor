@@ -1,6 +1,6 @@
 {
   "dependencies": ["."],
-  "graphs": {"person3_analysis": "./p3graph/graph.py:graph"},
+  "graphs": {"auctor_analysis": "./auctor/graph.py:graph"},
   "env": "../.env",
   "python_version": "3.12"
 }

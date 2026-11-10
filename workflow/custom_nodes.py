@@ -16,10 +16,10 @@ from typing import Any
 
 from langgraph.types import Command, interrupt
 
-from p3graph import engine as E
-from p3graph import nodes as N
-from p3graph import tools as T
-from p3graph.workflow import AGENT_OF
+from auctor import engine as E
+from auctor import nodes as N
+from auctor import tools as T
+from auctor.workflow import AGENT_OF
 
 
 # ---------------------------------------------------------------------------- helpers
@@ -158,7 +158,7 @@ async def refine_loop(state: dict, p: dict):
 
 # ---------------------------------------------------------------------------- 3. tool call
 async def run_tools(state: dict, p: dict):
-    """Call tools (p3graph/tools.py) and add what they return to the evidence pack, before the model runs.
+    """Call tools (auctor/tools.py) and add what they return to the evidence pack, before the model runs.
     Insert it after a `*_retrieve` step.
 
     params: tools: [{name: corpus_search, query: "{mechanism} adverse events", k: 4}, ...]

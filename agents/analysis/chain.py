@@ -1,4 +1,4 @@
-"""Person-3 chain: A1 -> A2 -> per card (A3 -> [A4||A5 hook] -> A6, one revise) .
+"""Analysis chain: A1 -> A2 -> per card (A3 -> [A4||A5 hook] -> A6, one revise) .
 
 This is our local stand-in for person 5's flow, and a reference for how to call our hooks.
 Person 5 owns checkpoints, persistence and the decisions table; here we only:

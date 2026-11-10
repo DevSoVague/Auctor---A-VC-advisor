@@ -16,9 +16,9 @@ from openpyxl import load_workbook
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from p3graph import engine as E  # noqa: E402
-from p3graph import nodes as N  # noqa: E402
-from p3graph.graph import build  # noqa: E402
+from auctor import engine as E  # noqa: E402
+from auctor import nodes as N  # noqa: E402
+from auctor.graph import build  # noqa: E402
 
 
 @pytest.fixture
@@ -256,7 +256,7 @@ def test_schema_error_loops_through_fix_then_passes(stub, monkeypatch):
 
 
 # ---------------------------------------------------------------------------- editing the workflow
-from p3graph import tools as T  # noqa: E402
+from auctor import tools as T  # noqa: E402
 
 
 def ins(name, after, node, **params):
@@ -402,7 +402,7 @@ def test_a4_a5_llm_steps_use_the_model_and_steps_match_the_plain_run(stub):
 
 
 def test_competitor_steps_emit_per_card_monitor_events(stub, tmp_path, monkeypatch):
-    from p3graph import live, competitor as C
+    from auctor import live, competitor as C
     monkeypatch.setattr(live, 'RUNS', tmp_path)
     state = run(drive(build(InMemorySaver()), inp(), cfg())).values
     events = [json.loads(line) for line in (tmp_path / state['run_id'] / 'live.jsonl').read_text().splitlines()]

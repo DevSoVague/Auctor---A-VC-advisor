@@ -1,4 +1,4 @@
-# Person 3 · LangGraph workflow
+# Auctor · LangGraph workflow
 
 All six agents as a LangGraph state machine: A1 (why now), A2 (mechanism), A3 (TPP), A4 (inactive assets), A5 (active landscape) and A6 (red team). A4 and A5 are Adam's agents, fitted to our context in `../agents/competitor/`, and run one after the other (V1 is sequential).
 
@@ -33,14 +33,14 @@ retrieve → prompt → llm → parse → postcheck ⇄ validate → commit     
 
 A2 has `grade` (evidence tier, validation level, tractability gate, ranking: all computed in code) in place of `validate`. A6 adds `route` after `commit`: revise once, kill, or survive.
 
-A4 and A5 have their own steps (`p3graph/competitor.py`); everything except `llm` is code:
+A4 and A5 have their own steps (`auctor/competitor.py`); everything except `llm` is code:
 
 ```
 A4: gather → triage → establish → prompt → llm → merge → commit
 A5: gather → shortlist → establish → prompt → llm → merge → score → commit
 ```
 
-Full diagram: [docs/graph.md](../docs/graph.md). Regenerate it with `python -m p3graph diagram`.
+Full diagram: [docs/graph.md](../docs/graph.md). Regenerate it with `python -m auctor diagram`.
 
 ## Retrieval: corpus (RAG) or web search
 
@@ -53,8 +53,8 @@ Full diagram: [docs/graph.md](../docs/graph.md). Regenerate it with `python -m p
 | `both` | Corpus results first, then web results | `TAVILY_API_KEY` |
 
 ```bash
-python -m p3graph run --llm live --search web
-python -m p3graph run --llm live --retrieval http://localhost:8000 --search both
+python -m auctor run --llm live --search web
+python -m auctor run --llm live --retrieval http://localhost:8000 --search both
 ```
 
 Only `search()` uses the web. The structured lookups (Open Targets targets, drugs, trials, approvals, retractions) always come from the corpus side, because a web search can't return those tables. Web documents show up in the evidence pack with ids like `web:ab12cd34ef` and in the step trace as `(N from the web)`.
@@ -65,7 +65,7 @@ The agents' prompts tell the model to use only the evidence pack. A model can st
 
 ## Editing the workflow
 
-Change prompts, add loops, a safety gate or a tool call without touching `p3graph/`: see [docs/EDITING.md](../docs/EDITING.md).
+Change prompts, add loops, a safety gate or a tool call without touching `auctor/`: see [docs/EDITING.md](../docs/EDITING.md).
 Prompts go in `prompts/`, node placement in `workflow.yaml`, node code in `custom_nodes.py`.
 
 ## Watching a run as a chat
@@ -73,17 +73,17 @@ Prompts go in `prompts/`, node placement in `workflow.yaml`, node code in `custo
 Every node says what it did in plain language: the documents it found, what the model answered, what the citation check changed, the red-team verdict. It prints live in the terminal and is saved to `runs/<run_id>/chat.md`.
 
 ```bash
-python -m p3graph run --llm live          # chat view while it runs (add --compact for the old one-line view)
-python -m p3graph chat -f                 # 2nd terminal: follow the newest run live
-python -m p3graph chat <run_id>           # replay a finished run
+python -m auctor run --llm live          # chat view while it runs (add --compact for the old one-line view)
+python -m auctor chat -f                 # 2nd terminal: follow the newest run live
+python -m auctor chat <run_id>           # replay a finished run
 ```
 
-The same messages stream as `{"event": "narration", "who", "text", ...}` in `stream_mode="custom"` (LangGraph Studio, any client). Code: `p3graph/narrate.py`.
+The same messages stream as `{"event": "narration", "who", "text", ...}` in `stream_mode="custom"` (LangGraph Studio, any client). Code: `auctor/narrate.py`.
 
 ## Debugging a run
 
 ```bash
-python -m p3graph steps <thread>        # every node that ran: card, ms, one-line explanation
+python -m auctor steps <thread>        # every node that ran: card, ms, one-line explanation
 ```
 
 Live runs print the same line per node as they go. Every run also writes, next to `analysis.xlsx`:
@@ -122,18 +122,18 @@ Use the `hack` conda env, from this folder:
 conda activate hack
 cd workflow
 
-python -m p3graph run                                  # backtest, single shot, stub LLM (fixtures at today, 0 tokens)
-python -m p3graph run --mode guided -i                 # review each checkpoint in the terminal
-python -m p3graph run --mode guided                    # pause at the first checkpoint and exit…
-python -m p3graph resume <thread> --action approve     # …resume later
-python -m p3graph resume <thread> --action rerun --comment "restrict to former smokers"
-python -m p3graph resume <thread> --action edit --edited my_cards.json
-python -m p3graph status <thread>
+python -m auctor run                                  # backtest, single shot, stub LLM (fixtures at today, 0 tokens)
+python -m auctor run --mode guided -i                 # review each checkpoint in the terminal
+python -m auctor run --mode guided                    # pause at the first checkpoint and exit…
+python -m auctor resume <thread> --action approve     # …resume later
+python -m auctor resume <thread> --action rerun --comment "restrict to former smokers"
+python -m auctor resume <thread> --action edit --edited my_cards.json
+python -m auctor status <thread>
 
 # live on Nebius (costs tokens)
-python -m p3graph run --llm live --model openai/gpt-oss-120b                 # backtest
-python -m p3graph run --llm live --model openai/gpt-oss-120b --as-of today   # live demo run
-python -m p3graph run --llm live --profile final                             # per-agent model map
+python -m auctor run --llm live --model openai/gpt-oss-120b                 # backtest
+python -m auctor run --llm live --model openai/gpt-oss-120b --as-of today   # live demo run
+python -m auctor run --llm live --profile final                             # per-agent model map
 ```
 
 Events stream to the terminal as each agent works. The workbook `runs/<run_id>/analysis.xlsx` is rewritten after every agent node. The run ends by writing three files next to it:
@@ -147,7 +147,7 @@ Events stream to the terminal as each agent works. The workbook `runs/<run_id>/a
 ./run_langgraph.sh                      # installs langgraph-cli once, opens Studio on http://localhost:2024
 ```
 
-Pick `person3_analysis` and use this input (stub, 0 tokens):
+Pick `auctor_analysis` and use this input (stub, 0 tokens):
 `{"config": {"as_of": "backtest", "mode": "single_shot"}, "llm": {"mode": "stub"}}`.
 For a live run use `"llm": {"mode": "live", "model": "openai/gpt-oss-120b"}`; for review pauses set `"mode": "guided"`.
 
@@ -155,26 +155,26 @@ For a live run use `"llm": {"mode": "live", "model": "openai/gpt-oss-120b"}`; fo
 
 | Hook | How |
 |---|---|
-| Person 4: A4 | `export P3_A4_HOOK=package.module:function`, an `async (card, profile, ctx) -> InactiveAssets` |
-| Person 4: A5 | `export P3_A5_HOOK=package.module:function`, an `async (card, profile, ctx) -> Landscape` |
+| Person 4: A4 | `export AUCTOR_A4_HOOK=package.module:function`, an `async (card, profile, ctx) -> InactiveAssets` |
+| Person 4: A5 | `export AUCTOR_A5_HOOK=package.module:function`, an `async (card, profile, ctx) -> Landscape` |
 | Person 1: retrieval | `--retrieval http://localhost:8000` (the person 1/2 FastAPI service) |
 | Person 2: schemas, router | Picked up automatically through `../frontier-engine/agents/analysis/schemas.py` |
-| Person 5: flow and memo | Call `p3graph.graph.build(checkpointer)` as a subgraph. The final state (`cards`, `profiles`, `verdicts`, `killed`, `decisions`, `usage`) feeds A7 and then A8. |
+| Person 5: flow and memo | Call `auctor.graph.build(checkpointer)` as a subgraph. The final state (`cards`, `profiles`, `verdicts`, `killed`, `decisions`, `usage`) feeds A7 and then A8. |
 
-The graph streams every agent event in `stream_mode="custom"`: `agent_done`, `claim_added`, `kill`, `revise`, `card_rejected` and others. Details: `../frontier-engine/docs/PERSON3_HOOKS.md`.
+The graph streams every agent event in `stream_mode="custom"`: `agent_done`, `claim_added`, `kill`, `revise`, `card_rejected` and others. Details: [TSD.md](../docs/TSD.md).
 
 ## Files
 
 | Path | What |
 |---|---|
-| `p3graph/state.py` | Typed state with reducers, so A4 and A5 can write in parallel and logs append |
+| `auctor/state.py` | Typed state with reducers, so A4 and A5 can write in parallel and logs append |
 | `workflow.yaml`, `custom_nodes.py`, `prompts/` | **Yours to edit**: where custom nodes go, what they do, prompt overrides |
-| `p3graph/workflow.py`, `p3graph/tools.py` | Splices custom nodes into the graph; the tool registry |
-| `p3graph/steps.py` | The per-step agent nodes (retrieve, prompt, llm, parse, fix, postcheck, validate, commit, A2 grade, A6 route) |
-| `p3graph/nodes.py` | Shared helpers, setup, the A4/A5 hooks, review checkpoints (`interrupt`), the report |
-| `p3graph/graph.py` | Graph wiring (`build(checkpointer)`), plus the `graph` object used by Studio |
-| `p3graph/cli.py` | The `run` / `resume` / `status` / `diagram` commands |
-| `p3graph/engine.py` | Link to `../frontier-engine` (override with `FRONTIER_ENGINE_PATH`) |
+| `auctor/workflow.py`, `auctor/tools.py` | Splices custom nodes into the graph; the tool registry |
+| `auctor/steps.py` | The per-step agent nodes (retrieve, prompt, llm, parse, fix, postcheck, validate, commit, A2 grade, A6 route) |
+| `auctor/nodes.py` | Shared helpers, setup, the A4/A5 hooks, review checkpoints (`interrupt`), the report |
+| `auctor/graph.py` | Graph wiring (`build(checkpointer)`), plus the `graph` object used by Studio |
+| `auctor/cli.py` | The `run` / `resume` / `status` / `diagram` commands |
+| `auctor/engine.py` | Link to `../frontier-engine` (override with `FRONTIER_ENGINE_PATH`) |
 | `tests/test_graph.py` | 28 tests on stubs at 0 tokens: end-to-end backtest, step order, debug files, retry loops (schema and semantic), leakage, guided rerun/edit/approve-all, rerun cap, A5 hook, prompt overrides, custom nodes (tool, loop, safety gate) |
 
 ```bash

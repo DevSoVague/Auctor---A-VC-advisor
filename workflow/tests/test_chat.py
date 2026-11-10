@@ -1,7 +1,7 @@
 """The chat narration: one message per node, written to runs/<run_id>/chat.md and streamed."""
 import asyncio
 
-from p3graph import narrate as NR
+from auctor import narrate as NR
 
 
 def test_narrate_step_and_files(tmp_path, monkeypatch):

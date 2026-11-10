@@ -1,4 +1,4 @@
-# Technical Specification (TSD) · Person 3 analysis agents
+# Technical Specification (TSD) · Auctor analysis agents
 
 How one run works inside, in the order it happens. Requirements are in [FSD.md](FSD.md), commands are in [HOW_TO_RUN.md](HOW_TO_RUN.md), and the full node diagram is in [graph.md](graph.md).
 
@@ -15,7 +15,7 @@ flowchart LR
         PR["agents/prompts/*.md"]
         WB["exports/analysis_workbook.py"]
     end
-    LG["workflow/<br/>p3graph (one node per step)"] --> AG
+    LG["workflow/<br/>auctor (one node per step)"] --> AG
     FAST["workflow-fast/<br/>parallel cards + cache"] --> AG
     LF["Langflow canvas<br/>workflow/langflow"] --> LG
     CLI["scripts/run_analysis.py<br/>(plain async chain)"] --> AG
@@ -35,7 +35,7 @@ flowchart LR
 
 ## 2. One run, end to end
 
-The most common path: `python -m p3graph run`, which runs a single-shot backtest.
+The most common path: `python -m auctor run`, which runs a single-shot backtest.
 
 ```mermaid
 flowchart TD
@@ -147,7 +147,7 @@ Agent-specific lines that drive behaviour (verbatim):
 3. `workflow/prompts/<agent>.append.md`, which is appended to it.
 4. The engine's `agents/prompts/<agent>.md`.
 
-`python -m p3graph prompt <agent>` prints the prompt actually in use and where it came from.
+`python -m auctor prompt <agent>` prints the prompt actually in use and where it came from.
 
 ### 3.2 Fix message (schema and semantic retries)
 
@@ -266,7 +266,7 @@ The database names are mapped in **one file**, `frontier-engine/agents/analysis/
 
 ---
 
-## 6. Graph state (`p3graph/state.py`)
+## 6. Graph state (`auctor/state.py`)
 
 The state is plain JSON, so the SQLite checkpointer can persist every step. Reducers let parallel branches write without conflicts.
 
@@ -284,16 +284,16 @@ The state is plain JSON, so the SQLite checkpointer can persist every step. Redu
 
 ---
 
-## 7. Extension points (no edits to `p3graph/`)
+## 7. Extension points (no edits to `auctor/`)
 
 | Want to | Do |
 |---|---|
 | Change a prompt | Add `prompts/<agent>.md` (replace) or `<agent>.append.md` (append) |
 | Add a node after any step | Add an entry under `insert:` in `workflow.yaml` (`after`, `node: file:function`, `params`, `may_goto`). Three examples ship disabled: `a3_extra_evidence` (a tool call), `a3_refine` (a loop) and `a6_safety_gate` (human gate). |
-| Plug in A4 / A5 | `export P3_A4_HOOK=pkg.mod:fn` and `P3_A5_HOOK=pkg.mod:fn`. Each is `async (card, profile, ctx) -> InactiveAssets / Landscape`. |
+| Plug in A4 / A5 | `export AUCTOR_A4_HOOK=pkg.mod:fn` and `AUCTOR_A5_HOOK=pkg.mod:fn`. Each is `async (card, profile, ctx) -> InactiveAssets / Landscape`. |
 | Use real retrieval | `--retrieval http://host:port`, or `--search database` with `DB_BACKEND=live` |
 | Use person 2's schemas | Create `agents/schemas.py`; `agents/analysis/schemas.py` switches to it automatically |
-| Embed in person 5's flow | `p3graph.graph.build(checkpointer)` returns a compiled subgraph. Read `cards`, `profiles`, `verdicts`, `killed`, `decisions` and `usage` from its state. |
+| Embed in person 5's flow | `auctor.graph.build(checkpointer)` returns a compiled subgraph. Read `cards`, `profiles`, `verdicts`, `killed`, `decisions` and `usage` from its state. |
 
 Full guide: [EDITING.md](EDITING.md).
 
@@ -356,7 +356,7 @@ Everything below is in `runs/<run_id>/` unless noted.
 |---|---|---|
 | Terminal chat view | Live, per node | Plain-language narration (`--compact` gives one line per node instead) |
 | `analysis.xlsx` | After every agent commit (fast copy: per stage) | WhyNow, Segments, Hypotheses (colored by verdict), TPP, RedTeam, Claims, Events, Meta (tokens/USD) |
-| `chat.md` | Live | One message per node; follow it with `python -m p3graph chat -f` |
+| `chat.md` | Live | One message per node; follow it with `python -m auctor chat -f` |
 | `log.md`, `log.jsonl` | Live | Full prompts, raw answers, reasoning text, evidence packs |
 | `live.jsonl` + monitor at `127.0.0.1:7862` | Langflow runs | Streaming tokens and reasoning per step |
 | `steps.md`, `steps/NNN_<node>[_hid].json` | End of run | Step table and per-step diffs. `*_llm` files hold the full prompt. |
@@ -485,7 +485,7 @@ flowchart LR
     A2c --> A5["A5 row<br/>gather … commit"]
     A3 -- "a3_state" --> A4p["A4 prompt"]
     A3 -- "a3_state" --> A5p["A5 prompt"]
-    A2c -- base --> J["P3 · Join<br/>(A3 + A4 + A5)"]
+    A2c -- base --> J["Auctor · Join<br/>(A3 + A4 + A5)"]
     A3 -- branch --> J
     A4 -- branch --> J
     A5 -- branch --> J
@@ -497,7 +497,7 @@ flowchart LR
 1. `fork = row("a2", …)`: A2's last step output.
 2. `row("a3", 3, fork)` and, for each `a` in `PARALLEL = ("a4", "a5")`, `row(a, …, fork)`. All three rows take their first input from the fork, so Langflow puts their first vertices in the same layer and runs them **concurrently**. Langflow runs vertices in one layer at the same time; that is the mechanism, there is no extra scheduler.
 3. `comps["a4-prompt"].set(a3_state=a3)` and the same for A5. The A4/A5 **prompt** step has an extra `a3_state` handle (added in `gen_components.py`, *"A3 profile"*, optional). Langflow can't run that vertex until A3's commit has produced output, so A4/A5 run their early steps (gather, triage, shortlist, establish) beside A3 and **wait only at the prompt**.
-4. `P3StepJoin` (`step_join.py`, generated from the `JOIN` template) takes `base = fork` and `branches = [A3 commit, A4 commit, A5 commit]` (`is_list=True`). Its output feeds A6's first step.
+4. `AuctorStepJoin` (`step_join.py`, generated from the `JOIN` template) takes `base = fork` and `branches = [A3 commit, A4 commit, A5 commit]` (`is_list=True`). Its output feeds A6's first step.
 5. Built flow: **58 nodes, 62 edges.** The node positions put the join between the A5 row and the A6 row.
 
 **Langflow step call:** each step component calls `lf_graph.execute(state, agent, step, …, a3_state=None)`. That function:
@@ -528,7 +528,7 @@ flowchart LR
 ### U.2 Cards in parallel inside one step (`_run_cards`)
 
 - **Card list:** `_hids(st, agent)` minus cards already in `failed_cards`. If A0 rejected the pitch (`intake.accepted is False`), nothing runs.
-- **Limit:** `n = _parallel(st, agent)`. It takes the first value that parses as an int ≥ 1, in this order: `parallel_by_agent[agent]` (P3 Setup *A3 / A4 / A5 cards in parallel*, default `"3"`), then `parallel` (*Cards in parallel*, default 6), then `MAX_PARALLEL`. A1, A2 and A6 have no own field, so they use `parallel`.
+- **Limit:** `n = _parallel(st, agent)`. It takes the first value that parses as an int ≥ 1, in this order: `parallel_by_agent[agent]` (Auctor Setup *A3 / A4 / A5 cards in parallel*, default `"3"`), then `parallel` (*Cards in parallel*, default 6), then `MAX_PARALLEL`. A1, A2 and A6 have no own field, so they use `parallel`.
 - **n = 1:** cards run one after another on the same state object (the old behaviour).
 - **n > 1:** `base = deepcopy(st)`, with an `asyncio.Semaphore(n)`. Each card runs `run_step` on **its own deep copy of `base`**. The results go through `asyncio.gather` and are merged back with `_merge_back` **in card order**, so steps, decisions and events stay deterministic whichever card finishes first.
 - **Failure isolation:** an exception on one card goes to `log_failure`, which appends to `runs/<run_id>/failures.jsonl`, appends a readable block to `failures.log` (error, last 5 steps, the last 6,000 characters of the traceback) and records `failed_cards[hid] = "agent.step: error"`. The card is then skipped by every later step, including A6, and the report lists it as **failed**. For A1/A2 (`hid is None`) the error is logged and then re-raised, which stops the run. If **every** card fails at a step, the step raises `RuntimeError("every card failed at …")`.
@@ -536,7 +536,7 @@ flowchart LR
 
 > **Gotcha.** The old gate that capped parallelism by the number of *distinct* cards was removed. With per-agent fields, three branches × N cards is the expected load, and U.4 makes it safe.
 
-### U.3 A4/A5 start before A3 has finished (`p3graph/competitor.py`)
+### U.3 A4/A5 start before A3 has finished (`auctor/competitor.py`)
 
 - **`_input(short, state, hid)`**: if `profiles[hid]` exists, it builds the real input. If not, it builds the agent's input with `model_construct(card=…, profile=ProductProfile.model_construct())`, an **unvalidated placeholder profile**. This is safe because gather, triage, shortlist and establish never read the profile.
 - **`_with_profile(...)`** runs at the `prompt` step. It requires `profiles[hid]`, which by then has come in through `a3_state` → `take_profiles`, and rebuilds `s["inp"]` with the real, validated profile. If the profile is still missing, it raises *"A3 has not committed it (in Langflow, wire A3's last step into this node's 'A3 profile' input)"*.
@@ -600,16 +600,16 @@ The event-loop id is part of the key because an `AsyncOpenAI` client is bound to
 
 | Key / field | Type | Set by | Read by |
 |---|---|---|---|
-| `parallel` | int ≥ 1 | P3 Setup *Cards in parallel* (default 6) | `_parallel` for A1, A2, A6 and blank per-agent fields |
-| `parallel_by_agent` | `{"a3": "3", "a4": "3", "a5": "3"}` (strings; blank = fall back) | P3 Setup *A3/A4/A5 cards in parallel* | `_parallel(st, "a3" / "a4" / "a5")` |
+| `parallel` | int ≥ 1 | Auctor Setup *Cards in parallel* (default 6) | `_parallel` for A1, A2, A6 and blank per-agent fields |
+| `parallel_by_agent` | `{"a3": "3", "a4": "3", "a5": "3"}` (strings; blank = fall back) | Auctor Setup *A3/A4/A5 cards in parallel* | `_parallel(st, "a3" / "a4" / "a5")` |
 | `failed_cards` | `{hid: "agent.step: error"}` | `log_failure` | `_run_cards` (skip), join, `report_md` |
-| `cite_mode` | `"node"` / `"end"` / `"off"` | P3 Setup *A7 citation check*, **now defaults to `off`** | A7 gate; `cite = mode != "off"` |
+| `cite_mode` | `"node"` / `"end"` / `"off"` | Auctor Setup *A7 citation check*, **now defaults to `off`** | A7 gate; `cite = mode != "off"` |
 
 > **Gotcha.** Setup maps the dropdown with `{"every node": "node", "end only": "end", "off": "off"}.get(value, "node")`. An unknown value therefore turns the check **on** (`node`). Only the dropdown's own three values are safe.
 
 > **Gotcha.** With `cite_mode` set to `node`, stub runs fail at A1 validate. The fixtures cite ids the A7 gate rejects. That's a fixture limit, not a bug: use `end` or `off` for stub runs.
 
-### U.7 Report (`p3graph/nodes.py::report_md`)
+### U.7 Report (`auctor/nodes.py::report_md`)
 
 The report is rewritten to read top-down for a VC reader. Plumbing stays in the workbook and logs. Its order:
 
@@ -660,7 +660,7 @@ The report is rewritten to read top-down for a VC reader. Plumbing stays in the 
 
 > **Langflow keeps the components it loaded at startup.** After regenerating components or the flow, restart Langflow (or the launcher) and re-import or sync the flow.
 
-> **Only the Langflow step flow is parallel.** The CLI/LangGraph graph (`p3graph run`) still runs A3 → A4 → A5 → A6 per card, one after the other, and `HOW_TO_RUN.md` still describes that order.
+> **Only the Langflow step flow is parallel.** The CLI/LangGraph graph (`auctor run`) still runs A3 → A4 → A5 → A6 per card, one after the other, and `HOW_TO_RUN.md` still describes that order.
 
 > **A failed card doesn't stop the run, but it is easy to miss.** Check the report's *failed* rows and `runs/<run_id>/failures.log`.
 
@@ -674,11 +674,11 @@ The report is rewritten to read top-down for a VC reader. Plumbing stays in the 
 | `agents/analysis/tool_loop.py` | `_client(llm, agent)` |
 | `evidence-store/evstore/config.py` | Repo-root `.env`, `EMBED_*` fallbacks, inline-comment and quote parsing |
 | `evidence-store/evstore/embed.py` | `KEY_OVERRIDE`, shared clients, semaphore, query cache, in-flight dedupe |
-| `workflow/p3graph/competitor.py` | Placeholder input, `_with_profile`, `account_key`, `_Account` |
-| `workflow/p3graph/nodes.py` | `report_md` rewrite (`_cell`, `_crowding`, `_verdict_line`) |
-| `workflow/p3graph/state.py` | `parallel`, `parallel_by_agent` documented |
+| `workflow/auctor/competitor.py` | Placeholder input, `_with_profile`, `account_key`, `_Account` |
+| `workflow/auctor/nodes.py` | `report_md` rewrite (`_cell`, `_crowding`, `_verdict_line`) |
+| `workflow/auctor/state.py` | `parallel`, `parallel_by_agent` documented |
 | `workflow/langflow/lf_graph.py` | `take_profiles`, `execute(a3_state=)`, `join`, `_merge_back` per-key rules, `_parallel(st, agent)`; distinct-card gate removed; no transcript in the report |
-| `workflow/langflow/gen_components.py` | `a3_state` handle on the A4/A5 prompt, `P3StepJoin`, Setup fields `parallel_a3/a4/a5`, `cite_mode` default `off` |
+| `workflow/langflow/gen_components.py` | `a3_state` handle on the A4/A5 prompt, `AuctorStepJoin`, Setup fields `parallel_a3/a4/a5`, `cite_mode` default `off` |
 | `workflow/langflow/build_steps_flow.py` | Fork after A2, `a3_state` wiring, join before A6 |
 | `workflow/tests/test_graph.py` | Asserts the new report heading |
 | `frontier-ui/` (`server.py`, `static/app.js`, `.gitignore`) | Launcher, engine detection, verdict fix, `langflow.log` ignored |

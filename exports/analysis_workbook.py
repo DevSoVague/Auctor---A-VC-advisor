@@ -1,4 +1,4 @@
-"""Live backend workbook for person 3's agents: runs/<run_id>/analysis.xlsx.
+"""Live backend workbook for the analysis agents: runs/<run_id>/analysis.xlsx.
 
 Subscribes to the event hook and rewrites the workbook (atomically) every time A1/A2/A3/A6
 finishes, a card is rejected/killed/revised, or a reviewer rerun lands. Every row carries
@@ -233,7 +233,7 @@ class AnalysisWorkbook:
             R["Meta"].append([f"{agent}", f"model={u.model} calls={u.calls} in={u.input_tokens} "
                               f"cached={u.cached_tokens} out={u.output_tokens} usd={usd:.4f} "
                               f"latency_ms={u.latency_ms}"])
-        R["Meta"].append(["total_usd (person 3 agents)", round(total, 4)])
+        R["Meta"].append(["total_usd (analysis agents)", round(total, 4)])
         return R
 
 

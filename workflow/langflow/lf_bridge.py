@@ -1,4 +1,4 @@
-"""Bridge between Langflow nodes and person 3's agents in ../frontier-engine.
+"""Bridge between Langflow nodes and the analysis agents in ../frontier-engine.
 
 Langflow passes one `state` dict (inside a Data object) from node to node:
     config, llm{mode, model, profile}, retrieval, run_id,
@@ -116,7 +116,7 @@ def usage_line(state: dict) -> str:
 
 def report_md(state: dict) -> str:
     cfg = state["config"]
-    lines = [f"## Person 3 analysis: {cfg['disease']} · as of {cfg['as_of']}",
+    lines = [f"## Auctor analysis: {cfg['disease']} · as of {cfg['as_of']}",
              f"Run `{state['run_id']}` · LLM: {state['llm']['mode']} "
              f"({state['llm']['model'] or state['llm']['profile'] + ' profile'}) · {usage_line(state)}",
              "", "### Q1 Why now"]

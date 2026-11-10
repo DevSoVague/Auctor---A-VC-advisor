@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _tmp_runs(tmp_path, monkeypatch):
-    from p3graph import live, narrate, nodes
+    from auctor import live, narrate, nodes
 
     for mod in (nodes, live, narrate):
         monkeypatch.setattr(mod, "RUNS", tmp_path / "runs")

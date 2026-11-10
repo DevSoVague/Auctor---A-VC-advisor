@@ -1,4 +1,4 @@
-"""Generate one small Langflow component per agent step into components/frontier_person3/.
+"""Generate one small Langflow component per agent step into components/auctor/.
 
     conda run -n langflow python gen_components.py
 
@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent / "components" / "frontier_person3"
+OUT = Path(__file__).resolve().parent / "components" / "auctor"
 
 AGENTS = {"a1": ("A1 Disease", "a1_disease"), "a2": ("A2 Mechanism", "a2_mechanism"),
           "a3": ("A3 TPP", "a3_profile"), "a4": ("A4 Inactive assets", "a4_inactive"),
@@ -49,15 +49,17 @@ MODELS = ["inherit", "openai/gpt-oss-120b", "deepseek-ai/DeepSeek-V4-Flash-0731"
 HEAD = '''import os
 import sys
 
-# Person-3 bridge lives in langflow/ (override with P3_LANGFLOW_HOME).
-_P3 = os.getenv("P3_LANGFLOW_HOME", "/Users/sovague/Desktop/ctrl+alt+cure/upmc/grounded1to8/workflow/langflow")
-
 
 def _load_lf():
     """Put langflow/ on sys.path, then import the bridge. Done inside a function because Langflow runs only
-    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks)."""
-    if _P3 not in sys.path:
-        sys.path.insert(0, _P3)
+    imports, assignments and defs from a component's code when it is loaded from a flow (not `if` blocks).
+    The bridge lives in workflow/langflow/; run_langflow.sh exports AUCTOR_LANGFLOW_HOME pointing there."""
+    home = os.getenv("AUCTOR_LANGFLOW_HOME", "")
+    if not home:
+        raise RuntimeError("AUCTOR_LANGFLOW_HOME is not set. Start Langflow with workflow/run_langflow.sh "
+                           "(or workflow/langflow/run_langflow.sh), or export AUCTOR_LANGFLOW_HOME=<repo>/workflow/langflow.")
+    if home not in sys.path:
+        sys.path.insert(0, home)
     import lf_graph
 
     return lf_graph
@@ -76,7 +78,7 @@ def step_file(a: str, step: str) -> str:
     title, agent = AGENTS[a]
     n = ORDER[a].index(step) + 1
     icon, desc = INFO[step]
-    cls = f"P3{a.upper()}{step.capitalize()}"
+    cls = f"Auctor{a.upper()}{step.capitalize()}"
     extra_in, args = "", ""
     if step == "prompt":
         extra_in = f'''        MultilineInput(name="system_prompt", display_name="System prompt (edit me)",
@@ -110,7 +112,7 @@ def _default_prompt() -> str:
     return f'''{HEAD}{helper}
 
 class {cls}(Component):
-    display_name = "P3 · {a.upper()}.{n} {step.capitalize()}"
+    display_name = "Auctor · {a.upper()}.{n} {step.capitalize()}"
     description = "{title}: {desc}"
     icon = "{icon}"
     name = "{cls}"
@@ -131,11 +133,11 @@ class {cls}(Component):
 
 SETUP = HEAD + '''
 
-class P3StepSetup(Component):
-    display_name = "P3 · Setup"
+class AuctorStepSetup(Component):
+    display_name = "Auctor · Setup"
     description = "Start a run: disease, as-of date, model, retrieval. First node of the step-by-step flow."
     icon = "settings"
-    name = "P3StepSetup"
+    name = "AuctorStepSetup"
 
     inputs = [
         HandleInput(name="message", display_name="Message", input_types=["Message"], required=False,
@@ -205,11 +207,11 @@ class P3StepSetup(Component):
 
 REPORT = HEAD.replace("from lfx.schema.data import Data", "from lfx.schema.data import Data\nfrom lfx.schema.message import Message") + '''
 
-class P3StepReport(Component):
-    display_name = "P3 · Report + Workbook"
+class AuctorStepReport(Component):
+    display_name = "Auctor · Report + Workbook"
     description = "Writes runs/<run_id>/analysis.xlsx, report.md, steps.md and result.json."
     icon = "file-spreadsheet"
-    name = "P3StepReport"
+    name = "AuctorStepReport"
 
     inputs = [HandleInput(name="state", display_name="Run state", input_types=["Data"], required=True)]
     outputs = [
@@ -236,12 +238,12 @@ class P3StepReport(Component):
 
 JOIN = HEAD + '''
 
-class P3StepJoin(Component):
-    display_name = "P3 · Join (A3 + A4 + A5)"
+class AuctorStepJoin(Component):
+    display_name = "Auctor · Join (A3 + A4 + A5)"
     description = ("A3, A4 and A5 run side by side after A2. This waits for all of them and merges their results "
                    "into one run state for A6.")
     icon = "merge"
-    name = "P3StepJoin"
+    name = "AuctorStepJoin"
 
     inputs = [
         HandleInput(name="base", display_name="Fork point (A2)", input_types=["Data"], required=True,
@@ -263,12 +265,12 @@ class P3StepJoin(Component):
 AFTER = [f"{a}_{s}" for a in ORDER for s in ORDER[a]] + ["setup", "report"]
 CUSTOM = HEAD + f'''
 
-class P3CustomNode(Component):
-    display_name = "P3 · Custom Node"
+class AuctorCustomNode(Component):
+    display_name = "Auctor · Custom Node"
     description = ("Your own step: a function from custom_nodes.py (safety gate, loop, tool call, ...). "
                    "Drop it anywhere in the chain and say which step it follows.")
     icon = "puzzle"
-    name = "P3CustomNode"
+    name = "AuctorCustomNode"
 
     inputs = [
         HandleInput(name="state", display_name="Run state", input_types=["Data"], required=True),

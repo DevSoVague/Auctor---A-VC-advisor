@@ -1,4 +1,4 @@
-# Person 3 graph
+# Auctor graph
 
 ```mermaid
 ---
