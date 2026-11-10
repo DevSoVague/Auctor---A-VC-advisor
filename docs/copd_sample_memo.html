@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biopharma R&amp;D analysis</title>
+<style>
+:root{
+  --bg:#faf8f4; --paper:#ffffff; --ink:#141414; --muted:#6d6a64; --line:#e7e2d8; --soft:#f2eee6;
+  --accent:#d2381c; --blue:#1f4fd8; --blue-soft:#dfe7fb; --green:#1d7a46; --amber:#b7791f; --red:#b42318;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:20;background:rgba(250,248,244,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:54px;overflow-x:auto;white-space:nowrap}
+nav b{font-family:var(--serif);font-size:17px;letter-spacing:.2px}
+nav a{text-decoration:none;color:var(--muted);font-size:14px}
+nav a:hover{color:var(--ink)}
+nav .pill{margin-left:auto;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:2px 10px;color:var(--muted);background:var(--paper)}
+section{padding:72px 0;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(44px,8vw,92px);line-height:1;letter-spacing:-.02em;margin:0}
+h2{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,40px);line-height:1.1;margin:0 0 10px;letter-spacing:-.01em}
+h3{font-size:18px;margin:0 0 6px}
+.lede{font-size:clamp(18px,2.2vw,22px);color:#3a3834;max-width:720px;margin:22px 0 0}
+.sub{color:var(--muted);max-width:720px;margin:0 0 28px}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-block;border:1.5px solid var(--ink);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font:600 15px var(--sans);text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:hover{transform:translateY(-1px)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:48px;border-top:1px solid var(--ink)}
+.stat{padding:18px 16px 0 0}
+.stat b{display:block;font-family:var(--serif);font-size:40px;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted)}
+.fine{font-size:12px;color:var(--muted);margin-top:10px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* run */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px}
+form.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){form.grid{grid-template-columns:1fr}}
+label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+select,input[type=text],input[type=date],textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font:15px var(--sans);color:var(--ink)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg label{margin:0;flex:1;text-align:center;padding:9px 6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);background:#fff}
+.seg input{display:none}
+.seg input:checked+span{font-weight:700}
+.seg label:has(input:checked){background:var(--ink);color:#fff}
+.bigrun{width:100%;margin-top:16px;padding:16px;font-size:18px;border-radius:12px}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.progress{margin-top:22px;display:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.node{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-size:13px;min-width:150px;transition:all .25s}
+.node small{display:block;color:var(--muted);font-size:11px}
+.node.run{border-color:var(--blue);background:var(--blue-soft)}
+.node.done{border-color:var(--green);background:#e9f6ee}
+.node.stop{border-color:var(--red);background:#fdeceb}
+.cols{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:14px 0}
+@media(max-width:900px){.cols{grid-template-columns:repeat(2,1fr)}}
+.col h4{margin:0 0 6px;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;line-height:1.3}
+.col .node{min-width:0;margin-bottom:6px}
+.review{border:2px solid var(--accent);border-radius:14px;padding:18px;background:#fff;margin:16px 0;display:none}
+.review ul{margin:8px 0 14px;padding-left:18px}
+.review .btns{margin-top:6px}
+.done-box{display:none;margin-top:18px;border-top:1px solid var(--line);padding-top:18px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.toast.on{opacity:1}
+
+/* pursuits */
+.caution{border:1px solid #f0b8b2;background:#fdf1ef;border-radius:14px;padding:16px 20px;margin-bottom:26px}
+.caution b{color:var(--red)}
+.caution ul{margin:8px 0 6px;padding-left:20px}
+.story{border-top:2px solid var(--ink);padding:26px 0 8px;display:grid;grid-template-columns:1fr 1.6fr;gap:34px}
+@media(max-width:860px){.story{grid-template-columns:1fr}}
+.badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:99px;color:#fff;background:var(--ink)}
+.badge.invest{background:var(--blue)} .badge.access{background:var(--accent)} .badge.build{background:var(--green)}
+.hook{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.35;margin:14px 0 8px}
+.name{font-weight:700;font-size:18px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:3px 10px;background:#fff;color:#3a3834}
+.chip.gold{background:#fbf1d1;border-color:#e9d58a} .chip.silver{background:#eceef1;border-color:#cfd3d9} .chip.bronze{background:#f4e3d6;border-color:#dfbf9f}
+.q{margin:0 0 16px}
+.q h4{margin:0 0 4px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.q ul{margin:0;padding-left:18px}
+.q li{margin-bottom:4px}
+.meter{display:grid;grid-template-columns:70px 1fr;gap:6px 10px;align-items:center;font-size:13px;margin:6px 0 4px}
+.bar{display:flex;gap:4px}
+.bar i{flex:1;height:10px;border-radius:3px;background:var(--soft)}
+.bar.up i.on{background:var(--green)} .bar.rk i.on{background:var(--red)}
+details{margin-top:6px} summary{cursor:pointer;color:var(--muted);font-size:13px}
+.src{font-size:12px;color:var(--muted);margin:4px 0 0}
+.timeline{margin-top:34px} svg text{font-family:var(--sans)}
+
+/* directory */
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0}
+.tools input[type=text]{max-width:280px}
+.tools select{width:auto}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.tab{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font-size:14px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+tr.item{cursor:pointer} tr.item:hover{background:#faf6ee}
+tr.pin{background:#fff8ee}
+.tag{white-space:nowrap;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--ink);color:#fff;margin-right:6px;text-transform:uppercase;letter-spacing:.06em}
+.tag.invest{background:var(--blue)} .tag.access{background:var(--accent)} .tag.build{background:var(--green)} .tag.competitor{background:#8a867d}
+.drop{color:var(--red);font-size:12px;font-weight:600}
+.tablewrap{overflow-x:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(0,0,0,.08);transform:translateX(105%);transition:transform .25s;z-index:40;padding:24px;overflow-y:auto}
+.drawer.on{transform:none}
+.drawer .x{position:absolute;top:14px;right:16px;border:0;background:none;font-size:24px;cursor:pointer}
+.drawer dt{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:16px}
+.drawer dd{margin:2px 0 0}
+.matrix{display:grid;gap:4px;font-size:13px}
+.cell{border-radius:8px;text-align:center;padding:12px 4px;background:var(--soft);color:var(--muted)}
+.cell.h{background:none;font-weight:600;color:var(--muted);font-size:12px;padding:4px}
+.cell.m{text-align:left;background:none;color:var(--ink);padding:12px 6px 12px 0}
+
+/* compare */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+.dcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.dcard.empty{background:transparent;border-style:dashed;color:var(--muted)}
+.dcard dl{margin:10px 0 0;font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:6px 12px}
+.dcard dt{color:var(--muted)}
+.dcard dd{margin:0}
+
+/* method */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin:14px 0}
+.flow .box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+.flow .par{border:1.5px dashed var(--blue);border-radius:12px;padding:10px;background:#f6f8fe;flex:1;min-width:260px}
+.flow .par .lane{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.guar{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px}
+@media(max-width:700px){.guar{grid-template-columns:1fr}}
+.guar div{border-top:2px solid var(--ink);padding-top:10px}
+footer{padding:36px 0 60px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <b>Biopharma R&amp;D analysis</b>
+  <a href="#overview">Overview</a><a href="#run">Run analysis</a><a href="#pursuits">Pursuits</a><a href="#directory">Directory</a><a href="#compare">Compare diseases</a><a href="#method">Method</a>
+  <span class="pill">Demo data</span>
+</div></nav>
+
+<header id="overview"><div class="wrap" style="padding-top:84px;padding-bottom:70px;border-bottom:1px solid var(--line)">
+  <p class="eyebrow">Auctor · Frontier Hypothesis Engine</p>
+  <h1>Biopharma R&amp;D analysis</h1>
+  <p class="lede">Frontier drug hypotheses a VC can act on this year, with every claim cited and dated.</p>
+  <div class="stats" id="stats"></div>
+  <p class="fine" id="stats-note"></p>
+  <div class="btns">
+    <a class="btn" href="#run">Run an analysis</a>
+    <a class="btn ghost" id="read-memo" href="../memo-polished.pdf" target="_blank">Read the COPD memo</a>
+  </div>
+</div></header>
+
+<section id="run"><div class="wrap">
+  <p class="eyebrow">Run analysis</p>
+  <h2>Ask the pipeline a question</h2>
+  <p class="sub">Eight agents read the evidence, test each hypothesis in parallel, and write the memo. Guided mode pauses for your review.</p>
+  <div class="card">
+    <form class="grid" id="form" onsubmit="return false">
+      <div><label>Disease</label><select id="f-disease"><option>COPD</option></select></div>
+      <div><label>Evidence as of</label><input type="date" id="f-asof"></div>
+      <div><label>Audience</label><div class="seg"><label><input type="radio" name="aud" value="investor" checked><span>Investor</span></label><label><input type="radio" name="aud" value="clinician"><span>Clinician</span></label></div></div>
+      <div><label>Mode</label><div class="seg"><label><input type="radio" name="mode" value="guided" checked><span>Guided</span></label><label><input type="radio" name="mode" value="single"><span>Single-shot</span></label></div></div>
+      <div style="grid-column:span 2"><label>Constraints</label><input type="text" id="f-con" placeholder="e.g. budget under $20M, Phase 2 or later, US rights"></div>
+    </form>
+    <button class="btn bigrun" id="go">Run analysis</button>
+    <p class="note">Demo mode: this replays a saved test run so you can see every step. With the run API connected, the same button starts a live run.</p>
+
+    <div class="progress" id="progress">
+      <div class="row" id="shared"></div>
+      <div class="review" id="review"></div>
+      <div class="cols" id="cols"></div>
+      <div class="row" id="final"></div>
+      <div class="done-box" id="done"></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="pursuits"><div class="wrap">
+  <p class="eyebrow">Recommended pursuits</p>
+  <h2 id="p-title">What we would do this year</h2>
+  <p class="sub" id="p-sub"></p>
+  <div id="caution"></div>
+  <div id="stories"></div>
+  <div class="timeline"><h3>Upcoming catalysts · next 12 months</h3><div id="timeline"></div></div>
+  <p style="margin-top:28px"><a class="btn" href="../memo-polished.pdf" target="_blank">Read the full memo</a></p>
+</div></section>
+
+<section id="directory"><div class="wrap">
+  <p class="eyebrow">Portfolio directory</p>
+  <h2>Every company, asset and program we found</h2>
+  <p class="sub">Recommended pursuits are pinned at the top. Click any row for the dated sources behind it.</p>
+  <div class="tabs" id="cats"></div>
+  <div class="tools">
+    <input type="text" id="q" placeholder="Search company, asset or mechanism">
+    <select id="f-stage"><option value="">All stages</option></select>
+    <select id="f-mech"><option value="">All mechanisms</option></select>
+    <select id="f-owner"><option value="">All owner types</option></select>
+    <label style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><input type="checkbox" id="f-drop"> Possibly dropped by owner</label>
+    <select id="f-sort"><option value="fit">Sort: fit to ideal product</option><option value="crowd">Sort: least crowded</option><option value="stage">Sort: stage</option></select>
+    <span style="margin-left:auto" class="tabs"><span class="tab on" id="v-table">Table</span><span class="tab" id="v-matrix">Landscape matrix</span></span>
+  </div>
+  <div id="dir-table" class="tablewrap"></div>
+  <div id="dir-matrix" style="display:none"></div>
+</div></section>
+
+<section id="compare"><div class="wrap">
+  <p class="eyebrow">Compare diseases</p>
+  <h2>Where the best opportunities sit</h2>
+  <p class="sub">We have analyzed COPD so far. Other diseases appear here once they have been run. We never show numbers we have not computed.</p>
+  <div class="cards" id="dcards"></div>
+  <div class="card" style="margin-top:20px"><h3>Opportunity map</h3><p class="note" style="margin-top:0">Evidence strength against crowding, one dot per hypothesis. The top right (strong evidence, uncrowded) is the sweet spot.</p><div id="map"></div></div>
+</div></section>
+
+<section id="method"><div class="wrap">
+  <p class="eyebrow">Method</p>
+  <h2>How the analysis is built</h2>
+  <p class="sub">Eight agents. Code decides what runs next; models read, reason and write.</p>
+  <div class="flow" id="flow"></div>
+  <div class="guar">
+    <div><h3>No future data</h3><p class="note" style="margin:0">Every record is dated and anything after the as-of cutoff is invisible to the agents.</p></div>
+    <div><h3>Every claim cited and checked</h3><p class="note" style="margin:0">A citation checker verifies each source supports its claim; unsupported claims are removed before the memo.</p></div>
+    <div><h3>Every claim traced to its agent</h3><p class="note" style="margin:0">Each claim carries the agent that made it, so any statement can be followed back.</p></div>
+    <div><h3>The memo agent never searches</h3><p class="note" style="margin:0">It reads only the other agents' checked output, so it cannot bring in outside sources.</p></div>
+  </div>
+  <p class="note" id="window" style="margin-top:22px"></p>
+  <details><summary>Decision log for the last run</summary><div class="tablewrap" id="declog" style="margin-top:10px"></div></details>
+  <details><summary>Killed hypotheses for the last run</summary><div id="killed" style="margin-top:10px"></div></details>
+</div></section>
+
+<footer><div class="wrap">
+  <b>Auctor</b> · <a href="https://github.com/DevSoVague/auctor" target="_blank">github.com/DevSoVague/auctor</a><br>
+  Public sources only. Not investment advice. Demo data from a saved test run.
+</div></footer>
+
+<aside class="drawer" id="drawer"></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+const D = {"meta": {"disease": "COPD", "as_of": "2026-01-01", "window": "January 1, 2023 to January 1, 2026", "run_id": "3b3bf8b2", "written_by": "template"}, "stats": {"diseases": 1, "hypotheses": 5, "survivors": 4, "pursuits": 3, "sources": 29, "claims": 107}, "caution": {"flag": true, "reasons": ["Fixture Bio Inc (fixtafilast): crowded mechanism, score 0.97 (bar: 0.70)", "Fixture Bio Inc (fixtafilast): consensus mechanism, already approved (fixomilast (Fixture Pharma)); this is a follow-on play, not a new discovery", "Fixture Bio Inc (fixtafilast): survived the red team only after being revised"], "basis": "fixed quality bars for a single disease, not a comparison with other diseases"}, "bottom_line": ["We recommend 3 pursuit(s) in COPD: license or acquire fixozolast (Fixture Airways), invest in Fixture Bio Inc (fixtafilast), invest in Fixture Respiratory (fixodilast). 4 of 5 hypotheses survived the red team (an independent critic).", "Top pick: fixozolast (Fixture Airways), built on IL-4Ra blockade in type 2 COPD. Upside is high and risk is medium.", "Proceed with caution (see the box above): Fixture Bio Inc (fixtafilast): crowded mechanism, score 0.97 (bar: 0.70)."], "pursuits": [{"id": "h2:access:fixozolast", "form": "access", "name": "fixozolast (Fixture Airways)", "hyp": "h2", "mechanism": "IL-4Ra blockade in type 2 COPD", "hook": "Imagine a monoclonal antibody working through IL-4Ra blockade in type 2 COPD that delivers >=25% reduction in annualised moderate/severe exacerbations on triple therapy, eos>=300.", "move": "In-license, option or acquire fixozolast (Phase 2, terminated (asthma)).", "next": "Approach Fixture Airways about licensing terms; first, the fastest check: Compare IL-13/FeNO-high vs eos-only subgroups in existing Phase 3 data", "why": [{"text": "Unmet need at launch: At launch, eosinophilic exacerbators on triple therapy still exacerbate; anti-IL5 failed, so no approved biologic is expected for this segment.", "kind": "evidence", "sources": [{"id": "fx:nct-boreas", "date": "2024-04-01"}]}, {"text": "Evidence strength: tier 1 of 4, the strongest (human genetics or late-stage clinical results); gold validation, with 3 independent lines of human evidence. Mechanism: IL-4Ra blockade in type 2 COPD (inhibit).", "kind": "evidence", "sources": [{"id": "fx:pm-type2-copd-2024", "date": "2024-06-12"}]}, {"text": "How we would get in: shelved asset, fit 0.8; Stopped for liver toxicity in asthma; oral exposure.", "kind": "evidence", "sources": [{"id": "nct:FIXTURE-C802", "date": "2023-09-01"}]}], "wrong": [{"text": "Anti-IL5 failures suggest eosinophils are not the driver in COPD. We would drop it if: BOREAS misses exacerbation primary endpoint. Fastest way to check: Compare IL-13/FeNO-high vs eos-only subgroups in existing Phase 3 data.", "kind": "evidence", "sources": [{"id": "fx:pm-galathea-2024", "date": "2024-05-20"}]}, {"text": "The judge upheld a major attack (Anti-IL5 failures suggest eosinophils are not the driver in COPD).", "kind": "reasoning", "sources": []}], "rvr": "Upside high, risk medium: return outweighs risk. Why the upside: the strongest tier of evidence (human genetics or late-stage clinical results); a moderately busy field (crowding 0.49 of 1); an existing asset already matches the ideal product (fit 0.8 of 1). Why the risk: 1 major objection(s) from the red team (an independent critic) upheld by the judge; had to be revised after the red-team critique.", "upside": "high", "risk": "medium", "level": "gold", "crowding": 0.495, "gap": "At launch, eosinophilic exacerbators on triple therapy still exacerbate; anti-IL5 failed, so no approved biologic is expected for this segment.", "change": "We would drop it if: BOREAS misses exacerbation primary endpoint. Our conviction rises if this check comes back positive: Compare IL-13/FeNO-high vs eos-only subgroups in existing Phase 3 data."}, {"id": "h1:invest:fixtafilast", "form": "invest", "name": "Fixture Bio Inc (fixtafilast)", "hyp": "h1", "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)", "hook": "Imagine an inhaled small molecule working through Dual PDE3/PDE4 inhibition (inhaled) that delivers >=100 mL FEV1 improvement on top of LAMA.", "move": "Invest in Fixture Bio Inc, whose Phase 3 asset is the closest fit.", "next": "Open diligence with Fixture Bio Inc; first, the fastest check: Pre-specified exacerbation analysis pooled across ENHANCE trials", "why": [{"text": "Unmet need at launch: Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "kind": "evidence", "sources": [{"id": "fx:nct-enhance1", "date": "2025-09-01"}, {"id": "fx:pm-roflu-safety-2016", "date": "2016-05-10"}]}, {"text": "Evidence strength: tier 1 of 4, the strongest (human genetics or late-stage clinical results); gold validation, with 3 independent lines of human evidence. Mechanism: Dual PDE3/PDE4 inhibition (inhaled) (inhibit).", "kind": "evidence", "sources": [{"id": "fx:fda-roflumilast-2011", "date": "2011-02-28"}]}, {"text": "How we would get in: startup program, fit yes; Form D filed 2024-04-02.", "kind": "evidence", "sources": [{"id": "nct:FIXTURE-C101", "date": "2023-09-01"}, {"id": "sec:FIXTURE-E1", "date": "2024-04-02"}]}], "wrong": [{"text": "FEV1 gains may not translate into fewer exacerbations. We would drop it if: Phase 3 shows FEV1 benefit but no exacerbation trend. Fastest way to check: Pre-specified exacerbation analysis pooled across ENHANCE trials. (not confirmed by the citation check)", "kind": "reasoning", "sources": []}, {"text": "Nebulised delivery limits adoption vs handheld inhalers. We would drop it if: Patient-preference data show <20% acceptance of nebuliser. Fastest way to check: Survey 200 COPD patients on current inhalers. (not confirmed by the citation check)", "kind": "reasoning", "sources": []}, {"text": "Consensus risk: fixomilast (Fixture Pharma) is already approved on this mechanism, so the opportunity is a follow-on and the approved drug's success is priced in.", "kind": "reasoning", "sources": []}, {"text": "The judge upheld a major attack (FEV1 gains may not translate into fewer exacerbations).", "kind": "reasoning", "sources": []}], "rvr": "Upside medium, risk medium: balanced. Why the upside: the strongest tier of evidence (human genetics or late-stage clinical results); already approved on this mechanism (fixomilast (Fixture Pharma)): the field is priced in; an existing asset already matches the ideal product (fit 1.0 of 1). Why the risk: 1 major objection(s) from the red team (an independent critic) upheld by the judge; had to be revised after the red-team critique.", "upside": "medium", "risk": "medium", "level": "gold", "crowding": 0.975, "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "change": "We would drop it if: Phase 3 shows FEV1 benefit but no exacerbation trend. Our conviction rises if this check comes back positive: Pre-specified exacerbation analysis pooled across ENHANCE trials."}, {"id": "h3:invest:fixodilast", "form": "invest", "name": "Fixture Respiratory (fixodilast)", "hyp": "h3", "mechanism": "IL-33 / ST2 alarmin blockade in former smokers", "hook": "Imagine a monoclonal antibody working through IL-33 / ST2 alarmin blockade in former smokers that delivers >=20% reduction in annualised exacerbations in patients with eos<300 cells/uL.", "move": "Invest in Fixture Respiratory, whose Phase 2 asset is the closest fit.", "next": "Open diligence with Fixture Respiratory; first, the fastest check: Restrict the TPP to former smokers and re-check the must-have effect size", "why": [{"text": "Unmet need at launch: Former smokers with low eosinophils have no targeted biologic; type 2 agents will not cover them.", "kind": "evidence", "sources": [{"id": "fx:pm-il33-smoke-2025", "date": "2025-03-03"}]}, {"text": "Evidence strength: tier 2 of 4, good (early clinical or genetic support); silver validation, with 3 independent lines of human evidence. Mechanism: IL-33 / ST2 alarmin blockade in former smokers (inhibit).", "kind": "evidence", "sources": [{"id": "fx:pm-il33-smoke-2025", "date": "2025-03-03"}]}, {"text": "How we would get in: startup program, fit partly.", "kind": "evidence", "sources": [{"id": "nct:FIXTURE-C801", "date": "2025-06-01"}]}], "wrong": [{"text": "TPP population (all eos<300) is broader than the evidence, which points to former smokers. We would drop it if: Effect absent in current smokers in a prospective trial. Fastest way to check: Restrict the TPP to former smokers and re-check the must-have effect size.", "kind": "evidence", "sources": [{"id": "fx:pm-il33-smoke-2025", "date": "2025-03-03"}]}, {"text": "Benefit may be limited to a former-smoker subgroup. We would drop it if: Prospective trial in former smokers shows <15% reduction. Fastest way to check: Re-analyse Phase 2 by smoking status. (not confirmed by the citation check)", "kind": "reasoning", "sources": []}, {"text": "The judge upheld a major attack (TPP population (all eos<300) is broader than the evidence, which points to former smokers).", "kind": "reasoning", "sources": []}], "rvr": "Upside medium, risk medium: balanced. Why the upside: good evidence (tier 2: early clinical or genetic support); a moderately busy field (crowding 0.49 of 1); an existing asset already matches the ideal product (fit 0.8 of 1). Why the risk: 1 major objection(s) from the red team (an independent critic) upheld by the judge; had to be revised after the red-team critique.", "upside": "medium", "risk": "medium", "level": "silver", "crowding": 0.495, "gap": "Former smokers with low eosinophils have no targeted biologic; type 2 agents will not cover them.", "change": "We would drop it if: Effect absent in current smokers in a prospective trial. Our conviction rises if this check comes back positive: Restrict the TPP to former smokers and re-check the must-have effect size."}], "catalysts": [{"on": "2026-06-30", "what": "fixtafilast: Phase 3 primary completion"}], "hypotheses": [{"id": "h1", "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)", "modality": "inhaled small molecule", "tier": 1, "level": "gold", "crowding": 0.975, "status": "survives", "upside": "medium", "risk": "medium", "approved": ["fixomilast (Fixture Pharma)"], "must_haves": [">=100 mL FEV1 improvement on top of LAMA", "GI adverse-event rate within 5% of placebo"], "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "risks": [{"text": "FEV1 gains may not translate into fewer exacerbations", "kill": "Phase 3 shows FEV1 benefit but no exacerbation trend", "test": "Pre-specified exacerbation analysis pooled across ENHANCE trials"}, {"text": "Nebulised delivery limits adoption vs handheld inhalers", "kill": "Patient-preference data show <20% acceptance of nebuliser", "test": "Survey 200 COPD patients on current inhalers"}], "verdict": "survives", "judge": "revise", "revised": true, "n_programs": 4, "n_inactive": 5}, {"id": "h2", "mechanism": "IL-4Ra blockade in type 2 COPD", "modality": "monoclonal antibody", "tier": 1, "level": "gold", "crowding": 0.495, "status": "survives", "upside": "high", "risk": "medium", "approved": [], "must_haves": [">=25% reduction in annualised moderate/severe exacerbations on triple therapy, eos>=300"], "gap": "At launch, eosinophilic exacerbators on triple therapy still exacerbate; anti-IL5 failed, so no approved biologic is expected for this segment.", "risks": [{"text": "Anti-IL5 failures suggest eosinophils are not the driver in COPD", "kill": "BOREAS misses exacerbation primary endpoint", "test": "Compare IL-13/FeNO-high vs eos-only subgroups in existing Phase 3 data"}], "verdict": "survives", "judge": "revise", "revised": true, "n_programs": 1, "n_inactive": 1}, {"id": "h3", "mechanism": "IL-33 / ST2 alarmin blockade in former smokers", "modality": "monoclonal antibody", "tier": 2, "level": "silver", "crowding": 0.495, "status": "survives", "upside": "medium", "risk": "medium", "approved": [], "must_haves": [">=20% reduction in annualised exacerbations in patients with eos<300 cells/uL"], "gap": "Former smokers with low eosinophils have no targeted biologic; type 2 agents will not cover them.", "risks": [{"text": "TPP population (all eos<300) is broader than the evidence, which points to former smokers", "kill": "Effect absent in current smokers in a prospective trial", "test": "Restrict the TPP to former smokers and re-check the must-have effect size"}, {"text": "Benefit may be limited to a former-smoker subgroup", "kill": "Prospective trial in former smokers shows <15% reduction", "test": "Re-analyse Phase 2 by smoking status"}], "verdict": "survives", "judge": "revise", "revised": true, "n_programs": 1, "n_inactive": 1}, {"id": "h4", "mechanism": "TSLP blockade upstream of type 2 and non-type 2", "modality": "monoclonal antibody", "tier": 2, "level": "silver", "crowding": 0.195, "status": "survives", "upside": "medium", "risk": "medium", "approved": [], "must_haves": [">=20% reduction in annualised exacerbations independent of eosinophil count"], "gap": "No biologic covers both type 2 and non-type 2 COPD at launch.", "risks": [{"text": "COPD rationale rests on asthma data and a single-lab mouse study", "kill": "COPD Phase 2 shows no exacerbation effect", "test": "Wait for tezepelumab COPD Phase 2 readout; cost zero"}], "verdict": "survives", "judge": "revise", "revised": true, "n_programs": 1, "n_inactive": 0}, {"id": "h5", "mechanism": "IL-5 / eosinophil depletion", "modality": "monoclonal antibody", "tier": 3, "level": "bronze", "crowding": 0.385, "status": "killed", "upside": null, "risk": null, "approved": [], "must_haves": [">=20% reduction in annualised exacerbations in eos>=300 on triple therapy"], "gap": "Eosinophilic COPD remains uncovered after anti-IL5 failures.", "risks": [{"text": "The same mechanism already failed in the same population for efficacy", "kill": "Two or more Phase 3 trials in eosinophilic COPD miss exacerbation endpoint", "test": "Already observed: GALATHEA/TERRANOVA and METREX/METREO"}, {"text": "Key preclinical support was retracted", "kill": "Retraction confirmed", "test": "Check Retraction Watch for cited DOIs"}], "verdict": "kill", "judge": "kill", "revised": false, "n_programs": 1, "n_inactive": 0}], "rows": [{"name": "fixtafilast", "owner": "Fixture Bio Inc", "owner_type": "startup", "mechanism": "PDE3/PDE4 inhibitor", "stage": "Phase 3", "fit": 1.0, "dropped": false, "flag": null, "edge": "Inhaled dual PDE3/PDE4 inhibition adds bronchodilation without systemic PDE4 exposure.", "trial": "nct:FIXTURE-C101", "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "invest", "recommended": true, "sources": [{"id": "nct:FIXTURE-C101", "date": "2023-09-01"}, {"id": "sec:FIXTURE-E1", "date": "2024-04-02"}]}, {"name": "fixomilast", "owner": "Fixture Pharma", "owner_type": "mid_size", "mechanism": "PDE4 inhibitor", "stage": "Approved", "fit": 0.5, "dropped": false, "flag": null, "edge": "Oral PDE4 inhibitor; the standard of care this hypothesis must beat.", "trial": null, "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "competitor", "recommended": false, "sources": [{"id": "fda:FIXTURE-A111", "date": "2011-02-28"}]}, {"name": "fixodilast", "owner": "Fixture Respiratory", "owner_type": "startup", "mechanism": "Phosphodiesterase 4 inhibitor", "stage": "Phase 2", "fit": 0.5, "dropped": false, "flag": null, "edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.", "trial": "nct:FIXTURE-C801", "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "invest", "recommended": false, "sources": [{"id": "nct:FIXTURE-C801", "date": "2025-06-01"}]}, {"name": "FIX-404", "owner": "Fixture Therapeutics", "owner_type": "startup", "mechanism": "PDE4 inhibitor", "stage": "Phase 2", "fit": 0.0, "dropped": true, "flag": "nct:FIXTURE-C404 terminated for business reasons: Business decision - not due to safety concerns", "edge": "Inhaled PDE4 inhibitor, stopped in Phase 2.", "trial": "nct:FIXTURE-C404", "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "access", "recommended": false, "sources": [{"id": "nct:FIXTURE-C404", "date": "2024-02-01"}, {"id": "sec:FIXTURE-E3", "date": "2023-01-10"}]}, {"name": "fixremilast", "owner": "Fixture Derm Inc", "owner_type": "inactive", "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)", "stage": "Approved (plaque psoriasis)", "fit": 0.5, "dropped": false, "flag": "repurposing asset", "edge": "Oral dosing brings systemic PDE4 GI effects.", "trial": null, "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "access", "recommended": false, "sources": [{"id": "fda:FIXTURE-A701", "date": "2014-03-21"}]}, {"name": "fixostazol", "owner": "Unknown", "owner_type": "inactive", "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)", "stage": "Approved (intermittent claudication)", "fit": 0.2, "dropped": false, "flag": "repurposing asset", "edge": "PDE3 only; no anti-inflammatory PDE4 activity.", "trial": null, "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "access", "recommended": false, "sources": [{"id": "chembl:FIXTURE-D703", "date": "2010-01-01"}]}, {"name": "FIX-404", "owner": "Fixture Therapeutics", "owner_type": "inactive", "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)", "stage": "Phase 2, terminated (COPD)", "fit": 0.7, "dropped": true, "flag": "shelved asset", "edge": "Stopped for business reasons; inhaled formulation exists.", "trial": null, "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "access", "recommended": false, "sources": [{"id": "nct:FIXTURE-C404", "date": "2024-02-01"}]}, {"name": "FIX-702", "owner": "Fixture Biotech", "owner_type": "inactive", "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)", "stage": "Phase 2, terminated (atopic dermatitis)", "fit": 0.6, "dropped": true, "flag": "shelved asset", "edge": "Failed on efficacy in atopic dermatitis; untested in the lung.", "trial": null, "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "access", "recommended": false, "sources": [{"id": "nct:FIXTURE-C702", "date": "2023-03-01"}]}, {"name": "fixozolast", "owner": "Fixture Airways", "owner_type": "inactive", "mechanism": "Dual PDE3/PDE4 inhibition (inhaled)", "stage": "Phase 2, terminated (asthma)", "fit": 0.8, "dropped": true, "flag": "shelved asset", "edge": "Stopped for liver toxicity in asthma; oral exposure.", "trial": null, "gap": "Triple therapy leaves symptomatic patients with residual breathlessness; no approved agent combines bronchodilation and anti-inflammatory action without oral PDE4 GI toxicity.", "crowding": 0.975, "hyp": "h1", "category": "access", "recommended": false, "sources": [{"id": "nct:FIXTURE-C802", "date": "2023-09-01"}]}, {"name": "fixodilast", "owner": "Fixture Respiratory", "owner_type": "startup", "mechanism": "Phosphodiesterase 4 inhibitor", "stage": "Phase 2", "fit": 0.5, "dropped": false, "flag": null, "edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.", "trial": "nct:FIXTURE-C801", "gap": "At launch, eosinophilic exacerbators on triple therapy still exacerbate; anti-IL5 failed, so no approved biologic is expected for this segment.", "crowding": 0.495, "hyp": "h2", "category": "invest", "recommended": false, "sources": [{"id": "nct:FIXTURE-C801", "date": "2025-06-01"}]}, {"name": "fixozolast", "owner": "Fixture Airways", "owner_type": "inactive", "mechanism": "IL-4Ra blockade in type 2 COPD", "stage": "Phase 2, terminated (asthma)", "fit": 0.8, "dropped": true, "flag": "shelved asset", "edge": "Stopped for liver toxicity in asthma; oral exposure.", "trial": null, "gap": "At launch, eosinophilic exacerbators on triple therapy still exacerbate; anti-IL5 failed, so no approved biologic is expected for this segment.", "crowding": 0.495, "hyp": "h2", "category": "access", "recommended": true, "sources": [{"id": "nct:FIXTURE-C802", "date": "2023-09-01"}]}, {"name": "fixodilast", "owner": "Fixture Respiratory", "owner_type": "startup", "mechanism": "Phosphodiesterase 4 inhibitor", "stage": "Phase 2", "fit": 0.5, "dropped": false, "flag": null, "edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.", "trial": "nct:FIXTURE-C801", "gap": "Former smokers with low eosinophils have no targeted biologic; type 2 agents will not cover them.", "crowding": 0.495, "hyp": "h3", "category": "invest", "recommended": true, "sources": [{"id": "nct:FIXTURE-C801", "date": "2025-06-01"}]}, {"name": "fixozolast", "owner": "Fixture Airways", "owner_type": "inactive", "mechanism": "IL-33 / ST2 alarmin blockade in former smokers", "stage": "Phase 2, terminated (asthma)", "fit": 0.8, "dropped": true, "flag": "shelved asset", "edge": "Stopped for liver toxicity in asthma; oral exposure.", "trial": null, "gap": "Former smokers with low eosinophils have no targeted biologic; type 2 agents will not cover them.", "crowding": 0.495, "hyp": "h3", "category": "access", "recommended": false, "sources": [{"id": "nct:FIXTURE-C802", "date": "2023-09-01"}]}, {"name": "fixodilast", "owner": "Fixture Respiratory", "owner_type": "startup", "mechanism": "Phosphodiesterase 4 inhibitor", "stage": "Phase 2", "fit": 0.5, "dropped": false, "flag": null, "edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.", "trial": "nct:FIXTURE-C801", "gap": "No biologic covers both type 2 and non-type 2 COPD at launch.", "crowding": 0.195, "hyp": "h4", "category": "invest", "recommended": false, "sources": [{"id": "nct:FIXTURE-C801", "date": "2025-06-01"}]}, {"name": "fixodilast", "owner": "Fixture Respiratory", "owner_type": "startup", "mechanism": "Phosphodiesterase 4 inhibitor", "stage": "Phase 2", "fit": 0.5, "dropped": false, "flag": null, "edge": "Inhaled PDE4 inhibitor; phosphodiesterase-4 is the hypothesis mechanism under another name.", "trial": "nct:FIXTURE-C801", "gap": "Eosinophilic COPD remains uncovered after anti-IL5 failures.", "crowding": 0.385, "hyp": "h5", "category": "competitor", "recommended": false, "sources": [{"id": "nct:FIXTURE-C801", "date": "2025-06-01"}]}], "matrix": {"mechanisms": ["IL-4R alpha antagonist", "PDE3/PDE4 inhibitor", "PDE4 inhibitor", "PDE4B inhibitor", "Phosphodiesterase 4 inhibitor"], "stages": ["Preclinical", "Phase 1", "Phase 2", "Phase 3", "Approved", "Other"], "cells": [{"m": "PDE3/PDE4 inhibitor", "s": "Phase 3", "n": 1}, {"m": "PDE4 inhibitor", "s": "Approved", "n": 1}, {"m": "Phosphodiesterase 4 inhibitor", "s": "Phase 2", "n": 1}, {"m": "PDE4 inhibitor", "s": "Phase 2", "n": 1}, {"m": "IL-4R alpha antagonist", "s": "Phase 3", "n": 1}, {"m": "PDE4B inhibitor", "s": "Phase 2", "n": 1}]}, "decisions": [{"hyp": "h1", "actor": "judge", "action": "revise", "target": "h1", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h1", "actor": "red_teamer", "action": "revise", "target": "a3_profile:h1", "reason": "FEV1 gains may not translate into fewer exacerbations"}, {"hyp": "h1", "actor": "judge", "action": "revise", "target": "h1", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h1", "actor": "orchestrator", "action": "override", "target": "a6_redteam:h1", "reason": "revise cap reached (one round): FEV1 gains may not translate into fewer exacerbations"}, {"hyp": "h2", "actor": "judge", "action": "revise", "target": "h2", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h2", "actor": "red_teamer", "action": "revise", "target": "a3_profile:h2", "reason": "Anti-IL5 failures suggest eosinophils are not the driver in COPD"}, {"hyp": "h2", "actor": "judge", "action": "revise", "target": "h2", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h2", "actor": "orchestrator", "action": "override", "target": "a6_redteam:h2", "reason": "revise cap reached (one round): Anti-IL5 failures suggest eosinophils are not the driver in COPD"}, {"hyp": "h3", "actor": "judge", "action": "revise", "target": "h3", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h3", "actor": "red_teamer", "action": "revise", "target": "a3_profile:h3", "reason": "TPP population (all eos<300) is broader than the evidence, which points to former smokers"}, {"hyp": "h3", "actor": "judge", "action": "revise", "target": "h3", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h3", "actor": "orchestrator", "action": "override", "target": "a6_redteam:h3", "reason": "revise cap reached (one round): TPP population (all eos<300) is broader than the evidence, which points to former smokers"}, {"hyp": "h4", "actor": "judge", "action": "revise", "target": "h4", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h4", "actor": "red_teamer", "action": "revise", "target": "a3_profile:h4", "reason": "COPD rationale rests on asthma data and a single-lab mouse study"}, {"hyp": "h4", "actor": "judge", "action": "revise", "target": "h4", "reason": "red team partly_right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h4", "actor": "orchestrator", "action": "override", "target": "a6_redteam:h4", "reason": "revise cap reached (one round): COPD rationale rests on asthma data and a single-lab mouse study"}, {"hyp": "h5", "actor": "judge", "action": "kill", "target": "h5", "reason": "red team right: Stub judge: the first red-team risk holds as a major issue; the others are covered by the profile."}, {"hyp": "h5", "actor": "red_teamer", "action": "kill", "target": "h5", "reason": "Two or more Phase 3 trials in eosinophilic COPD miss exacerbation endpoint"}], "killed": [{"hyp": "h5", "mechanism": "IL-5 / eosinophil depletion", "reason": "The same mechanism already failed in the same population for efficacy", "kill": "Two or more Phase 3 trials in eosinophilic COPD miss exacerbation endpoint"}], "ledger": {"verified": 107, "partly": 0, "removed": 0}, "shifts": [{"on": "2023-11-15", "type": "segment", "summary": "GOLD 2024 made blood eosinophils (>=300 cells/uL) a treatment-defining biomarker, creating a biomarker-selectable COPD segment."}, {"on": "2024-03-10", "type": "endpoint", "summary": "Annualised moderate/severe exacerbation rate is the accepted primary endpoint for add-on biologics; eosinophil enrichment shrinks sample size."}, {"on": "2023-08-02", "type": "trial_tool", "summary": "Quantitative CT subtyping offers enrichment for airway-predominant disease."}, {"on": "2025-06-24", "type": "negative", "summary": "Triple therapy cut exacerbations and showed a mortality signal (ETHOS), so new agents must beat triple therapy as add-on, raising trial size and cost."}, {"on": "2024-05-20", "type": "negative", "summary": "Anti-IL5 programs failed in eosinophilic COPD: eosinophil count alone is not a sufficient selection biomarker for biologics."}]};
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const fmtDate = iso => new Date(iso + "T00:00:00").toLocaleDateString("en-US", {month:"short", day:"numeric", year:"numeric"});
+const toast = m => { const t=$("#toast"); t.textContent=m; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"), 2600); };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const bucket = s => { s=(s||"").toLowerCase(); return s.includes("approved")?"Approved":s.includes("phase 3")?"Phase 3":s.includes("phase 2")?"Phase 2":s.includes("phase 1")?"Phase 1":s.includes("preclinical")?"Preclinical":s.includes("not started")?"Not started":"Other"; };
+const ownerLabel = t => ({mid_size:"mid-size company",big_pharma:"big pharma",startup:"startup",academic:"academic",inactive:"shelved or repurposing asset",new:"to be built"}[t]||t);
+const ORDER = ["Approved","Phase 3","Phase 2","Phase 1","Preclinical","Other","Not started"];
+
+/* ---------- overview ---------- */
+(function(){
+  const s = D.stats;
+  const items = [[s.diseases,"disease analyzed"],[s.hypotheses,"hypotheses screened"],[s.pursuits,"pursuits recommended"],[s.sources,"sources checked"],["$0.00","cost of this demo run"]];
+  $("#stats").innerHTML = items.map(([v,l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
+  $("#stats-note").textContent = `Demo data from a saved test run. Evidence window: ${D.meta.window}.`;
+  $("#f-asof").value = new Date().toISOString().slice(0,10);
+})();
+
+/* ---------- run replay ---------- */
+const stages = [["profile","Product profile"],["assets","Assets and competitors"],["red","Red team"],["judge","Judge"]];
+function nodeHTML(id, title, sub){ return `<div class="node" id="${id}">${esc(title)}<small>${esc(sub||"")}</small></div>`; }
+const setNode = (id, cls, sub) => { const n=$("#"+id); if(!n) return; n.className="node "+cls; if(sub!==undefined) n.querySelector("small").textContent=sub; };
+let running = false;
+async function replay(){
+  if(running) return; running = true;
+  $("#go").disabled = true; $("#go").textContent = "Running…";
+  const guided = document.querySelector("input[name=mode]:checked").value === "guided";
+  const H = D.hypotheses;
+  $("#progress").style.display = "block"; $("#done").style.display="none"; $("#review").style.display="none";
+  $("#shared").innerHTML = nodeHTML("n-a1","Agent 1 · Why now","waiting") + nodeHTML("n-a2","Agent 2 · Mechanisms","waiting");
+  $("#cols").innerHTML = H.map(h => `<div class="col"><h4>${esc(h.id)} · ${esc(h.mechanism)}</h4>${stages.map(([k,t])=>nodeHTML(`n-${h.id}-${k}`,t,"waiting")).join("")}</div>`).join("");
+  $("#final").innerHTML = nodeHTML("n-cite","Citation check","waiting") + nodeHTML("n-memo","Agent 8 · Memo","waiting");
+
+  setNode("n-a1","run","reading the evidence"); await wait(900);
+  setNode("n-a1","done", `${D.shifts.length} shifts found`);
+  setNode("n-a2","run","proposing mechanisms"); await wait(900);
+  setNode("n-a2","done", `${H.length} hypotheses`);
+  if(guided){
+    const rv = $("#review");
+    rv.innerHTML = `<h3>Review: Agent 2 proposed ${H.length} mechanisms</h3><ul>${H.map(h=>`<li><b>${esc(h.id)}</b> ${esc(h.mechanism)} · evidence tier ${h.tier} (${esc(h.level)})</li>`).join("")}</ul>
+      <div class="btns"><button class="btn" id="rv-ok">Approve</button><button class="btn ghost" id="rv-edit">Edit</button><button class="btn ghost" id="rv-re">Rerun</button></div>`;
+    rv.style.display = "block";
+    await new Promise(res => {
+      $("#rv-ok").onclick = res;
+      $("#rv-edit").onclick = () => toast("Demo mode: Edit would send your change to the run API");
+      $("#rv-re").onclick = async () => { toast("Demo mode: Rerun would repeat Agent 2"); setNode("n-a2","run","rerunning"); await wait(900); setNode("n-a2","done",`${H.length} hypotheses`); };
+    });
+    rv.style.display = "none";
+  }
+  // hypotheses run in parallel, each lighting up through its own stages
+  await Promise.all(H.map(async (h, i) => {
+    await wait(i*250);
+    for(const [k] of stages){
+      setNode(`n-${h.id}-${k}`,"run","working");
+      await wait(900 + Math.random()*900);
+      let note = "done", cls = "done";
+      if(k==="profile") note = `${h.must_haves.length} must-haves`;
+      if(k==="assets") note = `${h.n_programs} programs · ${h.n_inactive} inactive assets`;
+      if(k==="red") note = `${h.risks.length} risks · ${h.verdict}`;
+      if(k==="judge"){ note = h.status==="killed" ? "killed" : (h.revised ? "revised, then kept" : "kept"); if(h.status==="killed") cls="stop"; }
+      setNode(`n-${h.id}-${k}`, cls, note);
+      if(k==="judge" && h.status==="killed") break;
+    }
+  }));
+  setNode("n-cite","run","checking sources"); await wait(1100);
+  setNode("n-cite","done",`${D.ledger.verified} supported · ${D.ledger.partly} partly · ${D.ledger.removed} removed`);
+  setNode("n-memo","run","writing the memo"); await wait(1200);
+  setNode("n-memo","done","memo ready");
+  const dn = $("#done");
+  dn.innerHTML = `<h3>Finished</h3><p class="note" style="margin:0 0 12px">${D.stats.pursuits} pursuits recommended from ${D.stats.hypotheses} hypotheses · cost of this run: $0.00 (test replay)</p>
+    <div class="btns" style="margin:0"><a class="btn" href="../memo-polished.docx">Memo (Word)</a><a class="btn" href="../memo-polished.pdf" target="_blank">Memo (PDF)</a><a class="btn ghost" href="../programs-polished.xlsx">Program table (Excel)</a><a class="btn ghost" href="#pursuits">See the pursuits</a></div>`;
+  dn.style.display = "block";
+  $("#go").disabled = false; $("#go").textContent = "Run analysis again"; running = false;
+}
+$("#go").onclick = replay;
+if(/[?&]run=(guided|single)/.test(location.search)){ const m=location.search.match(/run=(guided|single)/)[1]; document.querySelector(`input[name=mode][value=${m}]`).checked=true; replay(); }
+
+/* ---------- pursuits ---------- */
+(function(){
+  $("#p-title").textContent = `${D.stats.pursuits} moves in ${D.meta.disease}`;
+  $("#p-sub").textContent = D.bottom_line[0] || "";
+  if(D.caution.flag){
+    $("#caution").innerHTML = `<div class="caution"><b>Proceed with caution</b><ul>${D.caution.reasons.slice(0,4).map(r=>`<li>${esc(r)}</li>`).join("")}</ul><span class="note">Judged against ${esc(D.caution.basis)}.</span></div>`;
+  }
+  const rating = {low:1, medium:2, high:3};
+  const bar = (v, cls) => `<div class="bar ${cls}">${[1,2,3].map(i=>`<i class="${i<=rating[v]?"on":""}"></i>`).join("")}</div>`;
+  const srcs = list => { const u=[...new Map(list.flatMap(x=>x.sources).map(s=>[s.id,s])).values()]; return u.length?`<p class="src">Sources: ${u.map(s=>`${esc(s.id)}${s.date?" · "+esc(fmtDate(s.date)):""}`).join(" · ")}</p>`:""; };
+  $("#stories").innerHTML = D.pursuits.map(p => `
+    <article class="story">
+      <div>
+        <span class="badge ${p.form}">${esc(p.form)}</span>
+        <p class="name" style="margin:12px 0 0">${esc(p.name)}</p>
+        <p class="hook">${esc(p.hook)}</p>
+        <p class="note" style="margin:0">${esc(p.move)}</p>
+        <div class="chips"><span class="chip ${esc(p.level)}">${esc(cap(p.level))} validation</span>${p.crowding!=null?`<span class="chip">Crowding ${p.crowding.toFixed(2)} of 1</span>`:""}<span class="chip">${esc(p.mechanism)}</span></div>
+      </div>
+      <div>
+        <div class="q"><h4>Why it is a good investment</h4><ul>${p.why.slice(0,3).map(w=>`<li>${esc(w.text)}</li>`).join("")}</ul>${srcs(p.why.slice(0,3))}</div>
+        <div class="q"><h4>What could go wrong</h4><ul>${p.wrong.slice(0,3).map(w=>`<li>${esc(w.text)}</li>`).join("")}</ul>${srcs(p.wrong.slice(0,3))}</div>
+        <div class="q"><h4>Is the return worth the risk?</h4>
+          <div class="meter"><span>Upside</span>${bar(p.upside,"up")}<span>Risk</span>${bar(p.risk,"rk")}</div>
+          <p style="margin:6px 0 0"><b>${esc(cap(p.rvr.split(".")[0].replace(/^Upside \w+, risk \w+: /,"")))}.</b></p>
+          <details><summary>Why these ratings</summary><p class="note">${esc(p.rvr)}</p></details>
+        </div>
+        <div class="q"><h4>Next step this year</h4><p style="margin:0">${esc(p.next)}</p></div>
+      </div>
+    </article>`).join("");
+  // 12-month timeline
+  const start = new Date(D.meta.as_of + "T00:00:00"), end = new Date(start); end.setFullYear(end.getFullYear()+1);
+  const W=1000, H=110, x = d => 30 + (W-60) * (d-start)/(end-start);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Catalyst timeline"><line x1="30" x2="${W-30}" y1="62" y2="62" stroke="#cfc9bb" stroke-width="2"/>`;
+  for(let m=0;m<=12;m+=2){ const d=new Date(start); d.setMonth(d.getMonth()+m); svg += `<line x1="${x(d)}" x2="${x(d)}" y1="56" y2="68" stroke="#cfc9bb"/><text x="${x(d)}" y="92" font-size="12" fill="#6d6a64" text-anchor="middle">${d.toLocaleDateString("en-US",{month:"short",year:"2-digit"})}</text>`; }
+  D.catalysts.forEach((c,i) => { const d=new Date(c.on+"T00:00:00"); const cx=x(d), up=i%2===0; svg += `<circle cx="${cx}" cy="62" r="7" fill="#1f4fd8"/><text x="${cx}" y="${up?30:112}" font-size="12" text-anchor="middle" fill="#141414">${esc(c.what.length>46?c.what.slice(0,44)+"…":c.what)}</text><text x="${cx}" y="${up?44:100}" font-size="11" text-anchor="middle" fill="#6d6a64">${esc(fmtDate(c.on))}</text>`; });
+  $("#timeline").innerHTML = svg + "</svg>" + (D.catalysts.length ? "" : `<p class="note">No dated catalysts in the next 12 months.</p>`);
+})();
+
+/* ---------- directory ---------- */
+const merged = (() => {
+  const m = new Map();
+  for(const r of D.rows){
+    const k = (r.name+"|"+(r.owner||"")).toLowerCase();
+    const cur = m.get(k);
+    if(!cur){ m.set(k, {...r, hyps:[r.hyp]}); continue; }
+    cur.hyps = [...new Set([...cur.hyps, r.hyp])];
+    cur.recommended = cur.recommended || r.recommended;
+    if(r.recommended){ cur.category = r.category; }
+    cur.sources = [...new Map([...cur.sources, ...r.sources].map(s=>[s.id,s])).values()];
+  }
+  return [...m.values()];
+})();
+let cat = "all", view = "table";
+const cats = [["all","All"],["invest","Invest"],["access","Access"],["build","Build"],["competitor","Competitors"]];
+$("#cats").innerHTML = cats.map(([k,l]) => `<span class="tab ${k==="all"?"on":""}" data-k="${k}">${l}</span>`).join("");
+const uniq = a => [...new Set(a.filter(Boolean))];
+const fill = (sel, vals) => { $(sel).insertAdjacentHTML("beforeend", vals.map(v=>`<option>${esc(v)}</option>`).join("")); };
+fill("#f-stage", ORDER.filter(s => merged.some(r => bucket(r.stage)===s)));
+fill("#f-mech", uniq(merged.map(r=>r.mechanism)).sort());
+fill("#f-owner", uniq(merged.map(r=>r.owner_type)).sort());
+function rowsNow(){
+  const q = $("#q").value.toLowerCase(), st=$("#f-stage").value, me=$("#f-mech").value, ow=$("#f-owner").value, dr=$("#f-drop").checked, so=$("#f-sort").value;
+  let r = merged.filter(x => (cat==="all"||x.category===cat) && (!st||bucket(x.stage)===st) && (!me||x.mechanism===me) && (!ow||x.owner_type===ow) && (!dr||x.dropped)
+    && (!q || [x.name,x.owner,x.mechanism].join(" ").toLowerCase().includes(q)));
+  const key = x => so==="fit" ? -(x.fit ?? -1) : so==="crowd" ? (x.crowding ?? 9) : ORDER.indexOf(bucket(x.stage));
+  r.sort((a,b) => (b.recommended - a.recommended) || (key(a)-key(b)));
+  return r;
+}
+function draw(){
+  const r = rowsNow();
+  if(view==="table"){
+    $("#dir-matrix").style.display="none"; $("#dir-table").style.display="block";
+    $("#dir-table").innerHTML = `<table><thead><tr><th>Asset</th><th>Owner</th><th>Mechanism</th><th>Stage</th><th>Fit</th><th>Crowding</th></tr></thead><tbody>${
+      r.map((x,i)=>`<tr class="item ${x.recommended?"pin":""}" data-i="${i}"><td><div style="margin-bottom:4px">${x.recommended?`<span class="tag" style="background:#141414">Recommended</span>`:""}<span class="tag ${x.category}">${x.category==="competitor"?"competitor":x.category}</span></div><b>${esc(x.name)}</b>${x.dropped?`<br><span class="drop">possibly dropped by owner</span>`:""}</td><td>${esc(x.owner||"to be built")}<br><span class="note" style="margin:0">${esc(ownerLabel(x.owner_type))}</span></td><td>${esc(x.mechanism)}</td><td>${esc(x.stage)}</td><td>${x.fit==null?"–":x.fit.toFixed(1)}</td><td>${x.crowding==null?"–":x.crowding.toFixed(2)}</td></tr>`).join("") || `<tr><td colspan="6">Nothing matches these filters.</td></tr>`}</tbody></table>`;
+    $("#dir-table").querySelectorAll("tr.item").forEach(tr => tr.onclick = () => openDrawer(r[+tr.dataset.i]));
+  } else {
+    $("#dir-table").style.display="none"; $("#dir-matrix").style.display="block";
+    const M = D.matrix, cols = M.stages, n = (m,s) => (M.cells.find(c=>c.m===m&&c.s===s)||{}).n||0;
+    const peak = Math.max(1, ...M.cells.map(c=>c.n));
+    $("#dir-matrix").innerHTML = `<div class="matrix" style="grid-template-columns:200px repeat(${cols.length},1fr)"><div class="cell h"></div>${cols.map(c=>`<div class="cell h">${esc(c)}</div>`).join("")}${
+      M.mechanisms.map(m => `<div class="cell m">${esc(m)}</div>` + cols.map(c => { const v=n(m,c); return `<div class="cell" style="${v?`background:rgba(31,79,216,${.15+.6*v/peak});color:#fff;font-weight:700`:""}">${v||""}</div>`; }).join("")).join("")}</div><p class="note">Competitor programs by mechanism and development stage. The number in each cell is how many programs.</p>`;
+  }
+}
+function openDrawer(x){
+  const dr = $("#drawer");
+  dr.innerHTML = `<button class="x" onclick="document.getElementById('drawer').classList.remove('on')">×</button>
+    <div>${x.recommended?`<span class="tag" style="background:#141414">Recommended</span>`:""}<span class="tag ${x.category}">${x.category}</span></div><h3 style="margin-top:10px">${esc(x.name)}</h3><p class="note" style="margin:0">${esc(x.owner||"to be built")} · ${esc(x.stage)}</p>
+    <dl><dt>What is new about it</dt><dd>${esc(x.edge||"–")}</dd>
+    <dt>Lead trial</dt><dd>${esc(x.trial||"–")}</dd>
+    <dt>Gap to the ideal product</dt><dd>${esc(x.gap||"–")}</dd>
+    <dt>Mechanism</dt><dd>${esc(x.mechanism)}</dd>
+    ${x.flag?`<dt>Flag</dt><dd>${esc(x.flag)}</dd>`:""}
+    <dt>Dated sources</dt><dd>${x.sources.length?x.sources.map(s=>`<div class="src">${esc(s.id)}${s.date?" · "+esc(fmtDate(s.date)):""}</div>`).join(""):"–"}</dd></dl>`;
+  dr.classList.add("on");
+}
+$("#cats").onclick = e => { const k=e.target.dataset.k; if(!k) return; cat=k; $("#cats").querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.k===k)); draw(); };
+["#q","#f-stage","#f-mech","#f-owner","#f-drop","#f-sort"].forEach(s => $(s).addEventListener("input", draw));
+$("#v-table").onclick = () => { view="table"; $("#v-table").classList.add("on"); $("#v-matrix").classList.remove("on"); draw(); };
+$("#v-matrix").onclick = () => { view="matrix"; $("#v-matrix").classList.add("on"); $("#v-table").classList.remove("on"); draw(); };
+document.addEventListener("keydown", e => { if(e.key==="Escape") $("#drawer").classList.remove("on"); });
+draw();
+
+/* ---------- compare diseases ---------- */
+(function(){
+  const H = D.hypotheses, surv = H.filter(h=>h.status!=="killed");
+  const lv = {gold:3,silver:2,bronze:1}; const best = H.reduce((a,h)=>lv[h.level]>lv[a]?h.level:a,"bronze");
+  const avg = (H.reduce((s,h)=>s+(h.crowding??0),0)/H.filter(h=>h.crowding!=null).length).toFixed(2);
+  const top = D.pursuits[0];
+  const copd = `<div class="dcard"><h3>${esc(D.meta.disease)}</h3><dl><dt>Hypotheses screened</dt><dd>${H.length}</dd><dt>Best validation</dt><dd>${esc(cap(best))}</dd><dt>Average crowding</dt><dd>${avg}</dd><dt>Top pursuit</dt><dd>${esc(top?top.name:"–")}</dd><dt>Caution flag</dt><dd>${D.caution.flag?"Yes":"No"}</dd></dl></div>`;
+  const others = ["Asthma","Idiopathic pulmonary fibrosis","Bronchiectasis"].map(n=>`<div class="dcard empty"><h3>${n}</h3><p class="note">Not analyzed yet. Run an analysis to add it here.</p></div>`).join("");
+  $("#dcards").innerHTML = copd + others;
+  const W=760,Hh=420,L=60,R=40,T=20,B=56, x=t=>L+(W-L-R)*(4-t)/3, y=c=>T+(Hh-T-B)*c;
+  let s = `<svg viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="Opportunity map">
+    <rect x="${x(2.5)}" y="${y(0)}" width="${W-R-x(2.5)}" height="${y(.5)-y(0)}" fill="#f2eee6"/><text x="${W-R-8}" y="${y(0)+16}" text-anchor="end" font-size="12" fill="#6d6a64">Sweet spot: strong evidence, open field</text>`;
+  [4,3,2,1].forEach(t=> s+=`<text x="${x(t)}" y="${Hh-30}" text-anchor="middle" font-size="12" fill="#6d6a64">Tier ${t}</text>`);
+  [0,.25,.5,.75,1].forEach(c=> s+=`<line x1="${L}" x2="${W-R}" y1="${y(c)}" y2="${y(c)}" stroke="#e7e2d8"/><text x="${L-8}" y="${y(c)+4}" text-anchor="end" font-size="12" fill="#6d6a64">${c}</text>`);
+  s += `<text x="${(W+L)/2}" y="${Hh-8}" text-anchor="middle" font-size="13" fill="#141414">Evidence strength (stronger to the right)</text><text transform="translate(16 ${Hh/2}) rotate(-90)" text-anchor="middle" font-size="13" fill="#141414">Crowding (0 = open field)</text>`;
+  const seen = {};
+  H.filter(h=>h.crowding!=null).forEach(h => { const cx=x(h.tier), cy=y(h.crowding), k=h.status==="killed"; const g=Math.round(h.crowding*20); const dy=(seen[g]=(seen[g]??-1)+1)*16;
+    s += `<circle cx="${cx}" cy="${cy}" r="11" fill="${k?"#fff":"#1f4fd8"}" stroke="${k?"#8a867d":"#fff"}" stroke-width="${k?2:2}" ${k?'stroke-dasharray="3 2"':""}><title>${esc(h.id)} ${esc(h.mechanism)} · tier ${h.tier} · crowding ${h.crowding.toFixed(2)}${k?" · killed":""}</title></circle><text x="${h.tier<=1?cx-16:cx+16}" y="${cy+4+dy}" text-anchor="${h.tier<=1?"end":"start"}" font-size="12" fill="${k?"#8a867d":"#141414"}">${esc(h.id)} ${esc(h.mechanism.length>26?h.mechanism.slice(0,24)+"…":h.mechanism)}</text>`; });
+  s += `</svg><div class="chips"><span class="chip"><span style="color:#1f4fd8">●</span> ${esc(D.meta.disease)} hypothesis</span><span class="chip">○ killed by the red team</span></div>`;
+  $("#map").innerHTML = s;
+})();
+
+/* ---------- method ---------- */
+(function(){
+  const b = (t,s) => `<div class="box"><b>${t}</b><br><span class="note" style="margin:0">${s}</span></div>`;
+  $("#flow").innerHTML = b("0 · Intake","checks a startup pitch") + b("1 · Why now","what changed in the field") + b("2 · Mechanisms","candidate hypotheses") +
+    `<div class="par"><b>In parallel, one lane per hypothesis</b><div class="lane">${["3 · Product profile","4 · Inactive assets","5 · Competitors","6 · Red team","Judge"].map(t=>`<div class="box">${t}</div>`).join("")}</div></div>` +
+    b("7 · Citation check","removes unsupported claims") + b("8 · Memo","reads checked output only");
+  $("#window").textContent = `Data window: ${D.meta.window}. Curated 2023 to 2025 sources (papers, trials, drug labels, news) plus 2026 sources.`;
+  $("#declog").innerHTML = `<table><thead><tr><th>Hypothesis</th><th>Actor</th><th>Action</th><th>Reason</th></tr></thead><tbody>${D.decisions.map(d=>`<tr><td>${esc(d.hyp)}</td><td>${esc(d.actor)}</td><td>${esc(d.action)}</td><td>${esc(d.reason)}</td></tr>`).join("")}</tbody></table>`;
+  $("#killed").innerHTML = D.killed.length ? D.killed.map(k=>`<p><b>${esc(k.hyp)} ${esc(k.mechanism)}</b><br><span class="note" style="margin:0">${esc(k.reason)} Kill criterion: ${esc(k.kill)}</span></p>`).join("") : "<p class='note'>None killed in this run.</p>";
+})();
+</script>
+</body>
+</html>
