@@ -1,0 +1,6 @@
+# Langflow canvas (the P3 step flow) and the backend that frontier-ui starts.
+# Langflow needs Python 3.10-3.13; tested with 3.11 and langflow 1.8.4.
+#   conda create -n langflow python=3.11 -y && conda activate langflow
+#   pip install -r requirements-langflow.txt
+langflow==1.8.4
+-r requirements-person3.txt

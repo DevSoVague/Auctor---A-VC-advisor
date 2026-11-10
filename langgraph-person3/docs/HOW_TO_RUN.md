@@ -16,7 +16,9 @@ conda activate hack                      # engine + LangGraph (tests run here)
 pip install -r ../requirements-person3.txt
 ```
 
-Langflow runs in its own env, `langflow` (Langflow 1.8.4).
+Langflow runs in its own env, `langflow` (Python 3.11, Langflow 1.8.4): `conda create -n langflow python=3.11 -y && conda activate langflow && pip install -r ../requirements-langflow.txt`.
+
+Keys: copy `../.env.example` to `../.env` (repo root) and fill in `NEBIUS_API_KEY` (and optionally `NEBIUS_API_KEY_A4_A5`, `EMBED_API_KEY`, `TAVILY_API_KEY`). `.env` is gitignored; never commit it.
 
 Settings go in `../.env`. Copy `.env.example` and fill in only what you need:
 
