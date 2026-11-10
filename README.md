@@ -222,6 +222,8 @@ auctor/
 | [EDITING.md](docs/EDITING.md) | Changing prompts, models and nodes |
 | [evidence-store/README.md](evidence-store/README.md) | Building, restoring and querying the store |
 | [frontier-ui/README.md](frontier-ui/README.md) | The workspace UI |
+| [copd_sample_memo.html](docs/copd_sample_memo.html) | Sample investor-facing page: pursuits, directory, method (demo data from a test run) |
+| [COPD_run_results_analysis.html](docs/COPD_run_results_analysis.html) | Analysis of a live COPD run: timeline, tokens and time, hypotheses, loopbacks and failures, decision log |
 | [HANDOFF.md](HANDOFF.md) | Tool access rules, data window and open tasks |
 
 ## Status and known limits
