@@ -349,3 +349,54 @@ See [HANDOFF.md](../../HANDOFF.md) for the full detail.
 - **Tools:** DB read for A1–A6, DB write for A1 only, web search for A1/A4/A5, and nothing for A6b. Every result is dated, within `2023-01-01 <= date < as_of`.
 - **New state keys:** `tools`, `judge`, `max_cards`, `judgments`.
 - **New workbook sheets:** ToolCalls, NewEvidence, Judge.
+
+## Update 2026-11-09: A3, A4 and A5 in parallel, per-agent limits and the one-command workspace
+
+The commits behind this update are `36263ae` and `b88f9ef`.
+
+### What changed for the user
+
+| ID | Requirement |
+|---|---|
+| FR-PAR-1 | **A3, A4 and A5 start together as soon as A2 commits** (Langflow step flow). A4 and A5 no longer wait for A3. A join step merges the three branches back into one state, in rank order, and then A6 runs. This replaces FR-WF-1's "A3 → (A4 ∥ A5)" order for the Langflow flow. |
+| FR-PAR-2 | **If A4 or A5 reaches its prompt before A3 has finished a card**, it uses a placeholder product profile for that card. The real profile is merged in at the join. |
+| FR-PAR-3 | **P3 Setup has its own limit for each agent:** *A3 cards in parallel*, *A4 cards in parallel* and *A5 cards in parallel*, each defaulting to 3. A blank field falls back to *Cards in parallel* (default 6), which still applies to the other steps. |
+| FR-PAR-4 | **A card that fails is logged and skipped**, and the other cards carry on. Failures are written to `runs/<run_id>/failures.log` and `failures.jsonl`. |
+| FR-CITE-1 | **The A7 citation check defaults to `off`** on P3 Setup. The options are `every node` (check after each agent and restart on a hallucination, up to 2 times), `end only` (one check before the report) or `off`. The citation post-check (NFR-1) still strips citations to documents outside the pack, whatever the setting. |
+
+### Accounts and connections
+
+| ID | Requirement |
+|---|---|
+| FR-KEY-1 | **More than one Nebius account can be used.** Each model call picks its key in this order: `NEBIUS_API_KEY_<AGENT>`, then the account set for the current branch, then `NEBIUS_API_KEY`. |
+| FR-KEY-2 | **A4 and A5 share one account,** `NEBIUS_API_KEY_A4_A5`, for everything they call: model calls, tool calls and embeddings. |
+| FR-KEY-3 | **Embeddings for the evidence store use `EMBED_API_KEY` and `EMBED_BASE_URL`,** falling back to the `NEBIUS_*` values. Keys live only in `.env` (NFR-8). |
+| NFR-9 | **No connection storm when the branches start:** model clients are shared per account (4 retries with backoff). At most 12 embedding calls run at once across all agents, cards and branches, with up to 6 retries. Identical query embeddings are cached and only computed once, even when requested at the same moment. |
+
+### Outputs
+
+| ID | Output | Change |
+|---|---|---|
+| FR-OUT-1 (revised) | `report.md` | Starts with an **"At a glance"** table: one row per hypothesis, with tier, verdict, top risk and crowding. Then one section per hypothesis covering the A3 profile, the A4/A5 assets and the A6 verdict, followed by "why now", the run details and a one-line-per-card **decision log**. It flags a card when the revise cap overrode a verdict. The node-by-node transcript is no longer appended; it stays in `chat.md`. |
+
+### Workspace (frontier-ui)
+
+| ID | Requirement |
+|---|---|
+| FR-UI-1 | `python3 frontier-ui/server.py --port 7881` starts everything with one command: the evidence-store database (Docker, port 5433, if it isn't already up), Langflow (port 7870, logs in `frontier-ui/langflow.log`) and the workspace UI. Ctrl+C stops the backend it started. |
+| FR-UI-2 | Flags: `--langflow-port N` uses a different Langflow port, and `--no-backend` starts only the UI (when the backend already runs elsewhere). |
+| FR-UI-3 | The UI reads runs from this checkout's `langgraph-person3/runs/`. It shows the A6b judge's verdict when there is one, and A6's otherwise. |
+
+### Acceptance
+
+| # | Criterion | How it is verified | Status (2026-11-09) |
+|---|---|---|---|
+| AC-PAR-1 | A3, A4 and A5 run at the same time after A2, within their own limits, and the join merges them | Langflow run with *Cards in parallel* settings 3/3/3 | ✅ Run completed without connection errors |
+| AC-UI-1 | One command brings up the database, Langflow and the UI | Manual, 2026-11-08 | ✅ |
+| AC-LIVE-1 | A full **live** COPD run through the parallel flow, used for the memo | Live run | ⏳ The COPD memo (`memo-copd`) was drafted from run `2fd5974c`, which is a **stub** run. Rebuild it from a live run. |
+
+### Still open
+
+- `HOW_TO_RUN.md` still says A4 and A5 run "one after the other, never in parallel". That was true before this update, but it no longer holds for the Langflow flow.
+- The UI's Run button doesn't start the parallel Langflow flow yet. Start runs from the Langflow Playground.
+- AC-6 (the 2025-01-01 backtest) is still not run.

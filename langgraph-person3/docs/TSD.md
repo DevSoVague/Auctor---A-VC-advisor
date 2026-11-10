@@ -469,3 +469,216 @@ See [HANDOFF.md](../../HANDOFF.md) for the full detail.
 - **Tools:** DB read for A1–A6, DB write for A1 only, web search for A1/A4/A5, and nothing for A6b. Every result is dated, within `2023-01-01 <= date < as_of`.
 - **New state keys:** `tools`, `judge`, `max_cards`, `judgments`.
 - **New workbook sheets:** ToolCalls, NewEvidence, Judge.
+
+## Update 2026-11-09: A3, A4 and A5 in parallel, shared connections, account routing, report and the workspace launcher
+
+Commits `36263ae` (parallel A3/A4/A5, shared connections, per-agent card limits, readable report) and `b88f9ef` (frontier-ui in the repo, with a one-command backend). The functional view is in [FSD, Update 2026-11-09](FSD.md#update-2026-11-09-a3-a4-and-a5-in-parallel-per-agent-limits-and-the-one-command-workspace).
+
+### U.1 The Langflow step flow: fork and join
+
+Before this change, the step flow was one chain: A1 → A2 → A3 → A4 → A5 → A6 → report. Now it forks after A2:
+
+```mermaid
+flowchart LR
+    A2c["A2 commit<br/>(fork point)"] --> A3["A3 row<br/>retrieve … commit"]
+    A2c --> A4["A4 row<br/>gather … commit"]
+    A2c --> A5["A5 row<br/>gather … commit"]
+    A3 -- "a3_state" --> A4p["A4 prompt"]
+    A3 -- "a3_state" --> A5p["A5 prompt"]
+    A2c -- base --> J["P3 · Join<br/>(A3 + A4 + A5)"]
+    A3 -- branch --> J
+    A4 -- branch --> J
+    A5 -- branch --> J
+    J --> A6["A6 row → A6b judge → route"] --> R["Report"]
+```
+
+**How it is built (`langflow/build_steps_flow.py`):**
+
+1. `fork = row("a2", …)`: A2's last step output.
+2. `row("a3", 3, fork)` and, for each `a` in `PARALLEL = ("a4", "a5")`, `row(a, …, fork)`. All three rows take their first input from the fork, so Langflow puts their first vertices in the same layer and runs them **concurrently**. Langflow runs vertices in one layer at the same time; that is the mechanism, there is no extra scheduler.
+3. `comps["a4-prompt"].set(a3_state=a3)` and the same for A5. The A4/A5 **prompt** step has an extra `a3_state` handle (added in `gen_components.py`, *"A3 profile"*, optional). Langflow can't run that vertex until A3's commit has produced output, so A4/A5 run their early steps (gather, triage, shortlist, establish) beside A3 and **wait only at the prompt**.
+4. `P3StepJoin` (`step_join.py`, generated from the `JOIN` template) takes `base = fork` and `branches = [A3 commit, A4 commit, A5 commit]` (`is_list=True`). Its output feeds A6's first step.
+5. Built flow: **58 nodes, 62 edges.** The node positions put the join between the A5 row and the A6 row.
+
+**Langflow step call:** each step component calls `lf_graph.execute(state, agent, step, …, a3_state=None)`. That function:
+
+1. Deep-copies the incoming state, so a branch never changes another branch's object.
+2. For A4/A5 at `prompt`, calls `take_profiles(st, a3_state)`. That merges A3's `profiles` into the branch, and A3's `failed_cards` with the branch's own (the branch's entries win).
+3. Applies feedback, a prompt override and a model override, if set (unchanged).
+4. Runs `_run_cards(st, agent, step)` (U.2).
+5. Rewrites the workbook after `commit` and `route` steps.
+
+**The join (`lf_graph.join(base, branches)`):**
+
+1. `st = deepcopy(base)`, where `base` is A2's last state, the one every branch started from.
+2. For each branch, `_merge_back(st, branch, base)`. It folds in only what that branch **added or changed relative to `base`**, so the A2-era data isn't counted three times.
+3. Clears `current`, rewrites `analysis.xlsx` (each branch wrote a partial workbook; this one has everything) and returns the status `joined 3 branches · N profiles · M A4/A5 outputs · failed cards: …`.
+
+**`_merge_back` rules, per state key:**
+
+| Key type | How it merges |
+|---|---|
+| `operator.add` lists (steps, events, claims, decisions, …) | Append only the items after `len(base[k])`, so each branch adds its own tail |
+| `usage` (`merge_usage`) | Add the **delta** (`_usage_delta(branch, base)`), never the branch's whole total |
+| `signals` | Recursive diff (`_deep_changes`) |
+| `failed_cards`, `prompts` | Per key: anything a branch added or changed is kept |
+| other `merge` dicts (profiles, assets, verdicts, feedback, work, …) | Per key: only entries that differ from `base` |
+| everything else | Replaced, if it differs from `base` |
+
+### U.2 Cards in parallel inside one step (`_run_cards`)
+
+- **Card list:** `_hids(st, agent)` minus cards already in `failed_cards`. If A0 rejected the pitch (`intake.accepted is False`), nothing runs.
+- **Limit:** `n = _parallel(st, agent)`. It takes the first value that parses as an int ≥ 1, in this order: `parallel_by_agent[agent]` (P3 Setup *A3 / A4 / A5 cards in parallel*, default `"3"`), then `parallel` (*Cards in parallel*, default 6), then `MAX_PARALLEL`. A1, A2 and A6 have no own field, so they use `parallel`.
+- **n = 1:** cards run one after another on the same state object (the old behaviour).
+- **n > 1:** `base = deepcopy(st)`, with an `asyncio.Semaphore(n)`. Each card runs `run_step` on **its own deep copy of `base`**. The results go through `asyncio.gather` and are merged back with `_merge_back` **in card order**, so steps, decisions and events stay deterministic whichever card finishes first.
+- **Failure isolation:** an exception on one card goes to `log_failure`, which appends to `runs/<run_id>/failures.jsonl`, appends a readable block to `failures.log` (error, last 5 steps, the last 6,000 characters of the traceback) and records `failed_cards[hid] = "agent.step: error"`. The card is then skipped by every later step, including A6, and the report lists it as **failed**. For A1/A2 (`hid is None`) the error is logged and then re-raised, which stops the run. If **every** card fails at a step, the step raises `RuntimeError("every card failed at …")`.
+- **Peak concurrency:** while A3, A4 and A5 overlap, up to `p_a3 + p_a4 + p_a5` card-steps run at once (9 with the defaults). Embeddings stay capped separately at 12 (U.4).
+
+> **Gotcha.** The old gate that capped parallelism by the number of *distinct* cards was removed. With per-agent fields, three branches × N cards is the expected load, and U.4 makes it safe.
+
+### U.3 A4/A5 start before A3 has finished (`p3graph/competitor.py`)
+
+- **`_input(short, state, hid)`**: if `profiles[hid]` exists, it builds the real input. If not, it builds the agent's input with `model_construct(card=…, profile=ProductProfile.model_construct())`, an **unvalidated placeholder profile**. This is safe because gather, triage, shortlist and establish never read the profile.
+- **`_with_profile(...)`** runs at the `prompt` step. It requires `profiles[hid]`, which by then has come in through `a3_state` → `take_profiles`, and rebuilds `s["inp"]` with the real, validated profile. If the profile is still missing, it raises *"A3 has not committed it (in Langflow, wire A3's last step into this node's 'A3 profile' input)"*.
+- **In the CLI/LangGraph path,** A3 still runs before A4/A5, so the profile is always present and the placeholder is never used.
+
+### U.4 Shared connections and the connection-storm fix
+
+**Symptom (before the fix):** at the fork, A3, A4 and A5 each started several cards at once. Every node built a **new** `AsyncOpenAI` client, and every evidence-store query built a new embedding client, each opening fresh HTTPS connections. The burst was refused with "All connection attempts failed" and connection resets, and cards failed at retrieve, toolloop or llm.
+
+**Fix, model calls (`agents/analysis/context.py`):**
+
+| Piece | What it does |
+|---|---|
+| `_SHARED_CLIENTS` / `shared_client(key, base)` | One `AsyncOpenAI` client, and so one connection pool, per **(key, base URL, event-loop id)**, shared by every node. `timeout=300`, `max_retries=4` (SDK backoff on connection errors, 429 and 5xx) |
+| `NebiusLLM.__init__` | `self.client = shared_client(key, base)` instead of a fresh client |
+| `NebiusLLM.client_for(agent)` | Picks the account per call (U.5) and returns the shared client for that key |
+| `NebiusLLM._request(agent, **kw)` | Every chat call, streamed or not, goes through `client_for(agent)` |
+| `tool_loop._client(llm, agent)` | The tool loop uses `llm.client_for(agent)`, so tool rounds use the same account and pool |
+
+The event-loop id is part of the key because an `AsyncOpenAI` client is bound to the loop it was first used in, and Langflow can run components on different loops.
+
+**Fix, embeddings (`evidence-store/evstore/embed.py`):**
+
+| Piece | Value / behaviour |
+|---|---|
+| `_CLIENTS[(key, EMBED_BASE_URL, loop)]` | One embedding client per account and loop. `timeout=120`, `max_retries=6` |
+| `_GATES[loop]` = `asyncio.Semaphore(CONCURRENCY)` | **At most 12** embedding calls in flight per loop, across all agents, cards and branches. Each call takes about 1–3 s |
+| `BATCH = 16` | Texts per embedding request when building the store |
+| `_QUERY_CACHE[(model, query)]` | Query vectors cached for the life of the process (at most 4,096; the oldest is evicted first). Cards and agents search the same drug and target names, so repeats are free |
+| `_PENDING[(model, query, loop)]` | **In-flight dedupe:** if the same query is already being embedded, later callers `await asyncio.shield(future)` instead of making a second call. On error the future carries the exception, and `fut.exception()` marks it retrieved, so asyncio doesn't warn "Future exception was never retrieved" |
+
+### U.5 Account routing (several Nebius keys)
+
+**Which key a model call uses (`client_for(agent)`):**
+
+1. `NEBIUS_API_KEY_<AGENT>`: the agent label in upper case, e.g. `NEBIUS_API_KEY_A5_ACTIVE`.
+2. Otherwise `ACCOUNT_KEY.get()`, the account of the **current async context** (U.5.1).
+3. Otherwise the default client (`NEBIUS_API_KEY`).
+4. With `LOCAL_LLM_BASE_URL` set (a local server), the keys are ignored and everything uses the local client.
+
+**Which key an embedding call uses (`embed.client()`):** `KEY_OVERRIDE.get()` if set, else `EMBED_API_KEY`, else `NEBIUS_API_KEY` (`evstore/config.py`). `EMBED_BASE_URL` falls back to `NEBIUS_BASE_URL` in the same way. `agents/analysis/retrieval_db.py` (`--search database`) also reads `EMBED_API_KEY` / `EMBED_BASE_URL`, falling back to the `NEBIUS_*` values.
+
+#### U.5.1 A4 and A5 on one shared account
+
+- `competitor.account_key()` returns `NEBIUS_API_KEY_A4_A5` (stripped), or `""`.
+- Every A4/A5 node body runs inside `with _Account(account_key()):`. On enter, if a key is set, it sets **both** context variables: `context.ACCOUNT_KEY` (model calls) and `evstore.embed.KEY_OVERRIDE` (embeddings; imported lazily, skipped if evstore isn't on the path). On exit, it resets them in reverse order.
+- Because these are `contextvars`, the setting follows the `asyncio` task. **Everything** A4 and A5 trigger goes to that account: their own LLM calls, tool-loop rounds, evidence-store searches and any A7 citation check run inside their nodes. A3, running at the same time in another task, keeps its own account.
+
+**`.env` keys (repo root, gitignored):**
+
+| Variable | Used by | Fallback |
+|---|---|---|
+| `NEBIUS_API_KEY` | Default for every agent | none (live mode fails without it) |
+| `NEBIUS_API_KEY_A4_A5` | All of A4 + A5 (U.5.1) | default |
+| `NEBIUS_API_KEY_<AGENT>` | One agent label | context account, then default |
+| `EMBED_API_KEY`, `EMBED_BASE_URL` | Evidence-store and database query embeddings | `NEBIUS_API_KEY`, `NEBIUS_BASE_URL` |
+
+**`.env` parsing (`evstore/config.py::_load_env_file`):** files are read in this order: `evidence-store/.env`, then the repo-root `.env`, then `../frontier-engine/.env` (old layout). `setdefault` means the first value found wins, and the real environment beats all of them. **Unquoted values have inline comments removed** (`KEY=abc   # note` → `abc`). Quoted values keep exactly what is inside the quotes. Before this fix, an inline comment became part of the key and every embedding call returned 401.
+
+### U.6 State and Setup fields
+
+| Key / field | Type | Set by | Read by |
+|---|---|---|---|
+| `parallel` | int ≥ 1 | P3 Setup *Cards in parallel* (default 6) | `_parallel` for A1, A2, A6 and blank per-agent fields |
+| `parallel_by_agent` | `{"a3": "3", "a4": "3", "a5": "3"}` (strings; blank = fall back) | P3 Setup *A3/A4/A5 cards in parallel* | `_parallel(st, "a3" / "a4" / "a5")` |
+| `failed_cards` | `{hid: "agent.step: error"}` | `log_failure` | `_run_cards` (skip), join, `report_md` |
+| `cite_mode` | `"node"` / `"end"` / `"off"` | P3 Setup *A7 citation check*, **now defaults to `off`** | A7 gate; `cite = mode != "off"` |
+
+> **Gotcha.** Setup maps the dropdown with `{"every node": "node", "end only": "end", "off": "off"}.get(value, "node")`. An unknown value therefore turns the check **on** (`node`). Only the dropdown's own three values are safe.
+
+> **Gotcha.** With `cite_mode` set to `node`, stub runs fail at A1 validate. The fixtures cite ids the A7 gate rejects. That's a fixture limit, not a bug: use `end` or `off` for stub runs.
+
+### U.7 Report (`p3graph/nodes.py::report_md`)
+
+The report is rewritten to read top-down for a VC reader. Plumbing stays in the workbook and logs. Its order:
+
+1. **Title and summary line:** `As of … · X of Y hypotheses analysed · N survive · K killed · F failed`. Stub runs get a `> **Stub run.**` banner.
+2. **At a glance:** one row per card that is done (profiled, verdicted or failed), with columns `# | Hypothesis | Evidence (tier · validation) | Red team | Competition | Licensable assets`.
+   - The verdict reads `failed`, `killed`, `survives (revised)` and so on.
+   - Competition comes from `_crowding(score)`: low < 0.34 ≤ medium < 0.67 ≤ high, plus the number of active programs.
+   - Licensable assets are counted from A4's repurposing and shelved lists.
+3. **The hypotheses:** one `###` section per card, containing:
+   - The `_verdict_line`, which says "revision limit reached, the red team's top risk is still open" when the premortem contains `revise cap reached`, or "after one revision round". It appends A6b's `red_team_is` when the judge ran.
+   - The judge's reasoning, the kill criterion and the biggest uncertainty.
+   - **What the product must do** (A3 must-haves and the gap at launch).
+   - **Biggest risk**, with its kill criterion and cheapest test, plus the other risks on one line.
+   - **Competition** (A5: up to 4 programs and 3 readouts).
+   - **Assets to license or revive** (A4: up to 5).
+4. **Why now (A1):** shifts sorted by date.
+5. **Run details:** mode, model, calls, tokens and where the files are.
+6. **Decision log:** one line per card, `actor action → actor action → …`. A cap override is shown as "revision limit reached".
+
+`_cell(text, limit)` makes text safe inside a table: it collapses whitespace, turns `|` into `/` and shortens at a word boundary with `…`. **The node-by-node transcript is no longer appended**; it is in `chat.md`. `tests/test_graph.py` asserts `"## At a glance"` in the report.
+
+### U.8 Workspace launcher (`frontier-ui/server.py`)
+
+**Command:** `python3 frontier-ui/server.py --port 7881` (default port 7880).
+
+**Finding the engine:**
+- `ENGINE` = `$FRONTIER_ENGINE` if set.
+- Otherwise `../langgraph-person3`, when `frontier-ui` sits inside the repo. That is detected by `ROOT.parent` holding **both** `langgraph-person3/` and `agents/`. The `agents/` marker stops the old, separate `upmc/langgraph-person3` folder from being picked up by mistake.
+- Otherwise `../grounded1to8/langgraph-person3`.
+- `--engine` overrides all of these.
+
+**`start_backend(engine, langflow_port)`** (skipped with `--no-backend`):
+
+1. If nothing is listening on **5433** and `evidence-store/docker-compose.yml` exists, it runs `docker compose up -d` there and prints `up` or the last 300 characters of the error.
+2. If Langflow's port (`--langflow-port`, else `$LANGFLOW_PORT`, else **7870**) is already open, it **reuses it and leaves it alone**.
+3. Otherwise it starts `bash langflow/run_langflow.sh` with `PORT=<port>`, `start_new_session=True` (its own process group) and stdout/stderr appended to `frontier-ui/langflow.log` (gitignored).
+4. A daemon thread polls the port once a second for up to 240 s. It prints "ready", "exited (code …)" or "still not answering after 4 min".
+
+`port_open` is a 0.5 s TCP connect to `127.0.0.1`.
+
+**`stop_backend(started)`:** on exit, for each process **this launcher started**, it sends `os.killpg(pid, SIGTERM)` and waits 20 s, then sends `SIGKILL`. Killing the whole group also takes down Langflow's child processes. The database is **not** stopped: it was started detached and keeps its data.
+
+**UI fix:** in `static/app.js`, `verdict()` reads `verdicts[id].verdict` first, so the UI shows the right survives / killed / revise word for each card.
+
+### U.9 Gotchas (new)
+
+> **`.env.example` doesn't list `NEBIUS_API_KEY_A4_A5`.** It shows the older per-agent example `NEBIUS_API_KEY_A5_ACTIVE`. Add `NEBIUS_API_KEY_A4_A5=` to your `.env` by hand. Without it, A4/A5 fall back to the default key and share its rate limit with A3.
+
+> **Langflow keeps the components it loaded at startup.** After regenerating components or the flow, restart Langflow (or the launcher) and re-import or sync the flow.
+
+> **Only the Langflow step flow is parallel.** The CLI/LangGraph graph (`p3graph run`) still runs A3 → A4 → A5 → A6 per card, one after the other, and `HOW_TO_RUN.md` still describes that order.
+
+> **A failed card doesn't stop the run, but it is easy to miss.** Check the report's *failed* rows and `runs/<run_id>/failures.log`.
+
+> **The per-process caches are per process.** `_QUERY_CACHE` and the shared clients live in the Langflow process. Restarting Langflow empties them, which is harmless, but the first searches are slower again.
+
+### U.10 Files touched
+
+| File | Change |
+|---|---|
+| `agents/analysis/context.py` | `ACCOUNT_KEY`, `shared_client`, `client_for`, `_request` |
+| `agents/analysis/tool_loop.py` | `_client(llm, agent)` |
+| `evidence-store/evstore/config.py` | Repo-root `.env`, `EMBED_*` fallbacks, inline-comment and quote parsing |
+| `evidence-store/evstore/embed.py` | `KEY_OVERRIDE`, shared clients, semaphore, query cache, in-flight dedupe |
+| `langgraph-person3/p3graph/competitor.py` | Placeholder input, `_with_profile`, `account_key`, `_Account` |
+| `langgraph-person3/p3graph/nodes.py` | `report_md` rewrite (`_cell`, `_crowding`, `_verdict_line`) |
+| `langgraph-person3/p3graph/state.py` | `parallel`, `parallel_by_agent` documented |
+| `langgraph-person3/langflow/lf_graph.py` | `take_profiles`, `execute(a3_state=)`, `join`, `_merge_back` per-key rules, `_parallel(st, agent)`; distinct-card gate removed; no transcript in the report |
+| `langgraph-person3/langflow/gen_components.py` | `a3_state` handle on the A4/A5 prompt, `P3StepJoin`, Setup fields `parallel_a3/a4/a5`, `cite_mode` default `off` |
+| `langgraph-person3/langflow/build_steps_flow.py` | Fork after A2, `a3_state` wiring, join before A6 |
+| `langgraph-person3/tests/test_graph.py` | Asserts the new report heading |
+| `frontier-ui/` (`server.py`, `static/app.js`, `.gitignore`) | Launcher, engine detection, verdict fix, `langflow.log` ignored |
