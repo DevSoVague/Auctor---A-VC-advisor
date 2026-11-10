@@ -18,10 +18,10 @@ The COPD agents 1–7 with the evidence store wired in as tool calls. This folde
 | A1 ingest | `agents/analysis/db_ingest.py` | A1 searches PubMed and ClinicalTrials.gov, checks for duplicates, downloads, and stores records verbatim with their official date. Undated, out-of-window and duplicate items are rejected. |
 | A6 checkers | `tool_loop.with_checkers` | Four parallel checkers (safety, already-exists, market, evidence) feed the red team. |
 | A6b judge | `agents/analysis/a6b_judge.py`, `agents/prompts/a6b_judge.md` | Sees only A3's and A6's outputs, with no tools. Decides advance, revise or kill, and that decision drives the routing. |
-| LangGraph | `langgraph-person3/p3graph/` | A `toolloop` step in each chain and an `a6b_judge` node. CLI flags `--tools`, `--no-judge`, `--max-cards` and `--search evstore`. |
+| LangGraph | `workflow/p3graph/` | A `toolloop` step in each chain and an `a6b_judge` node. CLI flags `--tools`, `--no-judge`, `--max-cards` and `--search evstore`. |
 | Workbook | `exports/analysis_workbook.py` | New sheets: ToolCalls, NewEvidence, Judge. |
 | Ports | `live.py`, `run_*.sh` | Monitor 7872, Studio 2034, Langflow 7870, so this copy doesn't collide with 1to6merged. |
-| Tests | `tests/test_db_tools.py`, `langgraph-person3/tests/conftest.py` | 150 engine and 50 LangGraph tests pass. Tests no longer write to `runs/`. |
+| Tests | `tests/test_db_tools.py`, `workflow/tests/conftest.py` | 150 engine and 50 LangGraph tests pass. Tests no longer write to `runs/`. |
 
 ## Rules
 
@@ -75,7 +75,7 @@ Checklist:
 ## How to run
 
 ```bash
-cd langgraph-person3
+cd workflow
 # offline stub run (0 tokens)
 conda run -n hack python -m p3graph run
 # live, one card, tools + judge
@@ -84,7 +84,7 @@ conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search e
 conda run -n hack python -m pytest -q          # also in the repo root
 ```
 
-**Output:** `langgraph-person3/runs/<run_id>/`, containing `analysis.xlsx`, `report.md`, `chat.md` and `steps.md`.
+**Output:** `workflow/runs/<run_id>/`, containing `analysis.xlsx`, `report.md`, `chat.md` and `steps.md`.
 
 **Live monitor:** http://127.0.0.1:7872
 
@@ -111,7 +111,7 @@ conda run -n hack python -m pytest -q          # also in the repo root
 
 ## Prompts must be editable (requirement)
 
-- **System prompts** live in files: `agents/prompts/<agent>.md` (engine default), overridden by `langgraph-person3/prompts/` (see `workflow.yaml`), overridden by a prompt typed into a node (`state["prompts"][agent]`, the Langflow/LangGraph view). `python -m p3graph prompt <agent>` shows which file is in use.
+- **System prompts** live in files: `agents/prompts/<agent>.md` (engine default), overridden by `workflow/prompts/` (see `workflow.yaml`), overridden by a prompt typed into a node (`state["prompts"][agent]`, the Langflow/LangGraph view). `python -m p3graph prompt <agent>` shows which file is in use.
 - **To do: make user prompts editable the same way.** These are not editable today: the user-message template (`_common.build_messages`), the tool briefs (`tool_loop.BRIEFS`, `CHECKERS`, `gather_brief`, `final_messages`), A1's `NOVELTY_BRIEF` and `ANALYSIS_BRIEF`, and the A7 input template. They are Python strings. Move each into a prompt file, for example `prompts/<agent>.user.md` and `prompts/tools/<name>.md`, with `{placeholders}`. Load them through the same chain (file → workflow.yaml → node override) and show them as editable fields in Langflow/LangGraph Studio.
 - **No hardcoded prompt text in code.** Code only fills placeholders (as_of, window, evidence pack, input JSON).
 - Add `a6b_judge` to the `prompt` CLI choices and to the Langflow components (it is missing there now).
@@ -154,7 +154,7 @@ conda run -n hack python -m pytest -q          # also in the repo root
 
 ### The fixed 2021-01-01 cutoff is gone
 - **Default `as_of` is now `today`,** resolved when the run starts.
-- **Where:** active defaults, examples, help text, generated components and exported Langflow flows, in `langgraph-person3`/`frontier-engine`, `1to6merged` and `db1to6merged`.
+- **Where:** active defaults, examples, help text, generated components and exported Langflow flows, in `workflow`/`frontier-engine`, `1to6merged` and `db1to6merged`.
 - **Stub mode no longer resolves `backtest` differently.** Before, stub silently switched to the old 2021 fixture date; dates now behave the same in live and stub modes.
 - **Still supported:** explicit ISO dates, and the `backtest` alias (which uses `BACKTEST_AS_OF`) in the merged copies.
 - **Langflow:** four saved flows had their old Setup date defaults removed; their other settings are unchanged.
@@ -234,7 +234,7 @@ This repo is a copy of `db1to6merged` with everything above, plus the following.
 ### To run
 ```bash
 cd ../evidence-store && make db-up     # start Docker first
-cd ../grounded1to8/langgraph-person3
+cd ../grounded1to8/workflow
 conda run -n hack python -m p3graph run --llm live --as-of 2026-01-01 --search evstore --tools --max-cards 1
 ```
 

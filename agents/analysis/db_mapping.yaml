@@ -1,6 +1,6 @@
 # ONE place that maps the agents' logical names to the real database names.
 # When the database owner sends the real schema, edit THIS file (and nothing else).
-# Defaults follow langgraph-person3/docs/DATABASE_SCHEMA.md.
+# Defaults follow docs/DATABASE_SCHEMA.md.
 #
 # tables.<logical>.table : the real table name       .date : the date column (rows on/after as_of are hidden)
 # tables.<logical>.columns : columns the agents may read (an allow-list; anything else is refused)

@@ -5,9 +5,9 @@ from urllib.parse import urlparse, parse_qs
 import argparse, base64, datetime, json, mimetypes, os, re, subprocess, threading, uuid
 
 ROOT = Path(__file__).resolve().parent
-_IN_REPO = ROOT.parent / 'langgraph-person3'  # frontier-ui inside the grounded1to8 repo
-_INSIDE = _IN_REPO.is_dir() and (ROOT.parent / 'agents').is_dir()  # the repo root holds agents/ and langgraph-person3/
-ENGINE = Path(os.environ.get('FRONTIER_ENGINE', _IN_REPO if _INSIDE else ROOT.parent / 'grounded1to8' / 'langgraph-person3')).expanduser().resolve()
+_IN_REPO = ROOT.parent / 'workflow'  # frontier-ui inside the repo
+_INSIDE = _IN_REPO.is_dir() and (ROOT.parent / 'agents').is_dir()  # the repo root holds agents/ and workflow/
+ENGINE = Path(os.environ.get('FRONTIER_ENGINE', _IN_REPO if _INSIDE else ROOT.parent / 'auctor' / 'workflow')).expanduser().resolve()
 RUNS = Path(os.environ.get('FRONTIER_RUNS', ENGINE / 'runs')).expanduser().resolve()
 JOBS = {}
 LOCK = threading.Lock()
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     import signal
     parser=argparse.ArgumentParser()
     parser.add_argument('--port',type=int,default=7880)
-    parser.add_argument('--engine',type=Path,default=ENGINE,help='Existing langgraph-person3 checkout')
+    parser.add_argument('--engine',type=Path,default=ENGINE,help='Existing workflow/ folder')
     parser.add_argument('--runs',type=Path,default=None,help='Existing workflow run directory to follow')
     parser.add_argument('--langflow-port',type=int,default=int(os.environ.get('LANGFLOW_PORT', 7870)),help='Langflow backend port')
     parser.add_argument('--no-backend',action='store_true',help='Do not start the database or Langflow')

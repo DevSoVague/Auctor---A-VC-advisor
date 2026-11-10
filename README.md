@@ -79,7 +79,7 @@ Cards are processed independently: one card's feedback, retries and verdict neve
 | **A6b Judge** | Rules on the red team's verdict without tools; its decision drives the routing | survives, revise or kill |
 | **A7 Citations** | Checks that cited sources support the claims, optionally after every agent | stripped or downgraded claims |
 
-The prompts are plain files in [`agents/prompts/`](agents/prompts). You can override them per workflow in [`langgraph-person3/prompts/`](langgraph-person3/prompts) or per node in Langflow.
+The prompts are plain files in [`agents/prompts/`](agents/prompts). You can override them per workflow in [`workflow/prompts/`](workflow/prompts) or per node in Langflow.
 
 ## Why you can trust the output
 
@@ -130,19 +130,19 @@ All three use the same agent code.
 |---|---|---|
 | **Langflow canvas** | Demos, the fastest runs (A3/A4/A5 in parallel), editing prompts and models per step | Open the **P3 steps** flow, set **P3 · Setup**, open **Playground**, send `run` |
 | **Auctor workspace** (`frontier-ui`) | Reading results: overview, hypothesis comparison, evidence library, scientific report (print to PDF), run history | `python3 frontier-ui/server.py --port 7881` |
-| **CLI / LangGraph Studio** | Scripted runs, tests, guided human review | `cd langgraph-person3 && conda run -n hack python -m p3graph run …` |
+| **CLI / LangGraph Studio** | Scripted runs, tests, guided human review | `cd workflow && conda run -n hack python -m p3graph run …` |
 
 **CLI examples**
 
 ```bash
-cd langgraph-person3
+cd workflow
 conda run -n hack python -m p3graph run                                   # stub: fixtures, 0 tokens
 conda run -n hack python -m p3graph run --llm live --search evstore \
     --tools --max-cards 1                                                 # live, one card, tools + judge
 conda run -n hack python -m pytest -q                                     # tests
 ```
 
-**Watching a run:** the **Node Monitor** at http://127.0.0.1:7872 (`python -m p3graph.live` from `langgraph-person3`) shows every step of every card live: prompts, streamed output, timers and errors.
+**Watching a run:** the **Node Monitor** at http://127.0.0.1:7872 (`python -m p3graph.live` from `workflow`) shows every step of every card live: prompts, streamed output, timers and errors.
 
 **Main Setup fields (Langflow):**
 
@@ -159,7 +159,7 @@ conda run -n hack python -m pytest -q                                     # test
 
 ## What a run produces
 
-Every run writes to `langgraph-person3/runs/<run_id>/`:
+Every run writes to `workflow/runs/<run_id>/`:
 
 | File | Contents |
 |---|---|
@@ -194,15 +194,15 @@ auctor/
 │   ├── analysis/           A0–A3, A6, A6b, A7; LLM layer, tool loop, retrieval, evidence-store tools
 │   ├── competitor/         A4 inactive assets and A5 active landscape
 │   └── prompts/            One system prompt per agent (markdown)
-├── langgraph-person3/      The workflow
+├── workflow/      The workflow
 │   ├── p3graph/            LangGraph state machine, CLI, report, Node Monitor (live.py / live.html)
 │   ├── langflow/           Langflow components and flows (A3/A4/A5 fork + join), launcher
 │   ├── prompts/            Workflow-level prompt overrides
-│   └── docs/               FSD, TSD, HOW_TO_RUN, schema, editing guide
 ├── evidence-store/         COPD evidence store: Postgres + pgvector in Docker
 │   ├── evstore/            Build, embed, extract and the as-of-bound StoreClient
 │   ├── sql/                Base schema + RAG and lookup tables
 │   └── data/               Embedding cache and database snapshot (Git LFS)
+├── docs/                 FSD, TSD, HOW_TO_RUN, schema, editing guide, graph diagram
 ├── frontier-ui/            Auctor workspace (no build step) and the one-command launcher
 ├── exports/                Excel workbook writer
 ├── scripts/                Plain async runner, model comparison, tool probe, fixtures
@@ -215,15 +215,14 @@ auctor/
 
 | Doc | Read it for |
 |---|---|
-| [HOW_TO_RUN.md](langgraph-person3/docs/HOW_TO_RUN.md) | Every way to run it, ports, the monitor and troubleshooting |
-| [FSD.md](langgraph-person3/docs/FSD.md) | What the system must do: requirements per agent, workflow rules, acceptance criteria |
-| [TSD.md](langgraph-person3/docs/TSD.md) | How it works inside: step chains, prompts, grading, parallel fork/join, account routing, report |
-| [DATABASE_SCHEMA.md](langgraph-person3/docs/DATABASE_SCHEMA.md) | The evidence-store tables |
-| [EDITING.md](langgraph-person3/docs/EDITING.md) | Changing prompts, models and nodes |
+| [HOW_TO_RUN.md](docs/HOW_TO_RUN.md) | Every way to run it, ports, the monitor and troubleshooting |
+| [FSD.md](docs/FSD.md) | What the system must do: requirements per agent, workflow rules, acceptance criteria |
+| [TSD.md](docs/TSD.md) | How it works inside: step chains, prompts, grading, parallel fork/join, account routing, report |
+| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) | The evidence-store tables |
+| [EDITING.md](docs/EDITING.md) | Changing prompts, models and nodes |
 | [evidence-store/README.md](evidence-store/README.md) | Building, restoring and querying the store |
 | [frontier-ui/README.md](frontier-ui/README.md) | The workspace UI |
 | [HANDOFF.md](HANDOFF.md) | Tool access rules, data window and open tasks |
-| [docs/PERSON3_HOOKS.md](docs/PERSON3_HOOKS.md) | The hook contract for plugging in external components |
 
 ## Status and known limits
 

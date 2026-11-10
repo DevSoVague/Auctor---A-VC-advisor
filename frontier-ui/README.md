@@ -26,7 +26,7 @@ Change the port with `python3 server.py --port 7881`.
 To follow another checkout running in parallel:
 
 ```bash
-python3 frontier-ui/server.py --engine db1to6merged/langgraph-person3
+python3 frontier-ui/server.py --engine /path/to/other/checkout/workflow
 # Or point the observer at a specific run directory:
 python3 frontier-ui/server.py --runs /absolute/path/to/runs
 ```

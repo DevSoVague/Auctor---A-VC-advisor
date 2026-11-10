@@ -1,5 +1,5 @@
 {
-  "_note": "SAMPLE rows in the generic schema (langgraph-person3/docs/DATABASE_SCHEMA.md). Not real data. Used only when DB_BACKEND=sample.",
+  "_note": "SAMPLE rows in the generic schema (docs/DATABASE_SCHEMA.md). Not real data. Used only when DB_BACKEND=sample.",
   "documents": [
     {"doc_id": "doc:s1", "source": "pubmed", "doc_type": "paper", "title": "Roflumilast reduces exacerbations in severe COPD", "url": null,
      "published_date": "2015-03-01", "full_text": "Roflumilast, an oral PDE4 inhibitor, reduced moderate to severe exacerbations in severe COPD with chronic bronchitis. GI intolerance and weight loss were common.", "metadata": {"pmid": "s1"}, "file_path": "files/pubmed/s1.pdf", "origin": "seed"},
